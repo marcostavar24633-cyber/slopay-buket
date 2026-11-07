@@ -195,7 +195,7 @@ function BgVideo({ still }: { still: boolean }) {
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
     if (still || saveData) return
-    const start = () => setSrc('/video/bg-food.mp4')
+    const start = () => setSrc('/video/bg-food.mp4?v=2')
     if (document.readyState === 'complete') start()
     else window.addEventListener('load', start, { once: true })
     return () => window.removeEventListener('load', start)

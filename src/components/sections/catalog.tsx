@@ -28,8 +28,8 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
   const { openOrder } = useUI()
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
-      <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`Открыть фото: ${item.title}`}>
-        <img src={item.thumb} alt={`${item.title} — ${item.desc}`} loading="lazy" width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+      <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`Открыть фото: ${item.name}`}>
+        <img src={item.thumb} alt={`«${item.name}» — ${item.desc}`} loading="lazy" width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         {hit && (
           <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-honey px-2.5 py-1 text-[11px] font-bold text-onaccent shadow-soft">
             <Flame className="h-3.5 w-3.5" /> Хит
@@ -37,8 +37,9 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
         )}
       </button>
       <div className="flex flex-1 flex-col p-3.5 md:p-4">
-        <p className="text-[11.5px] font-bold uppercase tracking-[0.1em] text-honey-600">{item.title}</p>
-        <p className="mt-1 text-[13.5px] leading-snug text-ink-soft">{item.desc}</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-honey-600">{item.title}</p>
+        <h3 className="mt-1 font-display text-[19px] font-semibold leading-tight md:text-[21px]">{item.name}</h3>
+        <p className="mt-1.5 text-[13.5px] leading-snug text-ink-soft">{item.desc}</p>
         <div className="mt-auto pt-3">
           <p className="text-[12px] font-semibold text-muted">примерная цена</p>
           <p className="text-[22px] font-extrabold leading-none tracking-tight">от {rub(item.price)}</p>
@@ -47,12 +48,12 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
               Заказать
             </Button>
             <a
-              href={maxLink(MSG.product(`${item.title}, ${item.id}`))}
+              href={maxLink(MSG.product(`«${item.name}» (${item.title})`))}
               target="_blank"
               rel="noopener"
               onClick={() => goal('max_click', { from: hit ? 'hit' : 'catalog', item: item.id })}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-max/10 text-max transition hover:bg-max hover:text-white"
-              aria-label={`Спросить в MAX: ${item.title}`}
+              aria-label={`Спросить в MAX: ${item.name}`}
             >
               <MaxIcon className="h-5 w-5" />
             </a>

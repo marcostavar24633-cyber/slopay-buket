@@ -103,7 +103,7 @@ export function Lightbox({
               </p>
               {cta && item && (
                 <p className="mt-1 text-[14px] leading-snug text-white">
-                  {item.desc} · <b className="text-[#f3d98a]">от {rub(item.price)}</b>
+                  <b className="font-display text-[17px]">«{item.name}»</b> — {item.desc} · <b className="text-[#f3d98a]">от {rub(item.price)}</b>
                 </p>
               )}
             </div>

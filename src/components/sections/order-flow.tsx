@@ -66,7 +66,7 @@ export function OrderSheet() {
       name,
       phone,
       contact,
-      product: `${item.title} (${item.id})`,
+      product: `«${item.name}», ${item.title} (${item.id})`,
       photo: location.origin + item.src,
       price: item.price,
       date: date === 'other' ? otherDate || 'другая' : date,
@@ -81,7 +81,7 @@ export function OrderSheet() {
     const chosen = Object.entries(extras).filter(([, q]) => q > 0)
     if (chosen.length) {
       goal('upsell_added', { items: chosen.length })
-      await submitLead({ source: 'upsell', phone, name, product: `${item.title} (${item.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
+      await submitLead({ source: 'upsell', phone, name, product: `«${item.name}», ${item.title} (${item.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
     }
     closeOrder()
     showThanks(name)
@@ -90,11 +90,12 @@ export function OrderSheet() {
   const extrasSum = Object.entries(extras).reduce((s, [id, q]) => s + (UPSELLS.find((u) => u.id === id)?.price ?? 0) * q, 0)
 
   return (
-    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: ${item.title}`}>
+    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: «${item.name}»`}>
       <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3 md:mt-6">
         <img src={item.thumb} alt="" className="h-16 w-16 rounded-xl object-cover" />
         <div className="min-w-0">
-          <p className="truncate font-display text-lg font-semibold leading-tight">{item.title}</p>
+          <p className="truncate font-display text-lg font-semibold leading-tight">{item.name}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-honey-600">{item.title}</p>
           <p className="line-clamp-2 text-[13px] leading-snug text-muted">{item.desc}</p>
         </div>
         <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight"><span className="block text-[11px] font-semibold text-muted">примерно</span>от {rub(item.price + extrasSum)}</p>
