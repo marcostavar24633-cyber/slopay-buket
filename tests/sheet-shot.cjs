@@ -1,0 +1,20 @@
+// Скриншот мобильной шторки заказа и квиза: node tests/sheet-shot.cjs <outDir>
+const { chromium, devices } = require('playwright')
+const out = process.argv[2]
+;(async () => {
+  const b = await chromium.launch()
+  const ctx = await b.newContext({ ...devices['iPhone 13'] })
+  await ctx.addInitScript(() => { try { sessionStorage.setItem('exit_shown', '1') } catch {} })
+  const page = await ctx.newPage()
+  await page.goto('http://localhost:4173/', { waitUntil: 'networkidle' })
+  await page.locator('#catalog article').nth(1).getByRole('button', { name: 'Заказать' }).click()
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: out + '/m-sheet.png' })
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => scrollTo(0, 0))
+  await page.locator('button:visible', { hasText: 'Подобрать за 1 минуту' }).first().click()
+  await page.waitForTimeout(700)
+  await page.screenshot({ path: out + '/m-quiz.png' })
+  await b.close()
+})()

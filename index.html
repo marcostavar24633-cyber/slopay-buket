@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Съедобные букеты в Ульяновске с доставкой от 2 часов — «Слопай букет»</title>
+    <meta name="description" content="Клубника в шоколаде, сырные и мясные букеты с доставкой по Ульяновску от 2 часов. Собираем из свежих продуктов в день доставки. От 2 990 ₽. Заказ в WhatsApp и Telegram." />
+    <meta name="theme-color" content="#0a0908" />
+    <script>
+      /* тема применяется до отрисовки — без вспышки; по умолчанию тёмная */
+      try {
+        if (localStorage.getItem('slopay-theme') === 'light') {
+          document.documentElement.dataset.theme = 'light'
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff1e6')
+        }
+      } catch (e) {}
+    </script>
+    <meta property="og:title" content="Слопай букет — съедобные букеты в Ульяновске" />
+    <meta property="og:description" content="Подарок, который не завянет, а будет съеден с удовольствием. Доставка от 2 часов." />
+    <meta property="og:image" content="/img/hero.webp" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍓</text></svg>" />
+    <link rel="preload" as="image" href="/img/hero.webp" fetchpriority="high" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"Florist","name":"Слопай букет","description":"Съедобные букеты с доставкой в Ульяновске","telephone":"+7-8422-50-70-90","priceRange":"2490–12990 ₽","address":{"@type":"PostalAddress","streetAddress":"пр-т Ленинского Комсомола, 38","addressLocality":"Ульяновск","addressCountry":"RU"},"openingHours":"Mo-Su 08:00-21:00","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"186"}}
+    </script>
+    <!-- Яндекс Метрика: вставьте счётчик, ID задаётся в src/lib/analytics.ts -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

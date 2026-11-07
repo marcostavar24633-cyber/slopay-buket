@@ -1,0 +1,257 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Playfair Display Variable", Georgia, "Times New Roman", serif;
+
+  /* Бренд-палитра: чёрный + металлическое золото + слоновая кость для текста */
+  --color-cream: #0a0908;        /* фон страницы */
+  --color-cream-2: #17140f;      /* приподнятая поверхность */
+  --color-surface: #12100c;      /* карточки */
+  --color-surface-2: #1d1913;
+  --color-panel: #070605;        /* глубокие панели */
+  --color-ink: #f4ecdc;          /* основной текст */
+  --color-ink-soft: #cbbfa8;
+  --color-muted: #948872;
+  --color-line: rgb(212 175 55 / 0.16);
+  --color-honey: #d4af37;        /* золото — единый акцент CTA */
+  --color-honey-600: #ebcb6e;    /* светлое золото: hover и текстовые акценты */
+  --color-honey-100: #1f190d;    /* золотистая подложка */
+  --color-onaccent: #0a0908;     /* текст на золоте */
+  --color-berry: #e2566c;
+  --color-graphite: #050504;
+  --color-graphite-2: #12100c;
+  --color-wa: #1a9e52;
+  --color-wa-600: #158645;
+  --color-tg: #229ed9;
+  --color-leaf: #9cc08f;
+  --color-scrim: #000000;        /* подложки-плашки поверх фото */
+  --color-bar: #000000;          /* сезонная полоса */
+  --color-bar-fg: #f4ecdc;
+  --color-bar-link: #ebcb6e;
+  --color-river: #16303d;
+  --color-river-fg: #8fb7d1;
+  --color-bgicon: #d4af37;       /* иконки живого фона */
+  --color-dust: #ebcb6e;
+
+  /* shadcn-совместимые токены */
+  --color-background: var(--color-cream);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-honey);
+  --color-primary-foreground: var(--color-onaccent);
+  --color-border: var(--color-line);
+  --color-ring: var(--color-honey-600);
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -10px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 0 0 1px rgb(212 175 55 / 0.1), 0 24px 56px -18px rgb(0 0 0 / 0.85), 0 0 40px -20px rgb(212 175 55 / 0.25);
+
+  --animate-marquee: marquee var(--duration, 40s) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear infinite;
+  --animate-shimmer-slide: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed, 3s) * 2) infinite linear;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% - var(--gap))); }
+  }
+  @keyframes marquee-vertical {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(-100% - var(--gap))); }
+  }
+  @keyframes shimmer-slide {
+    to { transform: translate(calc(100cqw - 100%), 0); }
+  }
+  @keyframes spin-around {
+    0% { transform: translateZ(0) rotate(0); }
+    15%, 35% { transform: translateZ(0) rotate(90deg); }
+    65%, 85% { transform: translateZ(0) rotate(270deg); }
+    100% { transform: translateZ(0) rotate(360deg); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(34 197 94 / 0.55); }
+    50% { box-shadow: 0 0 0 6px rgb(34 197 94 / 0); }
+  }
+  @keyframes spotlight {
+    0% { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+  }
+}
+
+:root {
+  color-scheme: dark;
+  --vignette: rgb(0 0 0 / 0.55);
+  --aurora-1: rgb(212 175 55 / 0.14);
+  --aurora-2: rgb(180 120 40 / 0.12);
+  --icon-glow: rgb(212 175 55 / 0.55);
+}
+
+/* ───────── Светлая тема: персик · золото · красный ───────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-cream: #fff1e6;
+  --color-cream-2: #ffe2cf;
+  --color-surface: #fffaf6;
+  --color-surface-2: #fff0e3;
+  --color-panel: #ffe6d6;
+  --color-ink: #3b120e;
+  --color-ink-soft: #6e362c;
+  --color-muted: #9b6a5c;
+  --color-line: rgb(192 57 43 / 0.16);
+  --color-honey: #d19a2a;
+  --color-honey-600: #b8262c;     /* в светлой теме текстовые акценты — красные */
+  --color-honey-100: #ffe0c2;
+  --color-onaccent: #2b0d09;
+  --color-berry: #c62f3a;
+  --color-graphite: #4a0f0d;      /* тёмные блоки — винно-красные */
+  --color-graphite-2: #5c1714;
+  --color-leaf: #4f7a45;
+  --color-scrim: #fffaf6;
+  --color-bar: #b8262c;
+  --color-bar-fg: #fff3e8;
+  --color-bar-link: #ffd98a;
+  --color-river: #bfe0ef;
+  --color-river-fg: #2f6c8c;
+  --color-bgicon: #c0392b;
+  --color-dust: #d19a2a;
+  --shadow-soft: 0 1px 2px rgb(120 40 20 / 0.06), 0 8px 24px -10px rgb(150 50 30 / 0.18);
+  --shadow-lift: 0 0 0 1px rgb(192 57 43 / 0.08), 0 24px 56px -18px rgb(150 50 30 / 0.35), 0 0 40px -20px rgb(209 154 42 / 0.35);
+  --vignette: rgb(255 214 190 / 0.5);
+  --aurora-1: rgb(255 170 120 / 0.35);
+  --aurora-2: rgb(209 154 42 / 0.22);
+  --icon-glow: rgb(192 57 43 / 0.35);
+}
+:root[data-theme="light"] .text-gold {
+  background-image: linear-gradient(100deg, #a3161f 0%, #d64535 25%, #d19a2a 55%, #c0392b 80%, #a3161f 100%);
+  background-size: 200% auto;
+}
+:root[data-theme="light"] .on-dark .text-gold {
+  background-image: linear-gradient(100deg, #c99a2e 0%, #ffe3a1 30%, #e8b04a 55%, #ffd98a 80%, #c99a2e 100%);
+}
+:root[data-theme="light"] .bg-gold {
+  background-image: linear-gradient(135deg, #ffd9a0 0%, #e8b04a 38%, #d19a2a 62%, #f3c977 100%);
+}
+:root[data-theme="light"] .grain {
+  background-image: radial-gradient(rgb(192 57 43 / 0.05) 1px, transparent 1px);
+}
+:root[data-theme="light"] .text-green-400 { color: #15803d; }
+:root[data-theme="light"] .text-green-300 { color: #166534; }
+:root[data-theme="light"] ::selection { background: rgb(198 47 58 / 0.25); color: #3b120e; }
+
+/* Анимация смены темы: круг раскрывается от переключателя (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: theme-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes theme-reveal {
+  from { clip-path: circle(0 at var(--tx, 100%) var(--ty, 0%)); }
+  to { clip-path: circle(150vmax at var(--tx, 100%) var(--ty, 0%)); }
+}
+
+::selection { background: rgb(212 175 55 / 0.35); color: #fff; }
+
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-cream);
+  transition: background-color 0.3s ease;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  @media (min-width: 768px) {
+    .container-x { padding-inline: 32px; }
+  }
+  .h-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+  }
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-honey-600);
+  }
+  /* металлическое золото */
+  .bg-gold {
+    background-image: linear-gradient(135deg, #f7e2a1 0%, #d4af37 38%, #b38a24 62%, #ecd083 100%);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    transition: background-position 0.6s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .bg-gold:hover { background-position: 100% 50%; }
+  .text-gold {
+    background-image: linear-gradient(100deg, #b8902b 0%, #f7e2a1 30%, #d4af37 55%, #f3d98a 80%, #b8902b 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gold-shine 6s linear infinite;
+    padding-right: 0.06em;
+  }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .grain {
+    background-image: radial-gradient(rgb(212 175 55 / 0.05) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+/* Отступ под липкую мобильную панель */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+}
+
+@keyframes acc-down { from { height: 0 } to { height: var(--radix-accordion-content-height) } }
+@keyframes acc-up { from { height: var(--radix-accordion-content-height) } to { height: 0 } }
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pop-in { from { opacity: 0; transform: translate(-50%, -46%) scale(.96) } to { opacity: 1; transform: translate(-50%, -50%) scale(1) } }
+@keyframes slide-in { from { transform: translateX(100%) } to { transform: translateX(0) } }
+@keyframes kenburns { from { transform: scale(1.04) } to { transform: scale(1.12) translate(-1%, -1%) } }
+
+@keyframes gold-shine { to { background-position: 200% center } }
+@keyframes bg-float {
+  from { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  to { transform: translate3d(6px, -22px, 0) rotate(calc(var(--r, 0deg) + 8deg)); }
+}
+@keyframes aurora {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(8vw, 6vh, 0) scale(1.15); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  50% { opacity: 0.85; transform: scale(1); }
+}
