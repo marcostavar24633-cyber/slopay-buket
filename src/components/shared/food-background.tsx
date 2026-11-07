@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from 'motion/react'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
@@ -183,6 +183,45 @@ function Layer({
   )
 }
 
+/**
+ * Фоновое видео: слайды свежих продуктов (мясо, раки, ягоды, фрукты, сыры, сухофрукты).
+ * Грузится после загрузки страницы, чтобы не тормозить первый экран.
+ * При «уменьшить движение» и режиме экономии трафика — только статичный кадр.
+ * Затемнение — переменная --video-scrim (своя для тёмной и светлой темы).
+ */
+function BgVideo({ still }: { still: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [src, setSrc] = useState<string | null>(null)
+  useEffect(() => {
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+    if (still || saveData) return
+    const start = () => setSrc('/video/bg-food.mp4')
+    if (document.readyState === 'complete') start()
+    else window.addEventListener('load', start, { once: true })
+    return () => window.removeEventListener('load', start)
+  }, [still])
+  useEffect(() => {
+    if (src) ref.current?.play().catch(() => {})
+  }, [src])
+  return (
+    <>
+      <video
+        ref={ref}
+        className="absolute inset-0 h-full w-full object-cover"
+        poster="/video/bg-food-poster.webp"
+        src={src ?? undefined}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="none"
+        disablePictureInPicture
+      />
+      <div className="absolute inset-0 bg-[var(--video-scrim)]" />
+    </>
+  )
+}
+
 export function FoodBackground() {
   const reduce = useReducedMotion() ?? false
   const mobile = useMediaQuery('(max-width: 767px)')
@@ -211,6 +250,7 @@ export function FoodBackground() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <BgVideo still={reduce} />
       {/* сияние */}
       <motion.div className="absolute inset-0" style={{ y: glowY }}>
         <div className="absolute -left-[10%] top-[5%] h-[55vmax] w-[55vmax] rounded-full bg-[radial-gradient(circle,var(--aurora-1),transparent_62%)] [animation:aurora_22s_ease-in-out_infinite_alternate]" />

@@ -88,6 +88,7 @@
 :root {
   color-scheme: dark;
   --vignette: rgb(0 0 0 / 0.55);
+  --video-scrim: rgb(8 7 6 / 0.8);
   --aurora-1: rgb(212 175 55 / 0.14);
   --aurora-2: rgb(180 120 40 / 0.12);
   --icon-glow: rgb(212 175 55 / 0.55);
@@ -124,6 +125,7 @@
   --shadow-soft: 0 1px 2px rgb(120 40 20 / 0.06), 0 8px 24px -10px rgb(150 50 30 / 0.18);
   --shadow-lift: 0 0 0 1px rgb(192 57 43 / 0.08), 0 24px 56px -18px rgb(150 50 30 / 0.35), 0 0 40px -20px rgb(209 154 42 / 0.35);
   --vignette: rgb(255 214 190 / 0.5);
+  --video-scrim: rgb(255 241 230 / 0.88);
   --aurora-1: rgb(255 170 120 / 0.35);
   --aurora-2: rgb(209 154 42 / 0.22);
   --icon-glow: rgb(192 57 43 / 0.35);
