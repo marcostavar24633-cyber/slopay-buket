@@ -46,3 +46,13 @@ npm run test:unit      # маска телефона
 - Сезонная полоса над шапкой и вкладка «🎄 Новый год» — `SeasonBar` в `header.tsx`, `RECIPIENT_TABS` в `products.ts`.
 - В ноябре–декабре `<Corporate/>` можно поднять сразу после `<Catalog/>` в `App.tsx`.
 - Время «до 17:00» считается по Ульяновску (UTC+4), независимо от пояса посетителя.
+
+## Свои фото
+
+```bash
+npm run photos -- "C:\Users\Имя\Desktop\Букеты"
+```
+
+Скрипт берёт все JPG/PNG/WebP из папки (включая подпапки), поворачивает по EXIF, уменьшает до 1200 px,
+сжимает в WebP и кладёт в `public/img/real/` с латинскими именами + `manifest.json` со списком путей.
+Дальше путь вида `/img/real/klubnichnyy-buket.webp` вставляется в `src/lib/products.ts` (поля `image` и `inHands`).
