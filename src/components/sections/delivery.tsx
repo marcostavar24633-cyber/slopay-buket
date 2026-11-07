@@ -194,8 +194,7 @@ function CityScheme() {
       {/* Заволжье */}
       <path d="M320 0h200v400H320c10-70-30-130-20-200S340 70 320 0z" className="fill-honey" fillOpacity=".07" />
       <circle cx="430" cy="150" r="72" className="fill-honey stroke-honey" fillOpacity=".16" strokeOpacity=".5" strokeDasharray="4 6" />
-      <circle cx="430" cy="150" r="8" className="fill-honey" />
-      <text x="430" y="135" fontSize="22" textAnchor="middle">🍓</text>
+      <image href="/logo-256.webp" x="408" y="118" width="44" height="44" />
       <text x="430" y="182" fontSize="12" fontWeight="800" className="fill-ink" textAnchor="middle">Мастерская</text>
       <text x="430" y="242" fontSize="13" fontWeight="700" className="fill-honey-600" textAnchor="middle">Новый город</text>
       <text x="425" y="300" fontSize="12" fontWeight="700" className="fill-honey-600" textAnchor="middle">Верхняя Терраса</text>

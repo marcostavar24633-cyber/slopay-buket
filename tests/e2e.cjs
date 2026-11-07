@@ -305,7 +305,7 @@ async function test(name, fn) {
       await page.getByRole('heading', { level: 1, name: t }).waitFor()
       assert.ok((await page.content()).includes('ИНН'))
     }
-    for (const f of ['robots.txt', 'sitemap.xml', 'og-image.jpg', 'favicon.svg']) assert.ok((await page.request.get(URL + f)).ok(), f)
+    for (const f of ['robots.txt', 'sitemap.xml', 'og-image.jpg', 'favicon-64.png', 'apple-touch-icon.png', 'logo-256.webp']) assert.ok((await page.request.get(URL + f)).ok(), f)
     await page.goto(URL, { waitUntil: 'domcontentloaded' })
     assert.match(await page.locator('meta[property="og:image"]').getAttribute('content'), /^https:\/\/.+\/og-image\.jpg$/)
     await ctx.close()
