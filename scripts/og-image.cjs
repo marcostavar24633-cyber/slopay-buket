@@ -5,7 +5,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const root = path.resolve(__dirname, '..')
-const photo = process.argv[2] || 'img/real/sea/m-5.webp'
+const photo = process.argv[2] || 'img/real/berry/hero-heart.webp'
 const b64 = (p) => fs.readFileSync(path.join(root, p)).toString('base64')
 const font = (pkg, file) => b64(`node_modules/@fontsource-variable/${pkg}/files/${file}`)
 
