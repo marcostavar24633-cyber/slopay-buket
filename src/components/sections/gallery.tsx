@@ -3,11 +3,13 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { SectionTitle } from '@/components/shared/section-title'
-import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { MaxIcon } from '@/components/shared/icons'
 import { CAT_LABEL, GALLERY, GALLERY_CATS, type GalleryCat, type GalleryPhoto } from '@/lib/gallery'
 import { maxLink } from '@/lib/config'
+import { itemBySrc } from '@/lib/products'
+import { useUI } from '@/lib/ui-store'
+import { rub } from '@/lib/utils'
 import { goal } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
@@ -63,7 +65,7 @@ export function Gallery() {
 
         <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:gap-2 lg:grid-cols-8">
           {visible.map((p, i) => (
-            <BlurFade key={p.src} delay={(i % 8) * 0.03} y={8}>
+            <div key={p.src}>
               <button
                 onClick={() => {
                   setOpen(i)
@@ -76,7 +78,7 @@ export function Gallery() {
                 <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
                 <Expand className="absolute right-1.5 top-1.5 h-6 w-6 rounded-full bg-scrim/70 p-1.5 text-ink opacity-0 transition group-hover:opacity-100" />
               </button>
-            </BlurFade>
+            </div>
           ))}
         </div>
 
@@ -91,58 +93,6 @@ export function Gallery() {
 
       <Lightbox list={list} index={open} onIndex={setOpen} />
     </section>
-  )
-}
-
-/** Все работы одной категории — открывается из карточки каталога. */
-export function CategoryDialog({ cat, onClose }: { cat: GalleryCat | null; onClose: () => void }) {
-  const [open, setOpen] = useState<number | null>(null)
-  const list = useMemo(() => (cat ? GALLERY.filter((p) => p.cat === cat) : []), [cat])
-  const title = GALLERY_CATS.find((c) => c.key === cat)?.label ?? ''
-  return (
-    <>
-      <DialogPrimitive.Root open={!!cat} onOpenChange={(v) => !v && onClose()}>
-        <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[85] bg-black/70 backdrop-blur-sm data-[state=open]:animate-[fade-in_200ms_ease-out]" />
-          <DialogPrimitive.Content
-            aria-describedby={undefined}
-            className="fixed inset-x-0 bottom-0 top-[6dvh] z-[86] flex flex-col overflow-hidden rounded-t-3xl bg-cream shadow-lift outline-none data-[state=open]:animate-[slide-in_260ms_ease-out] md:inset-x-auto md:left-1/2 md:top-1/2 md:bottom-auto md:max-h-[88dvh] md:w-[min(1100px,calc(100%-48px))] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-3xl"
-          >
-            <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4 md:px-7">
-              <div>
-                <DialogPrimitive.Title className="font-display text-[22px] font-semibold leading-tight md:text-[26px]">{title}</DialogPrimitive.Title>
-                <p className="text-[13px] text-muted">{list.length} работ мастерской · нажмите на фото, чтобы увеличить</p>
-              </div>
-              <DialogPrimitive.Close className="grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-surface text-ink shadow-soft hover:bg-cream-2" aria-label="Закрыть">
-                <X className="h-5 w-5" />
-              </DialogPrimitive.Close>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 md:p-5">
-              <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:gap-2 lg:grid-cols-6">
-                {list.map((p, i) => (
-                  <button
-                    key={p.src}
-                    onClick={() => setOpen(i)}
-                    className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden rounded-xl bg-surface ring-1 ring-line"
-                    aria-label={`Открыть фото №${i + 1}`}
-                  >
-                    <img src={p.thumb} alt={`${CAT_LABEL[p.cat]} — работа мастерской`} loading="lazy" decoding="async" width={220} height={220} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-line p-3 md:px-7">
-              <Button variant="max" className="w-full md:w-auto" asChild>
-                <a href={maxLink()} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'category', cat })}>
-                  <MaxIcon className="h-5 w-5" /> Обсудить заказ в MAX
-                </a>
-              </Button>
-            </div>
-          </DialogPrimitive.Content>
-        </DialogPrimitive.Portal>
-      </DialogPrimitive.Root>
-      <Lightbox list={list} index={open} onIndex={setOpen} />
-    </>
   )
 }
 
@@ -179,8 +129,9 @@ export function Lightbox({
     return () => window.removeEventListener('keydown', on)
   }, [index, go])
 
+  const { openOrder } = useUI()
   const p = index !== null ? list[index] : null
-  const num = isPhoto(p) ? GALLERY.indexOf(p) + 1 : null
+  const item = isPhoto(p) ? itemBySrc(p.src) : undefined
 
   return (
     <DialogPrimitive.Root open={index !== null} onOpenChange={(v) => !v && onIndex(null)}>
@@ -227,21 +178,33 @@ export function Lightbox({
             )}
           </div>
           <div className="mt-4 flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 text-white">
-            <p className="text-sm text-white/70">
-              {index !== null && `${index + 1} / ${list.length}`}
-              {isPhoto(p) && ` · ${CAT_LABEL[p.cat]}`}
-            </p>
-            {cta && isPhoto(p) && (
-              <Button variant="max" asChild>
-                <a
-                  href={maxLink(`Здравствуйте! Хочу такой же: ${CAT_LABEL[p.cat]}, фото №${num} (${location.origin}${p.src}). Сколько будет стоить?`)}
-                  target="_blank"
-                  rel="noopener"
-                  onClick={() => goal('max_click', { from: 'gallery', src: p.src })}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-white/70">
+                {index !== null && `${index + 1} / ${list.length}`}
+                {isPhoto(p) && ` · ${CAT_LABEL[p.cat]}`}
+              </p>
+              {cta && item && (
+                <p className="mt-1 text-[14px] leading-snug text-white">
+                  {item.desc} · <b className="text-[#f3d98a]">от {rub(item.price)}</b>
+                </p>
+              )}
+            </div>
+            {cta && item && (
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  onClick={() => {
+                    onIndex(null)
+                    setTimeout(() => openOrder(item), 150)
+                  }}
                 >
-                  <MaxIcon className="h-5 w-5" /> Хочу такой — узнать цену
-                </a>
-              </Button>
+                  Заказать
+                </Button>
+                <Button variant="max" asChild>
+                  <a href={maxLink()} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'lightbox', src: item.src })} aria-label="Спросить в MAX">
+                    <MaxIcon className="h-5 w-5" /> MAX
+                  </a>
+                </Button>
+              </div>
             )}
           </div>
           <DialogPrimitive.Close className="absolute right-3 top-3 grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-black/60 text-white ring-1 ring-white/20 hover:bg-black/80" aria-label="Закрыть">

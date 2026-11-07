@@ -1,15 +1,11 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
-import type { Product, Size } from './products'
+import type { Item } from './products'
 import { goal } from './analytics'
 
-interface OrderTarget {
-  product: Product
-  size: Size
-}
 
 interface UIState {
-  order: OrderTarget | null
-  openOrder: (product: Product, size: Size) => void
+  order: Item | null
+  openOrder: (item: Item) => void
   closeOrder: () => void
   quizOpen: boolean
   setQuizOpen: (v: boolean) => void
@@ -23,14 +19,14 @@ interface UIState {
 const Ctx = createContext<UIState | null>(null)
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
-  const [order, setOrder] = useState<OrderTarget | null>(null)
+  const [order, setOrder] = useState<Item | null>(null)
   const [quizOpen, setQuizOpenRaw] = useState(false)
   const [thanks, setThanks] = useState<{ name?: string } | null>(null)
   const [converted, setConverted] = useState(false)
 
-  const openOrder = useCallback((product: Product, size: Size) => {
-    goal('order_open', { product: product.name, size: size.key })
-    setOrder({ product, size })
+  const openOrder = useCallback((item: Item) => {
+    goal('order_open', { item: item.id })
+    setOrder(item)
   }, [])
   const closeOrder = useCallback(() => setOrder(null), [])
   const setQuizOpen = useCallback((v: boolean) => {

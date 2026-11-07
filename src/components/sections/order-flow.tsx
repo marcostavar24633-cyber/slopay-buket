@@ -10,7 +10,7 @@ import { Consent } from '@/components/shared/consent'
 import { InstagramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
-import { UPSELLS, productTitle } from '@/lib/products'
+import { UPSELLS } from '@/lib/products'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
@@ -52,7 +52,7 @@ export function OrderSheet() {
   }, [order])
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
-  const { product, size } = order
+  const item = order
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,9 +66,9 @@ export function OrderSheet() {
       name,
       phone,
       contact,
-      product: `${productTitle(product)} (${product.id})`,
-      size: size.key,
-      price: size.price,
+      product: `${item.title} (${item.id})`,
+      photo: location.origin + item.src,
+      price: item.price,
       date: date === 'other' ? otherDate || 'другая' : date,
       card: card ? cardText || 'да' : 'нет',
     })
@@ -81,7 +81,7 @@ export function OrderSheet() {
     const chosen = Object.entries(extras).filter(([, q]) => q > 0)
     if (chosen.length) {
       goal('upsell_added', { items: chosen.length })
-      await submitLead({ source: 'upsell', phone, name, product: `${productTitle(product)} (${product.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
+      await submitLead({ source: 'upsell', phone, name, product: `${item.title} (${item.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
     }
     closeOrder()
     showThanks(name)
@@ -90,16 +90,14 @@ export function OrderSheet() {
   const extrasSum = Object.entries(extras).reduce((s, [id, q]) => s + (UPSELLS.find((u) => u.id === id)?.price ?? 0) * q, 0)
 
   return (
-    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: ${productTitle(product)}`}>
+    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: ${item.title}`}>
       <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3 md:mt-6">
-        <img src={product.image} alt="" className="h-16 w-16 rounded-xl object-cover" />
+        <img src={item.thumb} alt="" className="h-16 w-16 rounded-xl object-cover" />
         <div className="min-w-0">
-          <p className="truncate font-display text-lg font-semibold leading-tight">{productTitle(product)}</p>
-          <p className="text-[13px] text-muted">
-            Размер {size.key} · {size.note}
-          </p>
+          <p className="truncate font-display text-lg font-semibold leading-tight">{item.title}</p>
+          <p className="line-clamp-2 text-[13px] leading-snug text-muted">{item.desc}</p>
         </div>
-        <p className="ml-auto shrink-0 text-lg font-extrabold">{rub(size.price + extrasSum)}</p>
+        <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight"><span className="block text-[11px] font-semibold text-muted">примерно</span>от {rub(item.price + extrasSum)}</p>
       </div>
 
       {step === 'form' ? (

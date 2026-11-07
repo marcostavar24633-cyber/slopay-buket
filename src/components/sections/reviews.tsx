@@ -122,12 +122,12 @@ export function Reviews() {
         <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Наши букеты</p>
         <Marquee duration="60s">
           {WALL.map((src, i) => (
-            <img key={i} src={src} alt="" loading="lazy" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />
+            <img key={i} src={src} alt="" loading="eager" decoding="async" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />
           ))}
         </Marquee>
         <Marquee duration="70s" reverse className="mt-4">
           {WALL2.map((src, i) => (
-            <img key={i} src={src} alt="" loading="lazy" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
+            <img key={i} src={src} alt="" loading="eager" decoding="async" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
           ))}
         </Marquee>
       </div>
