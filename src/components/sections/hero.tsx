@@ -123,11 +123,11 @@ export function Hero() {
             className="relative mx-auto aspect-[4/5] h-[44svh] max-h-[640px] min-h-[300px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]"
           >
             <img
-              src="/img/real/berry/yag-14.webp"
-              alt="Клубника с голубикой и тюльпанами в шляпной коробке — работа мастерской"
+              src="/img/real/sea/m-5.webp"
+              alt="«Сокровища моря»: сундук с раками, крабовыми фалангами, креветками и лимоном — работа мастерской"
               className="h-full w-full scale-105 object-cover animate-[kenburns_18s_ease-in-out_infinite_alternate]"
               fetchPriority="high"
-              width={1100}
+              width={826}
               height={1100}
             />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
@@ -139,7 +139,7 @@ export function Hero() {
                 </p>
               </div>
               <div className="hidden rounded-2xl bg-scrim/85 px-3.5 py-2.5 text-[12px] font-semibold text-ink backdrop-blur sm:block">
-                «Клубника в шляпной коробке» · от 3 490 ₽
+                «Сокровища моря» · от 10 990 ₽
               </div>
             </div>
           </motion.div>
