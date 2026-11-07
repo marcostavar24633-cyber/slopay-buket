@@ -48,6 +48,13 @@ npm run build      # готовый сайт — в папке dist/
 
 `dist/` — обычные статические файлы: главная, `privacy/`, `oferta/`, `robots.txt`, `sitemap.xml`, `og-image.jpg`, видео и фото. Подходит любой хостинг статики (Timeweb, Beget, Reg.ru, Vercel, Netlify). Включите HTTPS (бесплатный сертификат Let's Encrypt есть у всех перечисленных).
 
+### GitHub Pages (бесплатно)
+
+Файл `.github/workflows/pages.yml` сам собирает и публикует сайт при каждом сохранении в `main`.
+Включить один раз: репозиторий → **Settings → Pages → Source: GitHub Actions**. Адрес: `https://<логин>.github.io/<репозиторий>/`.
+Пути к фото и видео подстраиваются под подпапку автоматически (плагин `basePaths` в `vite.config.ts`).
+Pages на бесплатном тарифе работает только для публичных репозиториев.
+
 Картинка для превью ссылок пересобирается командой `node scripts/og-image.cjs [фото]`.
 
 ## Скрытые фото

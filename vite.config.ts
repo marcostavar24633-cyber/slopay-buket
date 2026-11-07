@@ -4,8 +4,33 @@ import tailwindcss from '@tailwindcss/vite'
 import fs from 'node:fs'
 import path from 'node:path'
 
-/** Адрес сайта берём из src/lib/config.ts (SITE.url), чтобы не дублировать. */
-const SITE_URL = (fs.readFileSync(path.resolve(__dirname, 'src/lib/config.ts'), 'utf8').match(/url:\s*'([^']+)'/)?.[1] ?? 'https://example.ru').replace(/\/$/, '')
+/**
+ * Адрес сайта: переменная окружения SITE_URL (её задаёт сборка для GitHub Pages),
+ * иначе — SITE.url из src/lib/config.ts.
+ */
+const SITE_URL = (
+  process.env.SITE_URL ||
+  (fs.readFileSync(path.resolve(__dirname, 'src/lib/config.ts'), 'utf8').match(/url:\s*'([^']+)'/)?.[1] ?? 'https://example.ru')
+).replace(/\/$/, '')
+
+/** Папки и файлы из public/, на которые код ссылается от корня: '/img/…', '/video/…' и т. п. */
+const PUBLIC_ROOTS = 'img|video|logo-256\\.webp|favicon-64\\.png|apple-touch-icon\\.png|og-image\\.jpg|corporate-catalog\\.pdf|privacy/|oferta/'
+
+/**
+ * Сайт может жить не в корне домена (GitHub Pages: /slopay-buket/).
+ * Плагин дописывает base к путям '/img/…' в коде и в HTML, чтобы ничего не переписывать руками.
+ */
+function basePaths(): Plugin {
+  let base = '/'
+  const re = new RegExp(`(["'\`(])/(?=(${PUBLIC_ROOTS}))`, 'g')
+  const fix = (code: string) => (base === '/' ? code : code.replace(re, `$1${base}`))
+  return {
+    name: 'slopay-base-paths',
+    configResolved: (c) => void (base = c.base),
+    transform: (code, id) => (/\/src\/.+\.(tsx?|jsx?)$/.test(id) ? { code: fix(code), map: null } : null),
+    transformIndexHtml: { order: 'post', handler: (html) => fix(html).replace(/href:"\/"|href="\/"/g, (m) => m.replace('/', base)) },
+  }
+}
 
 /** Подставляет абсолютный адрес в мета-теги и кладёт в сборку robots.txt и sitemap.xml. */
 function seo(): Plugin {
@@ -28,7 +53,7 @@ function seo(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), seo()],
+  plugins: [react(), tailwindcss(), seo(), basePaths()],
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   build: {
     rollupOptions: {

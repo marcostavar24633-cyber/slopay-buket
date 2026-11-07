@@ -165,10 +165,10 @@ function LegalPage() {
     <div className="min-h-screen">
       <header className="border-b border-line bg-bar/90">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
-          <a href="/" className="flex items-center gap-2.5 font-display text-[19px] font-bold italic">
+          <a href={import.meta.env.BASE_URL} className="flex items-center gap-2.5 font-display text-[19px] font-bold italic">
             <img src="/logo-256.webp" alt="" width={40} height={40} className="h-10 w-10 rounded-full" /> Слопай букет
           </a>
-          <a href="/" className="text-[14px] font-bold text-honey-600 underline underline-offset-4">
+          <a href={import.meta.env.BASE_URL} className="text-[14px] font-bold text-honey-600 underline underline-offset-4">
             ← На главную
           </a>
         </div>
