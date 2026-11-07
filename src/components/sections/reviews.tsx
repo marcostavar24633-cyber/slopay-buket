@@ -14,8 +14,8 @@ import { Lightbox } from '@/components/sections/gallery'
 /** Только проверяемые цифры: Авито (скриншот рейтинга) и галерея работ. */
 const STATS = [
   { v: 5, dec: 1, suffix: '', label: `средняя оценка на ${SITE.reviewsSource}`, star: true },
-  { v: SITE.reviewsCount, suffix: '', label: 'оценок покупателей — все пятёрки' },
-  { v: Math.floor(GALLERY.length / 10) * 10, suffix: '+', label: 'работ в галерее на сайте' },
+  { v: 100, suffix: '%', label: 'оценок покупателей — пятёрки' },
+  { v: Math.floor(GALLERY.length / 10) * 10, suffix: '+', label: 'работ в каталоге на сайте' },
   { text: `с ${SITE.sinceYear}`, label: 'собираем букеты в Ульяновске' },
 ]
 
@@ -44,7 +44,7 @@ export function Reviews() {
               За этими эмоциями <span className="italic text-gold">заказывают у нас</span>
             </>
           }
-          sub={`${SITE.reviewsCount} оценок на ${SITE.reviewsSource}, все — на 5 звёзд. Ниже — настоящие отзывы, без правок.`}
+          sub={`Все оценки на ${SITE.reviewsSource} — 5 звёзд. Ниже — настоящие отзывы, без правок.`}
         />
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
@@ -108,7 +108,7 @@ export function Reviews() {
                   ))}
                 </span>
               </p>
-              <p className="mt-2 text-[14px] text-ink/70">на основании {SITE.reviewsCount} оценок · «Сделка состоялась»</p>
+              <p className="mt-2 text-[14px] text-ink/70">все оценки — пятёрки · «Сделка состоялась»</p>
               <p className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-bold text-honey">
                 Все отзывы на {SITE.reviewsSource} <ExternalLink className="h-4 w-4" />
               </p>
@@ -151,7 +151,7 @@ function AvitoShots() {
     <div className="mt-10 md:mt-14">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <p className="text-[15px] font-bold">
-          Настоящие отзывы с Авито <span className="font-semibold text-muted">· 5,0 ★ по 55 оценкам · скриншоты без правок</span>
+          Настоящие отзывы с Авито <span className="font-semibold text-muted">· 5,0 ★ · скриншоты без правок</span>
         </p>
         <p className="text-[13px] text-muted">Нажмите, чтобы прочитать целиком</p>
       </div>

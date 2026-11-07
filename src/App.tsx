@@ -3,7 +3,6 @@ import { FoodBackground } from '@/components/shared/food-background'
 import { Header, MobileBar, SeasonBar } from '@/components/sections/header'
 import { Hero } from '@/components/sections/hero'
 import { Catalog, Hits } from '@/components/sections/catalog'
-import { Gallery } from '@/components/sections/gallery'
 import { OrderSheet, ThanksDialog } from '@/components/sections/order-flow'
 import { Why } from '@/components/sections/why'
 import { QuizDialog, QuizSection } from '@/components/sections/quiz'
@@ -29,7 +28,6 @@ export default function App() {
         <Hero />
         <Hits />
           <Catalog />
-        <Gallery />
         {/* Сезон (ноябрь–декабрь): B2B-блок поднят сразу после каталога. После праздников верните его ниже <Delivery/>. */}
         <Corporate />
         <Why />

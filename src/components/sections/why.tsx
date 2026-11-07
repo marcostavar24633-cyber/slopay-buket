@@ -78,7 +78,7 @@ export function Why() {
           eyebrow="Почему «Слопай букет»"
           title={
             <>
-              {SITE.reviewsCount} оценок на {SITE.reviewsSource} — и все на 5 звёзд. <span className="italic text-gold">Вот почему</span>
+              Все оценки на {SITE.reviewsSource} — 5 звёзд. <span className="italic text-gold">Вот почему</span>
             </>
           }
         />

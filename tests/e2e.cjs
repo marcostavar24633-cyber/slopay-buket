@@ -213,23 +213,12 @@ async function test(name, fn) {
     }
   })
 
-  await test('Галерея: вкладка «Раки» → 36 фото, просмотр, листание, MAX с номером фото', async () => {
+  await test('Нет раздела «Наши работы» и числа 55 в оценках', async () => {
     const { ctx, page } = await mobile()
-    const g = page.locator('#gallery')
-    await g.getByRole('tab', { name: /Раки и морепродукты/ }).click()
-    await g.getByRole('button', { name: /Показать ещё 12 фото/ }).click()
-    assert.equal(await g.locator('button[aria-label^="Открыть фото"]').count(), 36)
-    await g.locator('button[aria-label^="Открыть фото"]').first().click()
-    const dlg = page.getByRole('dialog')
-    await dlg.getByText('1 / 36').waitFor()
-    await dlg.getByRole('button', { name: 'Следующее фото' }).click()
-    await dlg.getByText('2 / 36').waitFor()
-    await page.keyboard.press('ArrowLeft')
-    await dlg.getByText('1 / 36').waitFor()
-    assert.match(await dlg.getByRole('link', { name: 'Спросить в MAX' }).getAttribute('href'), /^https:\/\/max\.ru\//)
-    await dlg.getByText('· Букет из раков').waitFor()
-    await dlg.getByRole('button', { name: 'Заказать' }).click()
-    await page.getByText('Заказ: Букет из раков').first().waitFor()
+    assert.equal(await page.locator('#gallery').count(), 0)
+    const text = await page.evaluate(() => document.body.innerText)
+    assert.ok(!/55 оцен|по 55/.test(text), 'найдено 55')
+    assert.ok(!text.includes('Наши работы'))
     await ctx.close()
   })
 
@@ -270,7 +259,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.innerText)
     for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
-    for (const good of ['Мария', '5,0', '55 оценок', 'Авито', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
+    for (const good of ['Мария', '5,0', 'Авито', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
     const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
     assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))

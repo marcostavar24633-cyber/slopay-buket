@@ -16,7 +16,7 @@ const variant = typeof location !== 'undefined' && new URLSearchParams(location.
 const BULLETS = [
   { icon: '🚚', text: 'Доставка по всему Ульяновску' },
   { icon: '🍓', text: 'Продукты закупаем в день сборки' },
-  { icon: '⭐', text: `${SITE.rating} по ${SITE.reviewsCount} оценкам на ${SITE.reviewsSource}` },
+  { icon: '⭐', text: `Рейтинг ${SITE.rating} на ${SITE.reviewsSource}` },
   { icon: '✏️', text: 'Уберём или добавим любой ингредиент' },
 ]
 
@@ -74,7 +74,7 @@ export function Hero() {
               <span className="flex items-center gap-1 rounded-full bg-honey px-2 py-0.5 text-onaccent">
                 <Star className="h-3 w-3 fill-onaccent text-onaccent" /> {SITE.rating}
               </span>
-              {SITE.reviewsCount} оценок на {SITE.reviewsSource} — все пятёрки
+              на {SITE.reviewsSource} — все оценки пятёрки
             </a>
             <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
               {title}

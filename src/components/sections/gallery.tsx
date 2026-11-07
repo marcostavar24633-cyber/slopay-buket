@@ -1,100 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { SectionTitle } from '@/components/shared/section-title'
 import { Button } from '@/components/ui/button'
 import { MaxIcon } from '@/components/shared/icons'
-import { CAT_LABEL, GALLERY, GALLERY_CATS, type GalleryCat, type GalleryPhoto } from '@/lib/gallery'
+import { CAT_LABEL, type GalleryPhoto } from '@/lib/gallery'
 import { maxLink } from '@/lib/config'
 import { itemBySrc } from '@/lib/products'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 import { goal } from '@/lib/analytics'
-import { cn } from '@/lib/utils'
-
-const PAGE = 24
 
 type Shot = GalleryPhoto | { src: string; w: number; h: number }
 const isPhoto = (p: Shot | null): p is GalleryPhoto => !!p && 'cat' in p
-
-export function Gallery() {
-  const [cat, setCat] = useState<GalleryCat | 'all'>('all')
-  const [showAll, setShowAll] = useState(false)
-  const [open, setOpen] = useState<number | null>(null)
-
-  const list = useMemo(() => (cat === 'all' ? GALLERY : GALLERY.filter((p) => p.cat === cat)), [cat])
-  const visible = showAll ? list : list.slice(0, PAGE)
-
-  return (
-    <section id="gallery" className="py-14 md:py-24">
-      <div className="container-x">
-        <SectionTitle
-          eyebrow="Наши работы"
-          title={
-            <>
-              Реальные фото — <span className="italic text-gold">не картинки из интернета</span>
-            </>
-          }
-          sub={`${GALLERY.length} работ нашей мастерской. Понравилась какая-то — нажмите «Хочу такой», соберём похожий под ваш бюджет.`}
-        />
-
-        <div className="no-scrollbar -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0" role="tablist" aria-label="Категории работ">
-          {GALLERY_CATS.map((c) => {
-            const n = c.key === 'all' ? GALLERY.length : GALLERY.filter((p) => p.cat === c.key).length
-            return (
-              <button
-                key={c.key}
-                role="tab"
-                aria-selected={cat === c.key}
-                onClick={() => {
-                  setCat(c.key)
-                  setShowAll(false)
-                  goal('gallery_filter', { cat: c.key })
-                }}
-                className={cn(
-                  'h-11 shrink-0 cursor-pointer rounded-full border px-4 text-sm font-semibold transition',
-                  cat === c.key ? 'border-honey bg-honey text-onaccent' : 'border-line bg-surface hover:border-honey/60',
-                )}
-              >
-                {c.label} <span className="opacity-60">{n}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:gap-2 lg:grid-cols-8">
-          {visible.map((p, i) => (
-            <div key={p.src}>
-              <button
-                onClick={() => {
-                  setOpen(i)
-                  goal('gallery_open', { src: p.src })
-                }}
-                className="group relative block aspect-square w-full cursor-zoom-in overflow-hidden rounded-xl bg-surface ring-1 ring-line"
-                aria-label={`Открыть фото: ${CAT_LABEL[p.cat]}, №${GALLERY.indexOf(p) + 1}`}
-              >
-                <img src={p.thumb} alt={`${CAT_LABEL[p.cat]} — работа мастерской`} loading="lazy" decoding="async" width={220} height={220} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
-                <Expand className="absolute right-1.5 top-1.5 h-6 w-6 rounded-full bg-scrim/70 p-1.5 text-ink opacity-0 transition group-hover:opacity-100" />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {!showAll && list.length > PAGE && (
-          <div className="mt-8 flex justify-center">
-            <Button variant="outline" size="lg" onClick={() => setShowAll(true)}>
-              Показать ещё {list.length - PAGE} фото
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <Lightbox list={list} index={open} onIndex={setOpen} />
-    </section>
-  )
-}
 
 /** Просмотр фото на весь экран: стрелки, клавиатура, свайп, CTA в MAX. */
 export function Lightbox({
