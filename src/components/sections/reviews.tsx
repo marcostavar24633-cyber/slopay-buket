@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ArrowRight, ExternalLink, Play, Star } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { NumberTicker } from '@/components/magicui/number-ticker'
@@ -7,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { SITE } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId } from '@/lib/ui-store'
+import { GALLERY, REVIEW_SHOTS } from '@/lib/gallery'
+import { Lightbox } from '@/components/sections/gallery'
 
 /** Сторис-реакции. Добавьте video: '/video/xxx.mp4' — карточка станет роликом (без звука, по тапу). */
 const STORIES: { poster: string; caption: string; who: string; video?: string }[] = [
@@ -33,7 +36,9 @@ const REVIEWS = [
   { name: 'Юлия Д.', area: 'Железнодорожный', text: 'У сына аллергия на орехи — убрали всё, собрали отдельно. Спасибо за внимательность!', tag: 'Аллергия' },
 ]
 
-const WALL = ['/img/reaction.webp', '/img/straw.webp', '/img/meathands.webp', '/img/cheese.webp', '/img/fruithands.webp', '/img/kids.webp', '/img/inhands.webp', '/img/newyear.webp', '/img/snack.webp', '/img/fruit.webp']
+/** Фото-стена — реальные работы (миниатюры), два встречных ряда. */
+const WALL = GALLERY.slice(0, 14).map((p) => p.thumb)
+const WALL2 = GALLERY.slice(14, 28).map((p) => p.thumb)
 
 export function Reviews() {
   return (
@@ -96,6 +101,8 @@ export function Reviews() {
           ))}
         </div>
 
+        <AvitoShots />
+
         {/* Отзывы + Яндекс + переписка */}
         <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-[1fr_340px]">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -155,7 +162,7 @@ export function Reviews() {
           ))}
         </Marquee>
         <Marquee duration="70s" reverse className="mt-4">
-          {[...WALL].reverse().map((src, i) => (
+          {WALL2.map((src, i) => (
             <img key={i} src={src} alt="" loading="lazy" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
           ))}
         </Marquee>
@@ -193,6 +200,39 @@ function ChatShot() {
           Ура! Очень рады, что угадали 🥰 Ждём на 8 Марта! <span className="ml-1 text-[10px] text-muted">19:45 ✓✓</span>
         </div>
       </div>
+    </div>
+  )
+}
+
+/** Лента скриншотов реальных отзывов с Авито, по клику — на весь экран. */
+function AvitoShots() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="mt-10 md:mt-14">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+        <p className="text-[15px] font-bold">
+          Настоящие отзывы с Авито <span className="font-semibold text-muted">· 5,0 ★ по 55 оценкам · скриншоты без правок</span>
+        </p>
+        <p className="text-[13px] text-muted">Нажмите, чтобы прочитать целиком</p>
+      </div>
+      <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
+        {REVIEW_SHOTS.map((r, i) => (
+          <button
+            key={r.src}
+            onClick={() => {
+              setOpen(i)
+              goal('review_shot_open', { i })
+            }}
+            className="group relative h-64 w-[240px] shrink-0 cursor-zoom-in snap-start overflow-hidden rounded-2xl bg-[#1f1f1f] ring-1 ring-line md:h-72 md:w-[260px]"
+            aria-label={`Отзыв ${i + 1} из ${REVIEW_SHOTS.length}`}
+          >
+            <img src={r.src} alt={`Скриншот отзыва покупателя №${i + 1}`} loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]" />
+            <span aria-hidden className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
+            <span className="absolute bottom-2 left-3 text-[12px] font-bold text-white">Читать отзыв →</span>
+          </button>
+        ))}
+      </div>
+      <Lightbox list={REVIEW_SHOTS} index={open} onIndex={setOpen} cta={false} />
     </div>
   )
 }

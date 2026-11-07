@@ -56,3 +56,17 @@ npm run photos -- "C:\Users\Имя\Desktop\Букеты"
 Скрипт берёт все JPG/PNG/WebP из папки (включая подпапки), поворачивает по EXIF, уменьшает до 1200 px,
 сжимает в WebP и кладёт в `public/img/real/` с латинскими именами + `manifest.json` со списком путей.
 Дальше путь вида `/img/real/klubnichnyy-buket.webp` вставляется в `src/lib/products.ts` (поля `image` и `inHands`).
+
+## Галерея реальных работ
+
+Фото лежат в `public/img/real/<категория>/` (полные 1100 px) и `.../thumbs/` (миниатюры 440 px).
+Данные галереи (`src/lib/gallery.ts`) генерируются — руками не править. Добавить новые фото:
+
+```bash
+npm run photos -- "папка/с/фото" --out public/img/real/berry --width 1100
+npm run photos -- "папка/с/фото" --out public/img/real/berry/thumbs --width 440
+mv public/img/real/berry/manifest.json scripts/manifests/berry.json
+npm run gallery
+```
+
+Новая категория — добавьте строку в `CATS` в `scripts/build-gallery.mjs`.

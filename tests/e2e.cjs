@@ -195,6 +195,58 @@ async function test(name, fn) {
     }
   })
 
+  await test('Галерея: вкладка «Раки» → 36 фото, просмотр, листание, WhatsApp с номером фото', async () => {
+    const { ctx, page } = await mobile()
+    const g = page.locator('#gallery')
+    await g.getByRole('tab', { name: /Раки и морепродукты/ }).click()
+    await g.getByRole('button', { name: /Показать ещё 24 фото/ }).click()
+    assert.equal(await g.locator('button[aria-label^="Открыть фото"]').count(), 36)
+    await g.locator('button[aria-label^="Открыть фото"]').first().click()
+    const dlg = page.getByRole('dialog')
+    await dlg.getByText('1 / 36').waitFor()
+    await dlg.getByRole('button', { name: 'Следующее фото' }).click()
+    await dlg.getByText('2 / 36').waitFor()
+    await page.keyboard.press('ArrowLeft')
+    await dlg.getByText('1 / 36').waitFor()
+    const href = decodeURIComponent(await dlg.getByRole('link', { name: /Хочу такой/ }).getAttribute('href'))
+    assert.match(href, /Букет из раков, фото №\d+ \(http.+\/img\/real\/sea\/.+\.webp\)/)
+    await page.keyboard.press('Escape')
+    await ctx.close()
+  })
+
+  await test('Отзывы с Авито: 16 скриншотов, открываются без кнопки WhatsApp', async () => {
+    const { ctx, page } = await mobile()
+    const shots = page.locator('#reviews button[aria-label^="Отзыв "]')
+    assert.equal(await shots.count(), 16)
+    await shots.nth(2).click()
+    const dlg = page.getByRole('dialog')
+    await dlg.getByText('3 / 16').waitFor()
+    assert.equal(await dlg.getByRole('link', { name: /Хочу такой/ }).count(), 0)
+    await ctx.close()
+  })
+
+  await test('Все реальные фото доступны (миниатюры и полные)', async () => {
+    const ctx = await browser.newContext()
+    const page = await ctx.newPage()
+    await page.goto(URL)
+    const bad = await page.evaluate(async () => {
+      const mod = await import('/src/lib/gallery.ts').catch(() => null)
+      return mod ? 'dev-only' : null
+    })
+    void bad
+    const fs = require('node:fs')
+    const src = fs.readFileSync(require('node:path').resolve(__dirname, '../src/lib/gallery.ts'), 'utf8')
+    const urls = [...src.matchAll(/'(\/img\/real\/[^']+\.webp)'/g)].map((m) => m[1])
+    assert.ok(urls.length >= 350, 'urls ' + urls.length)
+    const failed = []
+    for (const u of urls) {
+      const r = await page.request.get(URL.replace(/\/$/, '') + u)
+      if (!r.ok()) failed.push(u)
+    }
+    assert.deepEqual(failed, [])
+    await ctx.close()
+  })
+
   await browser.close()
   for (const r of results) console.log(r.join('  '))
   const failed = results.filter((r) => r[0] === '✗').length

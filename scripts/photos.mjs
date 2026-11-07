@@ -67,7 +67,7 @@ for (const file of files.sort()) {
   used.add(name)
   const dest = path.join(out, `${name}.webp`)
   try {
-    const info = await sharp(file)
+    const info = await sharp(file, { failOn: 'none' })
       .rotate()
       .resize({ width: maxSide, height: maxSide, fit: 'inside', withoutEnlargement: true })
       .webp({ quality })
