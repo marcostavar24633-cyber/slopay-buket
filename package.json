@@ -11,7 +11,8 @@
     "test:e2e": "node tests/e2e.cjs",
     "test:unit": "node --experimental-strip-types tests/phone.test.ts",
     "shots": "node tests/sections.cjs",
-    "pdf": "node tests/make-pdf.cjs"
+    "pdf": "node tests/make-pdf.cjs",
+    "test:header": "node tests/header-overlap.cjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.6",

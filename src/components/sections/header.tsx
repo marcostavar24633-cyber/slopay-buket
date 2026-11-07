@@ -21,7 +21,7 @@ const NAV = [
 
 export function Logo({ light }: { light?: boolean }) {
   return (
-    <a href="#top" className="group flex min-w-0 items-center gap-2 md:gap-2.5" aria-label="Слопай букет — на главную">
+    <a href="#top" className="group flex min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label="Слопай букет — на главную">
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-honey text-lg md:h-10 md:w-10 md:text-xl shadow-soft transition group-hover:rotate-[-8deg]">🍓</span>
       <span className="leading-none">
         <span className={cn('block font-display text-[17px] font-bold italic tracking-tight md:text-[19px]', light ? 'text-white' : 'text-ink')}>
@@ -77,7 +77,7 @@ export function Header() {
         scrolled ? 'border-line bg-cream/90 backdrop-blur-xl' : 'border-transparent bg-cream',
       )}
     >
-      <div className={cn('container-x flex items-center justify-between gap-4 transition-all duration-300', scrolled ? 'h-14 md:h-16' : 'h-[68px] md:h-20')}>
+      <div className={cn('container-x flex items-center justify-between gap-4 transition-all duration-300 2xl:max-w-[1440px]', scrolled ? 'h-14 md:h-16' : 'h-[68px] md:h-20')}>
         <Logo />
 
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Основное меню">
