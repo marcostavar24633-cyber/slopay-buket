@@ -5,13 +5,13 @@ import { SectionTitle } from '@/components/shared/section-title'
 import { MaxIcon } from '@/components/shared/icons'
 import { Lightbox } from '@/components/sections/gallery'
 import { GALLERY_CATS, type GalleryCat } from '@/lib/gallery'
-import { HITS, itemsOf, minPriceOf, type Item } from '@/lib/products'
+import { HITS, ITEMS, PRICE_TABS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
 import { MSG, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
 import { cn, rub } from '@/lib/utils'
 
-const CATS = GALLERY_CATS.filter((c) => c.key !== 'all') as { key: GalleryCat; label: string }[]
+const CATS = (GALLERY_CATS.filter((c) => c.key !== 'all') as { key: GalleryCat; label: string }[]).filter((c) => itemsOf(c.key).length > 0)
 /** Обложки категорий — по одной узнаваемой работе. */
 const COVER: Record<GalleryCat, string> = {
   berry: '/img/real/berry/thumbs/yag-25.webp',
@@ -94,9 +94,23 @@ export function Hits() {
 /** Каталог: категории → все работы выбранной категории с составом и ценой. */
 export function Catalog() {
   const [cat, setCat] = useState<GalleryCat | null>(null)
+  const [who, setWho] = useState<Recipient | 'all'>('all')
+  const [price, setPrice] = useState<(typeof PRICE_TABS)[number]['key']>('all')
   const [showAll, setShowAll] = useState(false)
   const [open, setOpen] = useState<number | null>(null)
-  const list = useMemo(() => (cat ? itemsOf(cat) : []), [cat])
+  const filtered = who !== 'all' || price !== 'all'
+  const list = useMemo(() => {
+    if (!cat && !filtered) return []
+    const r = PRICE_TABS.find((t) => t.key === price)!
+    return (cat ? itemsOf(cat) : ITEMS)
+      .filter((i) => who === 'all' || i.recipients.includes(who))
+      .filter((i) => i.price >= r.min && i.price < r.max)
+  }, [cat, who, price, filtered])
+  const heading = cat ? CATS.find((c) => c.key === cat)?.label : 'Подборка по фильтрам'
+  const resetFilters = () => {
+    setWho('all')
+    setPrice('all')
+  }
   const visible = showAll ? list : list.slice(0, PAGE)
 
   const pick = (c: GalleryCat) => {
@@ -151,17 +165,34 @@ export function Catalog() {
           })}
         </div>
 
+        <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Фильтры">
+          <FilterRow label="Кому" options={RECIPIENT_TABS} value={who} onChange={(v) => { setWho(v); setShowAll(false); goal('catalog_filter', { who: v }) }} />
+          <FilterRow label="Цена" options={PRICE_TABS} value={price} onChange={(v) => { setPrice(v); setShowAll(false); goal('catalog_filter', { price: v }) }} />
+        </div>
+
         <div id="catalog-list" className="scroll-mt-24">
-          {cat ? (
+          {cat || filtered ? (
             <div className="mt-8">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
                 <h3 className="font-display text-[22px] font-semibold leading-tight md:text-[32px]">
-                  {CATS.find((c) => c.key === cat)?.label} <span className="text-muted">· {list.length}</span>
+                  {heading} <span className="text-muted">· {list.length}</span>
                 </h3>
-                <button onClick={() => setCat(null)} className="min-h-11 cursor-pointer text-[14px] font-bold text-honey-600 underline underline-offset-4">
-                  Свернуть
-                </button>
+                <div className="flex gap-4">
+                  {filtered && (
+                    <button onClick={resetFilters} className="min-h-11 cursor-pointer text-[14px] font-bold text-ink-soft underline underline-offset-4">
+                      Сбросить фильтры
+                    </button>
+                  )}
+                  <button onClick={() => { setCat(null); resetFilters() }} className="min-h-11 cursor-pointer text-[14px] font-bold text-honey-600 underline underline-offset-4">
+                    Свернуть
+                  </button>
+                </div>
               </div>
+              {list.length === 0 && (
+                <p className="rounded-3xl border border-line bg-surface p-6 text-[15px] text-ink-soft">
+                  Под эти условия готовых работ нет — но соберём под ваш запрос. Напишите нам или сбросьте фильтры.
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
                 {visible.map((it, i) => (
                   <ItemCard key={it.id} item={it} onOpen={() => setOpen(i)} />
@@ -177,7 +208,7 @@ export function Catalog() {
             </div>
           ) : (
             <p className="mt-5 flex items-center gap-2 text-[14px] font-semibold text-ink-soft">
-              <ArrowRight className="h-4 w-4 shrink-0 text-honey" /> Нажмите на категорию, чтобы увидеть все работы с составом и ценой
+              <ArrowRight className="h-4 w-4 shrink-0 text-honey" /> Нажмите на категорию или выберите, кому и на какую сумму, — покажем подходящие работы
             </p>
           )}
         </div>
@@ -186,6 +217,30 @@ export function Catalog() {
       </div>
       <Lightbox list={list} index={open} onIndex={setOpen} />
     </section>
+  )
+}
+
+function FilterRow<K extends string>({ label, options, value, onChange }: { label: string; options: readonly { key: K; label: string }[]; value: K; onChange: (v: K) => void }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-12 shrink-0 text-[13px] font-bold text-muted">{label}</span>
+      <div className="no-scrollbar -mr-4 flex gap-2 overflow-x-auto pr-4 md:mr-0 md:flex-wrap md:pr-0" role="radiogroup" aria-label={label}>
+        {options.map((o) => (
+          <button
+            key={o.key}
+            role="radio"
+            aria-checked={value === o.key}
+            onClick={() => onChange(o.key)}
+            className={cn(
+              'h-10 shrink-0 cursor-pointer rounded-full border px-3.5 text-[13.5px] font-semibold transition',
+              value === o.key ? 'border-honey bg-honey text-onaccent' : 'border-line bg-cream hover:border-honey/60',
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

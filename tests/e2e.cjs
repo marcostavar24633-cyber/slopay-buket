@@ -17,7 +17,7 @@ async function test(name, fn) {
   const browser = await chromium.launch()
   const mobile = async (time) => {
     const ctx = await browser.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 1 })
-    await ctx.addInitScript(() => { try { sessionStorage.setItem('exit_shown', '1') } catch {} })
+    await ctx.addInitScript(() => { try { sessionStorage.setItem('exit_shown', '1'); localStorage.setItem('slopay-cookie-ok', '1') } catch {} })
     const page = await ctx.newPage()
     if (time) await page.clock.setFixedTime(new Date(time))
     await page.goto(URL, { waitUntil: 'networkidle' })
@@ -46,37 +46,37 @@ async function test(name, fn) {
   await test('Каталог: 6 категорий без карточек; клик → все фото категории с составом и ценой', async () => {
     const { ctx, page } = await mobile()
     const c = page.locator('#catalog')
-    assert.equal(await c.getByRole('tab').count(), 6)
+    assert.equal(await c.getByRole('tab').count(), 5)
     assert.equal(await c.locator('article').count(), 0)
     const txt = await c.innerText()
     for (const bad of ['S\nM', 'чел.', 'Размер']) assert.ok(!txt.includes(bad), 'найдено: ' + bad)
     await c.getByRole('tab', { name: /Раки и морепродукты/ }).click()
     assert.equal(await c.locator('article').count(), 12)
-    await c.getByRole('button', { name: 'Показать ещё 24' }).click()
-    assert.equal(await c.locator('article').count(), 36)
+    await c.getByRole('button', { name: 'Показать ещё 19' }).click()
+    assert.equal(await c.locator('article').count(), 31)
     const cards = await c.locator('article').allInnerTexts()
     assert.ok(cards.every((t) => /от \d[\d\s ]*₽/.test(t) && t.includes('примерная цена') && t.split('\n').length >= 4), cards[0])
     assert.equal(await c.locator('article [role=radiogroup]').count(), 0)
     const names = await c.locator('article h3').allTextContents()
-    assert.equal(names.length, 36)
-    assert.equal(new Set(names).size, 36, 'названия должны быть разными')
+    assert.equal(names.length, 31)
+    assert.equal(new Set(names).size, 31, 'названия должны быть разными')
     await c.locator('article').nth(2).getByRole('button', { name: /Открыть фото/ }).click()
     const dlg = page.getByRole('dialog')
-    await dlg.getByText('3 / 36').waitFor()
+    await dlg.getByText('3 / 31').waitFor()
     await dlg.getByText(/от \d/).first().waitFor()
     await page.keyboard.press('Escape')
     await ctx.close()
   })
 
-  await test('Хит продаж: 12 работ, по 2 из каждой категории, с составом и ценой', async () => {
+  await test('Хит продаж: 10 работ, по 2 из каждой категории, с составом и ценой', async () => {
     const { ctx, page } = await mobile()
     const h = page.locator('#hits')
     await h.getByText('Хит продаж').first().waitFor()
     const cards = await h.locator('article').allInnerTexts()
-    assert.equal(cards.length, 12)
+    assert.equal(cards.length, 10)
     const cats = {}
     for (const t of cards) { const k = t.split('\n').map((l) => l.trim()).find((l) => l && l !== 'Хит'); cats[k] = (cats[k] || 0) + 1; assert.ok(/от \d/.test(t)) }
-    assert.equal(Object.keys(cats).length, 6, JSON.stringify(cats))
+    assert.equal(Object.keys(cats).length, 5, JSON.stringify(cats))
     assert.ok(Object.values(cats).every((n) => n === 2), JSON.stringify(cats))
     await ctx.close()
   })
@@ -267,6 +267,69 @@ async function test(name, fn) {
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
     const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
     assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))
+    await ctx.close()
+  })
+
+  await test('Фильтры «Кому» и «Цена» работают и без выбора категории', async () => {
+    const { ctx, page } = await mobile()
+    const c = page.locator('#catalog')
+    await c.getByRole('radio', { name: 'Маме' }).click()
+    await c.getByRole('radio', { name: 'до 3 000 ₽' }).click()
+    const n = await c.locator('article').count()
+    assert.ok(n > 0, 'пусто')
+    const prices = await c.locator('article').allInnerTexts()
+    assert.ok(prices.every((t) => { const m = t.match(/от ([\d\s ]+) ₽/); return m && Number(m[1].replace(/\D/g, '')) < 3000 }), 'цена выше 3000')
+    await c.getByRole('button', { name: 'Сбросить фильтры' }).click()
+    assert.equal(await c.locator('article').count(), 0)
+    await ctx.close()
+  })
+
+  await test('Фото с алкоголем скрыты из каталога и хитов', async () => {
+    const { ctx, page } = await mobile()
+    const c = page.locator('#catalog')
+    for (const name of ['Мясные букеты', 'Раки и морепродукты']) {
+      await c.getByRole('tab', { name: new RegExp(name) }).click()
+      const more = c.getByRole('button', { name: /Показать ещё/ })
+      if (await more.count()) await more.click()
+    }
+    const srcs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src') || ''))
+    for (const bad of ['/k-21.', '/k-2.', '/m-26.', '/m-36.', '/sn-7.', '/k-46.']) assert.ok(!srcs.some((s) => s.includes(bad)), 'найдено ' + bad)
+    await ctx.close()
+  })
+
+  await test('Политика, оферта, robots.txt, sitemap.xml, превью ссылок', async () => {
+    const ctx = await browser.newContext()
+    const page = await ctx.newPage()
+    for (const [u, t] of [['privacy/', 'Политика обработки персональных данных'], ['oferta/', 'Публичная оферта']]) {
+      await page.goto(URL + u, { waitUntil: 'networkidle' })
+      await page.getByRole('heading', { level: 1, name: t }).waitFor()
+      assert.ok((await page.content()).includes('ИНН'))
+    }
+    for (const f of ['robots.txt', 'sitemap.xml', 'og-image.jpg', 'favicon.svg']) assert.ok((await page.request.get(URL + f)).ok(), f)
+    await page.goto(URL, { waitUntil: 'domcontentloaded' })
+    assert.match(await page.locator('meta[property="og:image"]').getAttribute('content'), /^https:\/\/.+\/og-image\.jpg$/)
+    await ctx.close()
+  })
+
+  await test('Уведомление о cookie: показывается и запоминается', async () => {
+    const ctx = await browser.newContext({ ...devices['iPhone 13'] })
+    const page = await ctx.newPage()
+    await page.goto(URL, { waitUntil: 'networkidle' })
+    const n = page.getByRole('region', { name: 'Уведомление о cookie' })
+    await n.waitFor()
+    await n.getByRole('button', { name: 'Понятно' }).click()
+    await page.reload({ waitUntil: 'networkidle' })
+    await page.waitForTimeout(2000)
+    assert.equal(await n.count(), 0)
+    await ctx.close()
+  })
+
+  await test('Нет выдуманного: Instagram, «23 слота», «в течение часа»', async () => {
+    const { ctx, page } = await mobile()
+    const html = await page.content()
+    const text = await page.evaluate(() => document.body.innerText)
+    assert.ok(!/instagram/i.test(html))
+    for (const bad of ['23 слота', 'осталось 23', 'в течение часа']) assert.ok(!text.includes(bad), bad)
     await ctx.close()
   })
 

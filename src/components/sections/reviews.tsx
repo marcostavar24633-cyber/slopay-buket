@@ -8,14 +8,15 @@ import { Button } from '@/components/ui/button'
 import { SITE } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId } from '@/lib/ui-store'
-import { GALLERY, REVIEW_SHOTS } from '@/lib/gallery'
+import { REVIEW_SHOTS } from '@/lib/gallery'
+import { ITEMS } from '@/lib/products'
 import { Lightbox } from '@/components/sections/gallery'
 
 /** Только проверяемые цифры: Авито (скриншот рейтинга) и галерея работ. */
 const STATS = [
   { v: 5, dec: 1, suffix: '', label: `средняя оценка на ${SITE.reviewsSource}`, star: true },
   { v: 100, suffix: '%', label: 'оценок покупателей — пятёрки' },
-  { v: Math.floor(GALLERY.length / 10) * 10, suffix: '+', label: 'работ в каталоге на сайте' },
+  { v: Math.floor(ITEMS.length / 10) * 10, suffix: '+', label: 'работ в каталоге на сайте' },
   { text: `с ${SITE.sinceYear}`, label: 'собираем букеты в Ульяновске' },
 ]
 
@@ -30,8 +31,8 @@ const REVIEWS = [
 ]
 
 /** Фото-стена — реальные работы (миниатюры), два встречных ряда. */
-const WALL = GALLERY.slice(0, 14).map((p) => p.thumb)
-const WALL2 = GALLERY.slice(14, 28).map((p) => p.thumb)
+const WALL = ITEMS.slice(0, 14).map((p) => p.thumb)
+const WALL2 = ITEMS.slice(14, 28).map((p) => p.thumb)
 
 export function Reviews() {
   return (

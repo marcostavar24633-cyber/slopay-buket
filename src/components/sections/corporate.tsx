@@ -135,7 +135,7 @@ export function Corporate() {
               className={`sticky top-24 rounded-3xl border bg-graphite-2 p-5 shadow-2xl transition md:p-7 ${highlight ? 'border-honey ring-4 ring-honey/30' : 'border-white/10'}`}
             >
               <h3 className="font-display text-[26px] font-semibold leading-tight">Рассчитать корпоративный заказ</h3>
-              <p className="mt-1 text-[14px] text-white/55">Пришлём КП с фото и ценами в течение часа</p>
+              <p className="mt-1 text-[14px] text-white/55">Пришлём КП с фото и ценами</p>
               <div className="mt-5 flex flex-col gap-3">
                 <Input dark placeholder="Имя" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Имя" />
                 <PhoneInput dark value={phone} onChange={setPhone} aria-label="Телефон" />

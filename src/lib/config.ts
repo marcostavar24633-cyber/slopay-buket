@@ -11,8 +11,8 @@ export const SITE = {
   maxUrl: 'https://max.ru/',
   /** Telegram по номеру телефона */
   tgPhone: '79631282556',
-  instagram: 'https://instagram.com/slopay_buket',
-  vk: 'https://vk.com/slopay_buket',
+  /** Группа ВКонтакте. Пусто — иконка в подвале не показывается. */
+  vk: '',
   /** Профиль с отзывами на Авито — вставьте реальную ссылку */
   reviewsUrl: 'https://www.avito.ru/',
   reviewsSource: 'Авито',
@@ -21,8 +21,12 @@ export const SITE = {
   sameDayDeadlineHour: 17, // до скольки принимаем «на сегодня»
   openHour: 8,
   timeZone: 'Europe/Ulyanovsk',
-  /** Реквизиты ИП/самозанятого (ФИО, ИНН). Пусто — строка в подвале не показывается. */
-  legal: '',
+  /** Продавец — для подвала, политики и оферты. Заполните перед запуском. */
+  ownerName: '', // напр. «ИП Иванова Мария Ивановна» или «Иванова Мария Ивановна (самозанятая)»
+  inn: '',
+  email: '',
+  /** Адрес сайта без слеша в конце — для sitemap.xml, robots.txt и превью ссылок */
+  url: 'https://slopay-buket.ru',
   /** Реальные данные со скриншотов Авито */
   rating: '5,0',
   reviewsCount: 55,
@@ -30,8 +34,10 @@ export const SITE = {
   freeDeliveryFrom: 8000,
   masterName: 'Мария',
   corpDeadline: '5 декабря',
-  seasonSlotsLeft: 23,
 } as const
+
+/** Строка с реквизитами: «ИП …, ИНН …». Пусто, пока не заполнено. */
+export const legalLine = () => [SITE.ownerName, SITE.inn && `ИНН ${SITE.inn}`].filter(Boolean).join(', ')
 
 /** MAX не поддерживает предзаполненный текст — ведём в профиль. Аргумент оставлен для аналитики и будущего API. */
 export const maxLink = (_text?: string) => SITE.maxUrl

@@ -203,23 +203,73 @@ export interface Item extends GalleryPhoto {
   title: string
   desc: string
   price: number
+  recipients: Recipient[]
+}
+
+/**
+ * Фото, где видны бутылки или банки с алкоголем: в каталоге и на сайте не показываем
+ * (дистанционная продажа алкоголя запрещена — не создаём впечатления, что он входит в букет).
+ * Файлы остаются в public/img/real — чтобы вернуть фото, уберите его из списка.
+ */
+const HIDDEN = new Set([
+  'yag-7', 'suh-16', 'sl-18',
+  'm-4', 'm-7', 'm-26', 'm-32', 'm-36',
+  'k-2', 'k-3', 'k-7', 'k-8', 'k-9', 'k-10', 'k-11', 'k-15', 'k-19', 'k-20', 'k-21', 'k-29', 'k-30', 'k-31', 'k-33', 'k-35', 'k-38', 'k-39', 'k-42', 'k-44', 'k-46',
+  'sn-1', 'sn-2', 'sn-4', 'sn-5', 'sn-6', 'sn-7', 'sn-8',
+])
+
+export type Recipient = 'her' | 'him' | 'mama' | 'colleagues' | 'kids'
+
+/** Кому подходит работа: по категории + по словам в названии и составе. */
+function recipientsOf(cat: GalleryCat, text: string): Recipient[] {
+  const t = text.toLowerCase()
+  const r = new Set<Recipient>(
+    { berry: ['her', 'mama'], meat: ['him', 'colleagues'], sea: ['him', 'colleagues'], dried: ['mama', 'colleagues', 'her'], sweet: ['her', 'mama', 'kids'], snack: ['him'] }[cat] as Recipient[],
+  )
+  if (/мам/.test(t)) r.add('mama')
+  if (/муж|23 февраля|защитник|капитан|юбиляр|любимому/.test(t)) r.add('him')
+  if (/1 сентября|первоклаш|учител|звонок|домик|колокол|зефир|сладкое детство/.test(t)) r.add('kids')
+  if (/учител|корзин|сундук|бокс|ассорти|шестигранник/.test(t)) r.add('colleagues')
+  if (/сердц|роз|тюльпан|влюбл|признан|поцелу/.test(t)) r.add('her')
+  return [...r]
 }
 
 const toItem = (p: GalleryPhoto): Item => {
   const id = p.src.split('/').pop()!.replace('.webp', '')
   const [name, desc, price] = INFO[id] ?? DEFAULT[p.cat]
-  return { ...p, id, name, title: CAT_LABEL[p.cat], desc, price }
+  return { ...p, id, name, title: CAT_LABEL[p.cat], desc, price, recipients: recipientsOf(p.cat, `${name} ${desc}`) }
 }
 
-/** Все работы с описанием и ценой. */
-export const ITEMS: Item[] = GALLERY.map(toItem)
+/** Все показываемые работы. Если в категории осталось меньше 2 работ — переносим их в «Мясные». */
+const visible = GALLERY.filter((p) => !HIDDEN.has(p.src.split('/').pop()!.replace('.webp', ''))).map(toItem)
+const small = new Set(
+  [...new Set(visible.map((i) => i.cat))].filter((c) => visible.filter((i) => i.cat === c).length < 2),
+)
+export const ITEMS: Item[] = visible.map((i) => (small.has(i.cat) ? { ...i, cat: 'meat' as GalleryCat } : i))
 export const itemsOf = (cat: GalleryCat) => ITEMS.filter((i) => i.cat === cat)
 export const itemBySrc = (src: string) => ITEMS.find((i) => i.src === src)
 export const minPriceOf = (cat: GalleryCat) => Math.min(...itemsOf(cat).map((i) => i.price))
 
 /** Хиты продаж: по 2 работы из каждой категории. */
-const HIT_IDS = ['yag-1', 'yag-25', 'k-1', 'k-23', 'm-1', 'm-16', 'suh-11', 'suh-10', 'sl-22', 'sl-25', 'sn-3', 'sn-7']
+const HIT_IDS = ['yag-1', 'yag-25', 'k-1', 'k-23', 'm-1', 'm-16', 'suh-11', 'suh-10', 'sl-22', 'sl-25']
 export const HITS: Item[] = HIT_IDS.map((id) => ITEMS.find((i) => i.id === id)).filter((i): i is Item => !!i)
+
+export const RECIPIENT_TABS: { key: Recipient | 'all'; label: string }[] = [
+  { key: 'all', label: 'Всем' },
+  { key: 'her', label: 'Для неё' },
+  { key: 'him', label: 'Для него' },
+  { key: 'mama', label: 'Маме' },
+  { key: 'colleagues', label: 'Коллегам' },
+  { key: 'kids', label: 'Ребёнку' },
+]
+
+export const PRICE_TABS = [
+  { key: 'all', label: 'Любая', min: 0, max: Infinity },
+  { key: 'p1', label: 'до 3 000 ₽', min: 0, max: 3000 },
+  { key: 'p2', label: '3 000 – 5 000 ₽', min: 3000, max: 5000 },
+  { key: 'p3', label: '5 000 – 8 000 ₽', min: 5000, max: 8000 },
+  { key: 'p4', label: 'от 8 000 ₽', min: 8000, max: Infinity },
+] as const
 
 export const UPSELLS = [
   { id: 'balloons', name: 'Связка из 5 шаров', price: 790, emoji: '🎈' },

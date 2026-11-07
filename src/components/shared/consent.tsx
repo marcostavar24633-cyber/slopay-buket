@@ -4,7 +4,7 @@ export function Consent({ checked, onChange, dark }: { checked: boolean; onChang
   return (
     <Checkbox checked={checked} onChange={onChange} dark={dark} className="text-xs">
       Согласен(на) на обработку персональных данных по{' '}
-      <a href="#privacy" className="underline underline-offset-2">
+      <a href="/privacy/" target="_blank" rel="noopener" className="underline underline-offset-2">
         политике конфиденциальности
       </a>{' '}
       (152-ФЗ)

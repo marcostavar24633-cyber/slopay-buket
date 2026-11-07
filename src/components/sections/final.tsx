@@ -7,10 +7,10 @@ import { Chips } from '@/components/ui/chips'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input, PhoneInput } from '@/components/ui/input'
 import { Consent } from '@/components/shared/consent'
-import { InstagramIcon, TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
+import { TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
 import { Logo } from '@/components/sections/header'
 import { CONTACTS } from '@/components/sections/order-flow'
-import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
+import { SITE, MSG, tgLink, maxLink, legalLine } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
@@ -105,8 +105,7 @@ export function Footer() {
             {[
               { href: maxLink(MSG.header), icon: MaxIcon, label: 'MAX', cls: 'bg-max' },
               { href: tgLink(), icon: TelegramIcon, label: 'Telegram', cls: 'bg-tg' },
-              { href: SITE.instagram, icon: InstagramIcon, label: 'Instagram', cls: 'bg-white/10' },
-              { href: SITE.vk, icon: VkIcon, label: 'ВКонтакте', cls: 'bg-white/10' },
+              ...(SITE.vk ? [{ href: SITE.vk, icon: VkIcon, label: 'ВКонтакте', cls: 'bg-white/10' }] : []),
             ].map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label} className={`grid h-11 w-11 place-items-center rounded-full text-white ${s.cls}`}>
                 <s.icon className="h-5 w-5" />
@@ -120,10 +119,10 @@ export function Footer() {
           </p>
           <p>{SITE.hours}</p>
           <p>Самовывоз из мастерской — бесплатно</p>
-          {SITE.legal && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{SITE.legal}</p>}
+          {legalLine() && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{legalLine()}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
-            <a id="privacy" href="/privacy" className="underline underline-offset-2">Политика конфиденциальности</a>
-            <a href="/oferta" className="underline underline-offset-2">Публичная оферта</a>
+            <a id="privacy" href="/privacy/" className="underline underline-offset-2">Политика конфиденциальности</a>
+            <a href="/oferta/" className="underline underline-offset-2">Публичная оферта</a>
           </div>
         </div>
         <div className="relative h-56 overflow-hidden rounded-3xl bg-graphite-2 md:col-span-2 lg:col-span-1">

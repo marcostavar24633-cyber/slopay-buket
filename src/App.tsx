@@ -1,22 +1,19 @@
+import { lazy, Suspense } from 'react'
 import { UIProvider } from '@/lib/ui-store'
 import { FoodBackground } from '@/components/shared/food-background'
 import { Header, MobileBar, SeasonBar } from '@/components/sections/header'
 import { Hero } from '@/components/sections/hero'
 import { Catalog, Hits } from '@/components/sections/catalog'
 import { OrderSheet, ThanksDialog } from '@/components/sections/order-flow'
-import { Why } from '@/components/sections/why'
-import { QuizDialog, QuizSection } from '@/components/sections/quiz'
-import { Reviews } from '@/components/sections/reviews'
-import { Process } from '@/components/sections/process'
-import { Delivery, HowToOrder } from '@/components/sections/delivery'
-import { Corporate } from '@/components/sections/corporate'
-import { Faq, Guarantees } from '@/components/sections/trust'
-import { ExitPopup, FinalOffer, Footer } from '@/components/sections/final'
+
+const below = () => import('@/below')
+const BelowMain = lazy(() => below().then((m) => ({ default: m.BelowMain })))
+const BelowRest = lazy(() => below().then((m) => ({ default: m.BelowRest })))
 
 /**
  * Порядок блоков — по ТЗ: товар с ценой не позже второго экрана,
  * ценности и доверие — после каталога, чтобы «дожать» сомневающихся.
- * В ноябре–декабре и феврале–марте <Corporate/> можно поднять сразу после <Catalog/>.
+ * Блоки ниже каталога — в src/below.tsx (подгружаются отдельным файлом).
  */
 export default function App() {
   return (
@@ -27,25 +24,17 @@ export default function App() {
       <main>
         <Hero />
         <Hits />
-          <Catalog />
-        {/* Сезон (ноябрь–декабрь): B2B-блок поднят сразу после каталога. После праздников верните его ниже <Delivery/>. */}
-        <Corporate />
-        <Why />
-        <QuizSection />
-        <Reviews />
-        <Process />
-        <HowToOrder />
-        <Delivery />
-        <Guarantees />
-        <Faq />
-        <FinalOffer />
+        <Catalog />
+        <Suspense fallback={<div className="min-h-[100vh]" />}>
+          <BelowMain />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={null}>
+        <BelowRest />
+      </Suspense>
       <MobileBar />
       <OrderSheet />
-      <QuizDialog />
       <ThanksDialog />
-      <ExitPopup />
     </UIProvider>
   )
 }

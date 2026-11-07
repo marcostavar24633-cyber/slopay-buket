@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input, Label, PhoneInput } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Consent } from '@/components/shared/consent'
-import { InstagramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
+import { VkIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
 import { UPSELLS } from '@/lib/products'
@@ -199,15 +199,16 @@ export function ThanksDialog() {
             <MaxIcon className="h-5 w-5" /> Не хотите ждать? Напишите нам сами
           </a>
         </Button>
-        <p className="mt-5 text-[13px] text-muted">Пока ждёте — посмотрите свежие букеты</p>
-        <div className="mt-2 flex justify-center gap-3">
-          <a href={SITE.instagram} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2 text-sm font-bold">
-            <InstagramIcon className="h-4 w-4" /> Instagram
-          </a>
-          <a href={SITE.vk} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2 text-sm font-bold">
-            <VkIcon className="h-5 w-5" /> ВКонтакте
-          </a>
-        </div>
+        {SITE.vk && (
+          <>
+            <p className="mt-5 text-[13px] text-muted">Пока ждёте — посмотрите свежие букеты</p>
+            <div className="mt-2 flex justify-center gap-3">
+              <a href={SITE.vk} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2 text-sm font-bold">
+                <VkIcon className="h-5 w-5" /> ВКонтакте
+              </a>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -2,7 +2,7 @@ import { Droplets, Hand, MapPin, Package, ShieldCheck, ShoppingBasket, type Luci
 import { Parallax } from '@/components/aceternity/parallax'
 import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
-import { SITE } from '@/lib/config'
+import { SITE, legalLine } from '@/lib/config'
 
 const STEPS: { title: string; text: string; icon?: LucideIcon; img?: string }[] = [
   { title: 'Закупка утром в день сборки', text: 'Ягоды, раки, сыр и мясо — от проверенных поставщиков.', icon: ShoppingBasket },
@@ -65,7 +65,7 @@ export function Process() {
         <BlurFade className="flex flex-col gap-3 rounded-3xl border border-line bg-surface p-5 text-[14px] md:flex-row md:items-center md:gap-6 md:p-6">
           <ShieldCheck className="h-8 w-8 shrink-0 text-leaf" />
           <p className="font-semibold leading-relaxed">
-            Работаем официально · чек на каждый заказ{SITE.legal ? ` · ${SITE.legal}` : ''} · оплата после согласования букета
+            Работаем официально · чек на каждый заказ{legalLine() ? ` · ${legalLine()}` : ''} · оплата после согласования букета
           </p>
         </BlurFade>
 

@@ -43,8 +43,8 @@ export function SeasonBar() {
     <div className="relative z-50 border-b border-honey/20 bg-bar text-bar-fg">
       <div className="container-x flex h-10 items-center justify-center gap-3 pr-10 text-[13px] font-semibold">
         <span className="truncate">
-          🎄 <span className="hidden sm:inline">Принимаем новогодние заказы на 25–31 декабря — свободно</span>
-          <span className="sm:hidden">Новый год: на 25–31.12 осталось</span> {SITE.seasonSlotsLeft} слота
+          🎄 <span className="hidden sm:inline">Принимаем новогодние заказы — бронируйте дату заранее</span>
+          <span className="sm:hidden">Новый год: бронируйте дату заранее</span>
         </span>
         <button
           onClick={() => {
