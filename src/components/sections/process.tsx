@@ -4,12 +4,12 @@ import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { SITE } from '@/lib/config'
 
-const STEPS: { time: string; title: string; text: string; icon?: LucideIcon; img?: string }[] = [
-  { time: '8:00', title: 'Закупка утром в день сборки', text: 'Ягоды, раки, сыр и мясо — от проверенных поставщиков. Чек с датой покажем по запросу.', icon: ShoppingBasket },
-  { time: '9:30', title: 'Подготовка', text: 'Моем и сушим ягоды, нарезаем сыр и мясо прямо перед сборкой — ничего не лежит «с вечера».', icon: Droplets },
-  { time: '10:00', title: 'Сборка в перчатках', text: 'Пищевые шпажки, герметичная плёнка на сыре и мясе, отдельная чистая поверхность для аллергиков.', icon: Hand },
-  { time: '12:30', title: 'Фото букета вам до отправки', text: 'Вы видите именно тот букет, который получит человек. Не нравится — пересоберём.', img: '/img/real/berry/yag-1.webp' },
-  { time: '13:00', title: 'Упаковка и передача курьеру', text: 'Коробка + прозрачная защитная плёнка. Курьер Яндекс Go везёт напрямую, без заездов.', icon: Package },
+const STEPS: { title: string; text: string; icon?: LucideIcon; img?: string }[] = [
+  { title: 'Закупка утром в день сборки', text: 'Ягоды, раки, сыр и мясо — от проверенных поставщиков.', icon: ShoppingBasket },
+  { title: 'Подготовка', text: 'Моем и сушим ягоды, нарезаем сыр и мясо прямо перед сборкой — ничего не лежит «с вечера».', icon: Droplets },
+  { title: 'Сборка в перчатках', text: 'Пищевые шпажки, герметичная плёнка на сыре и мясе, отдельная чистая поверхность для аллергиков.', icon: Hand },
+  { title: 'Фото букета вам до отправки', text: 'Вы видите именно тот букет, который получит человек. Не нравится — пересоберём.', img: '/img/real/berry/yag-1.webp' },
+  { title: 'Упаковка и передача курьеру', text: 'Упаковано всё в прозрачную защитную плёнку. Курьер Яндекс Go везёт напрямую, без заездов.', icon: Package },
 ]
 
 const COLLAGE = ['/img/real/sea/m-16.webp', '/img/real/berry/yag-21.webp', '/img/real/meat/k-1.webp', '/img/real/dried/suh-21.webp']
@@ -22,7 +22,7 @@ export function Process() {
           eyebrow="Свежесть и гигиена"
           title={
             <>
-              От закупки до вашей двери — <span className="italic text-gold">не больше 6 часов</span>
+              От закупки до вашей двери — <span className="italic text-gold">только свежее</span>
             </>
           }
           sub="Самый частый скрытый вопрос: «кто трогал продукты и сколько они лежали?» Показываем весь путь букета."
@@ -37,7 +37,7 @@ export function Process() {
                 <div className="grid h-full place-items-center bg-gradient-to-b from-honey-100 to-cream-2 p-5">
                   <div className="w-[70%] rounded-[26px] border-[6px] border-black bg-[#0b141a] p-1.5 shadow-lift ring-1 ring-honey/40">
                     <div className="overflow-hidden rounded-2xl bg-[#202c33]">
-                      <img src={s.img} alt="Фото готового букета в WhatsApp перед отправкой" className="aspect-square w-full object-cover" loading="lazy" />
+                      <img src={s.img} alt="Фото готового букета в MAX перед отправкой" className="aspect-square w-full object-cover" loading="lazy" />
                       <p className="px-2 py-1.5 text-[10px] leading-tight text-white">Ваш букет готов 💐 Отправляем?</p>
                     </div>
                   </div>
@@ -52,7 +52,7 @@ export function Process() {
                 )
               )}
               <span className="absolute left-3 top-3 rounded-full bg-honey px-3 py-1 text-[12px] font-bold text-onaccent">
-                {i + 1} · {s.time}
+                Шаг {i + 1}
               </span>
             </div>
             <h3 className="mt-4 text-[17px] font-extrabold leading-snug">{s.title}</h3>

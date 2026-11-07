@@ -5,16 +5,18 @@
 export const SITE = {
   brand: 'Слопай букет',
   city: 'Ульяновск',
-  phoneDisplay: '+7 (8422) 50-70-90',
-  phoneHref: 'tel:+78422507090',
-  waNumber: '79278007090', // без +, для wa.me
-  tgUser: 'slopay_buket', // личный аккаунт магазина, не канал
+  phoneDisplay: '+7 (963) 128-25-56',
+  phoneHref: 'tel:+79631282556',
+  /** Ссылка на профиль в мессенджере MAX: в приложении MAX → Профиль → «Поделиться». Вставьте сюда. */
+  maxUrl: 'https://max.ru/',
+  /** Telegram по номеру телефона */
+  tgPhone: '79631282556',
   instagram: 'https://instagram.com/slopay_buket',
   vk: 'https://vk.com/slopay_buket',
   /** Профиль с отзывами на Авито — вставьте реальную ссылку */
   reviewsUrl: 'https://www.avito.ru/',
   reviewsSource: 'Авито',
-  address: 'пр-т Ленинского Комсомола, 38, Новый город',
+  address: 'ул. Карбышева, 37, Новый город',
   hours: 'Ежедневно 8:00–21:00',
   sameDayDeadlineHour: 17, // до скольки принимаем «на сегодня»
   openHour: 8,
@@ -25,22 +27,21 @@ export const SITE = {
   rating: '5,0',
   reviewsCount: 55,
   sinceYear: 2020,
-  freeDeliveryFrom: 6000,
+  freeDeliveryFrom: 8000,
   masterName: 'Мария',
-  corpDeadline: '15 декабря',
+  corpDeadline: '5 декабря',
   seasonSlotsLeft: 23,
 } as const
 
-export const waLink = (text: string) =>
-  `https://wa.me/${SITE.waNumber}?text=${encodeURIComponent(text)}`
+/** MAX не поддерживает предзаполненный текст — ведём в профиль. Аргумент оставлен для аналитики и будущего API. */
+export const maxLink = (_text?: string) => SITE.maxUrl
 
-export const tgLink = (text?: string) =>
-  `https://t.me/${SITE.tgUser}${text ? `?text=${encodeURIComponent(text)}` : ''}`
+export const tgLink = (_text?: string) => `https://t.me/+${SITE.tgPhone}`
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
-export const WA = {
+export const MSG = {
   header: 'Здравствуйте! Хочу заказать съедобный букет.',
-  mobileBar: 'Здравствуйте! Хочу заказать букет. Подскажите, что можно успеть сегодня?',
+  mobileBar: 'Здравствуйте! Хочу заказать букет.',
   heroPhoto: 'Здравствуйте! Пришлю фото примера — соберёте похожий? 📷',
   custom: 'Здравствуйте! Хочу индивидуальный букет. Вот что люблю / вот фото-пример:',
   selection: 'Здравствуйте! Пришлите подборку из 3 вариантов. Повод: …, бюджет: … ₽',
@@ -50,5 +51,5 @@ export const WA = {
   final: 'Здравствуйте! Помогите подобрать букет.',
   thanks: 'Здравствуйте! Только что оставил(а) заявку на сайте — не хочу ждать 🙂',
   product: (name: string) =>
-    `Здравствуйте! Хочу букет «${name}» (${location.origin}/#catalog). На какую дату свободно?`,
+    `Здравствуйте! Хочу заказать: ${name}. На какую дату свободно?`,
 }

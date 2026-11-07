@@ -1,29 +1,26 @@
 import { useEffect, useState } from 'react'
 import { ParallaxImage, Parallax } from '@/components/aceternity/parallax'
-import { Clock, Loader2, MapPin, Phone } from 'lucide-react'
+import { CalendarCheck, Loader2, MapPin, Phone } from 'lucide-react'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input, PhoneInput } from '@/components/ui/input'
 import { Consent } from '@/components/shared/consent'
-import { InstagramIcon, TelegramIcon, VkIcon, WhatsAppIcon } from '@/components/shared/icons'
+import { InstagramIcon, TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
 import { Logo } from '@/components/sections/header'
 import { CONTACTS } from '@/components/sections/order-flow'
-import { useOrderWindow } from '@/hooks/use-order-window'
-import { SITE, WA, tgLink, waLink } from '@/lib/config'
+import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
-import { formatLeft } from '@/lib/time'
 
 export function FinalOffer() {
   const { showThanks } = useUI()
-  const { acceptingToday, secondsLeft } = useOrderWindow(15_000)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('wa')
+  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('max')
   const [consent, setConsent] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -37,7 +34,7 @@ export function FinalOffer() {
     setLoading(true)
     const ok = await submitLead({ source: 'final', name, phone, contact })
     setLoading(false)
-    if (!ok) return setError('Не получилось отправить — напишите нам в WhatsApp')
+    if (!ok) return setError('Не получилось отправить — напишите нам в MAX')
     showThanks(name)
   }
 
@@ -51,19 +48,17 @@ export function FinalOffer() {
           <Parallax speed={-0.35} className="absolute left-4 top-4">
           <div className="rounded-2xl border border-honey/40 bg-scrim/80 px-4 py-3 shadow-lift backdrop-blur">
             <p className="flex items-center gap-1.5 text-[12px] font-bold text-muted">
-              <Clock className="h-3.5 w-3.5" /> {acceptingToday ? 'До конца приёма заказов на сегодня' : 'Сегодня приём закрыт'}
+              <CalendarCheck className="h-3.5 w-3.5" /> Лучше заказать заранее
             </p>
-            <p className="text-gold text-[26px] font-extrabold leading-tight tracking-tight" aria-live="polite">
-              {acceptingToday ? formatLeft(secondsLeft) : 'Принимаем на завтра'}
-            </p>
+            <p className="text-gold text-[26px] font-extrabold leading-tight tracking-tight">за 1–2 дня</p>
           </div>
           </Parallax>
         </BlurFade>
         <BlurFade delay={0.1}>
           <h2 className="h-display text-[32px] md:text-[52px]">
-            Удивите сегодня — <span className="italic text-gold">букет будет у получателя через 2 часа</span>
+            Удивите близких — <span className="italic text-gold">подарком, который съедят с удовольствием</span>
           </h2>
-          <p className="mt-4 text-[16px] font-medium text-ink/75 md:text-lg">Оставьте номер — за 10 минут подберём букет под повод и бюджет.</p>
+          <p className="mt-4 text-[16px] font-medium text-ink/75 md:text-lg">Оставьте номер — подберём букет под повод и бюджет.</p>
           <form onSubmit={submit} noValidate className="mt-6 flex flex-col gap-3 rounded-3xl border border-honey/25 bg-surface/90 p-5 shadow-lift backdrop-blur md:p-6">
             <Input placeholder="Имя" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Имя" />
             <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
@@ -80,8 +75,8 @@ export function FinalOffer() {
           </form>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="text-[14px] font-semibold text-ink/70">Не любите формы?</span>
-            <a href={waLink(WA.final)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'final' })} className="grid h-12 w-12 place-items-center rounded-full bg-wa text-white" aria-label="WhatsApp">
-              <WhatsAppIcon className="h-6 w-6" />
+            <a href={maxLink(MSG.final)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'final' })} className="grid h-12 w-12 place-items-center rounded-full bg-max text-white" aria-label="MAX">
+              <MaxIcon className="h-6 w-6" />
             </a>
             <a href={tgLink()} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'final' })} className="grid h-12 w-12 place-items-center rounded-full bg-tg text-white" aria-label="Telegram">
               <TelegramIcon className="h-5 w-5" />
@@ -108,7 +103,7 @@ export function Footer() {
           </a>
           <div className="mt-4 flex gap-2">
             {[
-              { href: waLink(WA.header), icon: WhatsAppIcon, label: 'WhatsApp', cls: 'bg-wa' },
+              { href: maxLink(MSG.header), icon: MaxIcon, label: 'MAX', cls: 'bg-max' },
               { href: tgLink(), icon: TelegramIcon, label: 'Telegram', cls: 'bg-tg' },
               { href: SITE.instagram, icon: InstagramIcon, label: 'Instagram', cls: 'bg-white/10' },
               { href: SITE.vk, icon: VkIcon, label: 'ВКонтакте', cls: 'bg-white/10' },
@@ -123,7 +118,7 @@ export function Footer() {
           <p className="flex items-start gap-2 text-white">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> Ульяновск, {SITE.address}
           </p>
-          <p>{SITE.hours} · заказы на сегодня до {SITE.sameDayDeadlineHour}:00</p>
+          <p>{SITE.hours}</p>
           <p>Самовывоз из мастерской — бесплатно</p>
           {SITE.legal && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{SITE.legal}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
@@ -135,7 +130,7 @@ export function Footer() {
           {map ? (
             <iframe
               title="Мастерская «Слопай букет» на Яндекс Картах"
-              src="https://yandex.ru/map-widget/v1/?ll=48.5486%2C54.3698&z=14&pt=48.5486%2C54.3698%2Cpm2rdm"
+              src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(`Ульяновск, ${SITE.address.replace(", Новый город", "")}`)}&z=16`}
               className="h-full w-full border-0"
               loading="lazy"
             />
@@ -149,7 +144,7 @@ export function Footer() {
         </div>
       </div>
       <p className="container-x mt-10 border-t border-white/10 pt-6 text-[12px] text-white/40">
-        © 2023–2026 Слопай букет — съедобные букеты с доставкой в Ульяновске. Клубника в шоколаде, мясные и сырные букеты, фруктовые композиции и корпоративные подарки.
+        © 2023–2026 Слопай букет — съедобные букеты с доставкой в Ульяновске. Ягодные, мясные и раковые букеты, сухофрукты, сладкие боксы и корпоративные подарки.
       </p>
     </footer>
   )
@@ -209,7 +204,7 @@ export function ExitPopup() {
     e.preventDefault()
     if (!isPhoneValid(phone)) return setErr('Проверьте номер')
     setLoading(true)
-    const ok = await submitLead({ source: 'exit-popup', phone, contact: 'wa' })
+    const ok = await submitLead({ source: 'exit-popup', phone, contact: 'max' })
     setLoading(false)
     if (ok) {
       setOpen(false)
@@ -223,7 +218,7 @@ export function ExitPopup() {
         <img src="/img/real/berry/yag-24.webp" alt="" className="h-40 w-full object-cover" />
         <div className="p-6">
           <DialogTitle className="font-display text-[26px] font-semibold leading-tight">Не успели выбрать?</DialogTitle>
-          <DialogDescription className="mt-2 text-[15px] text-ink-soft">Пришлём подборку из 5 хитов с ценами в WhatsApp — выберете спокойно.</DialogDescription>
+          <DialogDescription className="mt-2 text-[15px] text-ink-soft">Пришлём подборку из 5 хитов с ценами в MAX — выберете спокойно.</DialogDescription>
           <form onSubmit={submit} noValidate className="mt-4 flex flex-col gap-3">
             <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
             {err && <p className="text-sm font-semibold text-berry">{err}</p>}

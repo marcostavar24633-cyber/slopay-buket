@@ -1,37 +1,34 @@
 import { useState } from 'react'
-import { Baby, Building2, Clock, CreditCard, EyeOff, Loader2, Store } from 'lucide-react'
+import { Baby, CalendarCheck, CreditCard, EyeOff, Loader2, Store } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { PhoneInput } from '@/components/ui/input'
-import { TelegramIcon, WhatsAppIcon } from '@/components/shared/icons'
-import { useOrderWindow } from '@/hooks/use-order-window'
-import { SITE, WA, tgLink, waLink } from '@/lib/config'
+import { TelegramIcon, MaxIcon } from '@/components/shared/icons'
+import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
-import { formatLeft } from '@/lib/time'
 import { rub } from '@/lib/utils'
 
 const STEPS = [
   { n: '01', t: 'Выберите букет', d: 'В каталоге — или пришлите любое фото-пример из Pinterest.' },
-  { n: '02', t: 'Согласуем детали', d: 'Состав, текст открытки, время. Отвечаем в течение 10 минут.' },
+  { n: '02', t: 'Согласуем детали', d: 'Состав, текст открытки, дату и время доставки.' },
   { n: '03', t: 'Пришлём фото готового букета', d: 'Перед отправкой — вы видите, что получит человек.' },
   { n: '04', t: 'Курьер доставит и вручит', d: 'Пришлём ссылку Яндекс Go — следите за курьером на карте.' },
 ]
 
 const ZONES = [
-  { zone: 'Новый город (Заволжский)', time: 'от 30 мин', price: 250, color: '#ebcb6e' },
-  { zone: 'Старый город Заволжья, Верхняя Терраса', time: 'от 40 мин', price: 350, color: '#d4af37' },
-  { zone: 'Ленинский (центр), Засвияжский, Железнодорожный', time: 'от 60 мин', price: 450, color: '#e2566c' },
-  { zone: 'Пригород (Димитровград, Чердаклы и др.)', time: 'по договорённости', price: null, color: '#948872' },
+  { zone: 'Новый город (Заволжский)', price: 250, color: '#ebcb6e' },
+  { zone: 'Старый город Заволжья, Верхняя Терраса', price: 350, color: '#d4af37' },
+  { zone: 'Ленинский (центр), Засвияжский, Железнодорожный', price: 450, color: '#e2566c' },
+  { zone: 'Пригород (Чердаклы и др.)', price: null, color: '#948872' },
 ]
 
 const DETAILS = [
-  { icon: Clock, t: `Заказ до ${SITE.sameDayDeadlineHour}:00 — доставим сегодня`, d: 'Работаем ежедневно 8:00–21:00. Доставка к точному времени или в часовой интервал. Утром ко дню рождения — с 8:00.' },
+  { icon: CalendarCheck, t: 'Доставка к удобному времени', d: 'Договоримся о дате и времени вручения. Лучше заказать за 1–2 дня, в отдельных случаях соберём день в день.' },
   { icon: EyeOff, t: 'Анонимно, сюрпризом', d: 'Не скажем, от кого, пока не разрешите. Курьер вручит молча или с вашей фразой.' },
-  { icon: Building2, t: 'В офис, ресторан, роддом', d: 'Выписка из роддома на Димитровградском шоссе — частый заказ, знаем, как пройти.' },
   { icon: Store, t: 'Самовывоз из Нового города — бесплатно', d: SITE.address + '. Подготовим к вашему времени.' },
   { icon: CreditCard, t: 'Оплата удобным способом', d: 'Перевод по СБП, карта онлайн, для юрлиц — по счёту. Оплата после согласования букета.' },
   { icon: Baby, t: 'Детские и аллерген-free букеты', d: 'Без орехов, без глютена, без лактозы — соберём на отдельной чистой поверхности.' },
@@ -45,7 +42,7 @@ export function HowToOrder() {
           eyebrow="Как заказать"
           title={
             <>
-              Заказ за 3 минуты — <span className="italic text-gold">и букет у получателя через 2 часа</span>
+              Пара сообщений — <span className="italic text-gold">и букет едет к получателю</span>
             </>
           }
         />
@@ -59,9 +56,9 @@ export function HowToOrder() {
           ))}
         </ol>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button variant="wa" size="lg" asChild>
-            <a href={waLink(WA.howOrder)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'how-order' })}>
-              <WhatsAppIcon className="h-5 w-5" /> Заказать в WhatsApp
+          <Button variant="max" size="lg" asChild>
+            <a href={maxLink(MSG.howOrder)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'how-order' })}>
+              <MaxIcon className="h-5 w-5" /> Заказать в MAX
             </a>
           </Button>
           <Button variant="tgOutline" size="lg" asChild>
@@ -83,10 +80,10 @@ export function Delivery() {
           eyebrow="Доставка по Ульяновску"
           title={
             <>
-              Доставляем по всему Ульяновску — <span className="italic text-gold">от 2 часов с момента заказа</span>
+              Доставляем <span className="italic text-gold">по всему Ульяновску</span> — к удобному вам времени
             </>
           }
-          sub="Мастерская в Новом городе: в Заволжье привезём быстрее всех. На правый берег — честно через мосты."
+          sub="Мастерская в Новом городе. Привезём и в Заволжье, и на правый берег — стоимость зависит от района."
         />
 
         <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
@@ -98,7 +95,6 @@ export function Delivery() {
               <thead className="bg-cream-2 text-[12px] font-bold uppercase tracking-wider text-muted">
                 <tr>
                   <th className="px-4 py-3 md:px-6">Район</th>
-                  <th className="px-2 py-3">В пути</th>
                   <th className="px-4 py-3 text-right md:px-6">Стоимость</th>
                 </tr>
               </thead>
@@ -111,16 +107,15 @@ export function Delivery() {
                         {z.zone}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-2 py-4 text-ink-soft">{z.time}</td>
                     <td className="whitespace-nowrap px-4 py-4 text-right font-bold md:px-6">{z.price ? `от ${rub(z.price)}` : 'по запросу'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className="m-4 rounded-2xl bg-honey-100 px-4 py-3 text-[14px] font-bold md:mx-6">
-              🎁 Бесплатная доставка по городу при заказе от {rub(SITE.freeDeliveryFrom)}
+              🎁 Бесплатная доставка по Новому городу при заказе от {rub(SITE.freeDeliveryFrom)}
             </div>
-            <p className="px-4 pb-5 text-[12px] text-muted md:px-6">Время и цены — ориентир по тарифам Яндекс Go, в час пик и в праздники могут меняться.</p>
+            <p className="px-4 pb-5 text-[12px] text-muted md:px-6">Цены — ориентир по тарифам Яндекс Go, в праздники могут меняться.</p>
           </BlurFade>
         </div>
 
@@ -146,7 +141,6 @@ export function Delivery() {
 
 function DeliveryCheck() {
   const { showThanks } = useUI()
-  const { acceptingToday, secondsLeft } = useOrderWindow()
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
@@ -166,10 +160,8 @@ function DeliveryCheck() {
     <BlurFade className="mt-8 rounded-3xl bg-panel text-ink border border-honey/25 p-6 md:p-8">
       <form onSubmit={submit} noValidate className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="font-display text-[24px] font-semibold leading-tight md:text-[28px]">Успеете ли вы сегодня? Уточним за 5 минут</p>
-          <p className="mt-1 text-[14px] text-ink/65">
-            {acceptingToday ? `До конца приёма заказов на сегодня: ${formatLeft(secondsLeft)}` : 'Сегодня приём закрыт — подскажем ближайшее время на завтра'}
-          </p>
+          <p className="font-display text-[24px] font-semibold leading-tight md:text-[28px]">Сколько стоит доставка до вашего адреса?</p>
+          <p className="mt-1 text-[14px] text-ink/65">Оставьте номер — перезвоним и подскажем стоимость и свободные даты</p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
           <PhoneInput dark value={phone} onChange={setPhone} aria-label="Телефон" className="sm:w-64" />
@@ -205,16 +197,14 @@ function CityScheme() {
       <circle cx="430" cy="150" r="8" className="fill-honey" />
       <text x="430" y="135" fontSize="22" textAnchor="middle">🍓</text>
       <text x="430" y="182" fontSize="12" fontWeight="800" className="fill-ink" textAnchor="middle">Мастерская</text>
-      <text x="430" y="242" fontSize="13" fontWeight="700" className="fill-honey-600" textAnchor="middle">Новый город · 30 мин</text>
-      <text x="425" y="300" fontSize="12" fontWeight="700" className="fill-honey-600" textAnchor="middle">Верхняя Терраса · 40 мин</text>
-      <text x="415" y="350" fontSize="11.5" fontWeight="700" className="fill-honey-600" textAnchor="middle">Старый город Заволжья · 40 мин</text>
+      <text x="430" y="242" fontSize="13" fontWeight="700" className="fill-honey-600" textAnchor="middle">Новый город</text>
+      <text x="425" y="300" fontSize="12" fontWeight="700" className="fill-honey-600" textAnchor="middle">Верхняя Терраса</text>
+      <text x="415" y="350" fontSize="11.5" fontWeight="700" className="fill-honey-600" textAnchor="middle">Старый город Заволжья</text>
       {/* правый берег подписи */}
       <text x="110" y="70" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Правый берег</text>
       <text x="110" y="190" fontSize="13" fontWeight="800" className="fill-berry" textAnchor="middle">Ленинский (центр)</text>
-      <text x="110" y="208" fontSize="12" className="fill-berry" textAnchor="middle">от 60 мин</text>
       <text x="110" y="292" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Засвияжье,</text>
       <text x="110" y="308" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Железнодорожный</text>
-      <text x="110" y="324" fontSize="12" className="fill-berry" textAnchor="middle">от 60 мин</text>
     </svg>
   )
 }

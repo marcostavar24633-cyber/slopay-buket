@@ -1,25 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Camera, Plus, Ruler, Users } from 'lucide-react'
+import { ArrowRight, Camera, Plus, Ruler } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SectionTitle } from '@/components/shared/section-title'
-import { WhatsAppIcon } from '@/components/shared/icons'
-import { PRICE_TABS, PRODUCTS, RECIPIENT_TABS, TYPE_TABS, type Product, type Size } from '@/lib/products'
-import { WA, waLink } from '@/lib/config'
+import { MaxIcon } from '@/components/shared/icons'
+import { PRICE_TABS, PRODUCTS, RECIPIENT_TABS, TYPE_TABS, productTitle, type Product, type Size } from '@/lib/products'
+import { GALLERY } from '@/lib/gallery'
+import { CategoryDialog } from '@/components/sections/gallery'
+import { MSG, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
 import { cn, rub } from '@/lib/utils'
 
 type Group = 'recipient' | 'type' | 'price'
 const GROUPS: { key: Group; label: string }[] = [
-  { key: 'recipient', label: 'Кому' },
   { key: 'type', label: 'Состав' },
+  { key: 'recipient', label: 'Кому' },
   { key: 'price', label: 'Цена' },
 ]
 const PAGE = 8
 
 export function Catalog() {
-  const [group, setGroup] = useState<Group>('recipient')
+  const [group, setGroup] = useState<Group>('type')
   const [filter, setFilter] = useState<string>('all')
   const [showAll, setShowAll] = useState(false)
 
@@ -37,6 +39,7 @@ export function Catalog() {
   }, [group, filter])
 
   const visible = showAll ? list : list.slice(0, PAGE)
+  const [cat, setCat] = useState<Product['type'] | null>(null)
 
   return (
     <section id="catalog" className="relative py-14 md:py-24">
@@ -97,7 +100,7 @@ export function Catalog() {
           <AnimatePresence mode="popLayout">
             {visible.map((p) => (
               <motion.div key={p.id} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.25 }}>
-                <ProductCard product={p} />
+                <ProductCard product={p} onOpenCategory={setCat} />
               </motion.div>
             ))}
             {(showAll || list.length <= PAGE) && (
@@ -118,6 +121,7 @@ export function Catalog() {
           </div>
         )}
       </div>
+      <CategoryDialog cat={cat} onClose={() => setCat(null)} />
     </section>
   )
 }
@@ -130,7 +134,13 @@ const BADGE: Record<Product['badges'][number], { label: string; cls: string }> =
   season: { label: '🎄 Новый год', cls: 'bg-surface text-berry' },
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, onOpenCategory }: { product: Product; onOpenCategory: (c: Product['type']) => void }) {
+  const title = productTitle(product)
+  const count = GALLERY.filter((g) => g.cat === product.type).length
+  const openCat = () => {
+    goal('catalog_category_open', { cat: product.type })
+    onOpenCategory(product.type)
+  }
   const { openOrder } = useUI()
   const defaultSize = product.sizes.find((s) => s.key === 'M') ?? product.sizes[0]
   const [size, setSize] = useState<Size>(defaultSize)
@@ -153,12 +163,12 @@ function ProductCard({ product }: { product: Product }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
       <div className="relative aspect-[4/3] overflow-hidden bg-cream-2 sm:aspect-square">
         {/* мобильный: свайп; десктоп: второе фото по наведению */}
-        <div ref={scroller} onScroll={onScroll} className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto md:overflow-hidden">
-          <img src={product.image} alt={product.name} loading="lazy" onLoad={resetSlide} width={720} height={720} className="h-full w-full shrink-0 snap-start object-cover transition duration-500 md:group-hover:opacity-0" />
+        <div ref={scroller} onScroll={onScroll} onClick={openCat} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openCat()} aria-label={`Все работы: ${title}`} className="cursor-pointer no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto md:overflow-hidden">
+          <img src={product.image} alt={`${title} — работа мастерской`} loading="lazy" onLoad={resetSlide} width={720} height={720} className="h-full w-full shrink-0 snap-start object-cover transition duration-500 md:group-hover:opacity-0" />
           {product.alt && (
             <img
               src={product.alt}
-              alt={`Похожая работа — ${product.name}`}
+              alt={`Похожая работа — ${title}`}
               loading="lazy"
               width={720}
               height={720}
@@ -189,16 +199,18 @@ function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4 md:p-5">
-        <h3 className="font-display text-[22px] font-semibold leading-tight">{product.name}</h3>
+        <button onClick={openCat} className="group/t flex min-h-11 cursor-pointer flex-col items-start text-left">
+          <h3 className="font-display text-[22px] font-semibold leading-tight">{title}</h3>
+          <span className="mt-1 inline-flex items-center gap-1 text-[12.5px] font-bold text-honey-600 group-hover/t:underline">
+            Смотреть все {count} работ <ArrowRight className="h-3.5 w-3.5" />
+          </span>
+        </button>
         <p className="mt-1.5 line-clamp-2 text-[13.5px] leading-snug text-ink-soft">
           <b className="font-bold text-ink">{size.note}.</b> {product.composition}
         </p>
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] font-semibold text-muted">
           <span className="inline-flex items-center gap-1">
             <Ruler className="h-3.5 w-3.5" /> {size.dims}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Users className="h-3.5 w-3.5" /> на {size.persons} чел.
           </span>
         </div>
 
@@ -229,14 +241,14 @@ function ProductCard({ product }: { product: Product }) {
               Заказать
             </Button>
             <a
-              href={waLink(WA.product(product.name))}
+              href={maxLink(MSG.product(title))}
               target="_blank"
               rel="noopener"
-              onClick={() => goal('wa_click', { from: 'card', product: product.name })}
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-wa/10 text-wa transition hover:bg-wa hover:text-white"
-              aria-label={`Спросить про «${product.name}» в WhatsApp`}
+              onClick={() => goal('max_click', { from: 'card', product: product.id })}
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-max/10 text-max transition hover:bg-max hover:text-white"
+              aria-label={`Спросить про «${title}» в MAX`}
             >
-              <WhatsAppIcon className="h-5 w-5" />
+              <MaxIcon className="h-5 w-5" />
             </a>
           </div>
         </div>
@@ -257,10 +269,10 @@ function CustomCard() {
         </p>
       </div>
       <a
-        href={waLink(WA.custom)}
+        href={maxLink(MSG.custom)}
         target="_blank"
         rel="noopener"
-        onClick={() => goal('wa_click', { from: 'custom-card' })}
+        onClick={() => goal('max_click', { from: 'custom-card' })}
         className="relative mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-honey font-bold text-onaccent transition hover:bg-honey-600"
       >
         <Plus className="h-5 w-5" /> Собрать свой букет

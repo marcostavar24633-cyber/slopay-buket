@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import { StatusPill } from '@/components/shared/status-pill'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { TelegramIcon, WhatsAppIcon } from '@/components/shared/icons'
+import { TelegramIcon, MaxIcon } from '@/components/shared/icons'
 import { useScrolled } from '@/hooks/use-scrolled'
-import { SITE, WA, tgLink, waLink } from '@/lib/config'
+import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId } from '@/lib/ui-store'
 import { cn } from '@/lib/utils'
@@ -98,8 +98,8 @@ export function Header() {
           <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface 2xl:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
           </a>
-          <a href={waLink(WA.header)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-wa text-white transition hover:bg-wa-600" aria-label="Написать в WhatsApp">
-            <WhatsAppIcon className="h-5 w-5" />
+          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-max text-white transition hover:bg-max-600" aria-label="Написать в MAX">
+            <MaxIcon className="h-5 w-5" />
           </a>
           <a href={tgLink()} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-tg text-white transition hover:brightness-95" aria-label="Написать в Telegram">
             <TelegramIcon className="h-[18px] w-[18px]" />
@@ -113,13 +113,13 @@ export function Header() {
           <ThemeToggle />
         </div>
 
-        {/* мобильный: трубка + WA + бургер */}
+        {/* мобильный: трубка + MSG + бургер */}
         <div className="flex items-center gap-1.5 md:hidden">
           <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header-m' })} className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface max-[379px]:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
           </a>
-          <a href={waLink(WA.header)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'header-m' })} className="grid h-10 w-10 place-items-center rounded-full bg-wa text-white" aria-label="WhatsApp">
-            <WhatsAppIcon className="h-5 w-5" />
+          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header-m' })} className="grid h-10 w-10 place-items-center rounded-full bg-max text-white" aria-label="MAX">
+            <MaxIcon className="h-5 w-5" />
           </a>
           <button onClick={() => setOpen((v) => !v)} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-honey text-onaccent" aria-label="Меню" aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -160,13 +160,13 @@ export function MobileBar() {
     <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl md:hidden">
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <a
-          href={waLink(WA.mobileBar)}
+          href={maxLink(MSG.mobileBar)}
           target="_blank"
           rel="noopener"
-          onClick={() => goal('wa_click', { from: 'mobile-bar' })}
-          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-wa text-[15px] font-bold text-white shadow-[0_8px_24px_-10px_rgb(26_158_82/0.8)] active:scale-[0.98]"
+          onClick={() => goal('max_click', { from: 'mobile-bar' })}
+          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-max text-[15px] font-bold text-white shadow-[0_8px_24px_-10px_rgb(26_158_82/0.8)] active:scale-[0.98]"
         >
-          <WhatsAppIcon className="h-5 w-5" /> Написать в WhatsApp
+          <MaxIcon className="h-5 w-5" /> Написать в MAX
         </a>
         <a
           href={SITE.phoneHref}

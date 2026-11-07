@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { ParallaxImage } from '@/components/aceternity/parallax'
-import { CalendarClock, Download, FileText, Loader2, Megaphone, Truck } from 'lucide-react'
+import { CalendarClock, Download, Gift, Loader2, Megaphone, Truck } from 'lucide-react'
 import { Spotlight } from '@/components/aceternity/spotlight'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input, PhoneInput } from '@/components/ui/input'
 import { Consent } from '@/components/shared/consent'
 import { SITE } from '@/lib/config'
@@ -15,23 +14,23 @@ import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
 
 const PAINS = [
-  { icon: Megaphone, t: 'Надоели ежедневники и кружки с логотипом', d: 'Съедобный подарок запоминают и выкладывают в соцсети — бесплатный охват для вашего бренда.' },
-  { icon: Truck, t: 'Нет времени заниматься', d: 'Берём всё на себя: список адресатов → адресная доставка каждому с именной открыткой.' },
-  { icon: FileText, t: 'Нужны документы', d: 'Договор, счёт, УПД и акт. Безнал с НДС и без — работаем как ИП на УСН.' },
-  { icon: CalendarClock, t: 'Боюсь, что в праздник не успеют', d: 'Фиксируем дату и предоплату 30%, резервируем производственные слоты под вас.' },
+  { icon: Megaphone, t: 'Надоели ежедневники и кружки', d: 'Съедобный подарок запоминают, фотографируют и с удовольствием съедают всей командой.' },
+  { icon: Gift, t: 'Нужно много одинаковых подарков', d: 'Аккуратные коробочки одного стиля — удобно вручать каждому сотруднику или партнёру.' },
+  { icon: Truck, t: 'Нет времени заниматься', d: 'Берём всё на себя: соберём, упакуем и привезём в офис к нужной дате.' },
+  { icon: CalendarClock, t: 'Боюсь, что в праздник не успеют', d: 'Фиксируем дату по предоплате 50% и заранее бронируем её под вас.' },
 ]
 
 const FORMATS = [
-  { t: 'Мини-бокс сотруднику', p: 'от 1 490 ₽' },
-  { t: 'Букет партнёру', p: 'от 4 490 ₽' },
-  { t: 'Фуршет-букет на корпоратив', p: 'от 9 900 ₽' },
+  { t: 'Сладкая коробочка', p: 'от 1 290 ₽' },
+  { t: 'Ягодная коробочка', p: 'от 1 690 ₽' },
+  { t: 'Коробочка с сухофруктами', p: 'от 1 490 ₽' },
 ]
 
 
 const QTY = [
   { key: '5-10', label: '5–10' },
-  { key: '10-30', label: '10–30' },
-  { key: '30+', label: '30+' },
+  { key: '10-20', label: '10–20' },
+  { key: '20+', label: '20+' },
 ] as const
 
 export function Corporate() {
@@ -41,7 +40,6 @@ export function Corporate() {
   const [company, setCompany] = useState('')
   const [qty, setQty] = useState<(typeof QTY)[number]['key'] | null>(null)
   const [date, setDate] = useState('')
-  const [logo, setLogo] = useState(true)
   const [consent, setConsent] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -63,7 +61,7 @@ export function Corporate() {
     if (!consent) return setError('Нужно согласие на обработку данных')
     setError('')
     setLoading(true)
-    const ok = await submitLead({ source: 'corporate', name, phone, company, qty, date, logo })
+    const ok = await submitLead({ source: 'corporate', name, phone, company, qty, date })
     setLoading(false)
     if (!ok) return setError('Не получилось отправить — позвоните нам')
     showThanks(name)
@@ -84,7 +82,7 @@ export function Corporate() {
             Корпоративные подарки, которые <span className="italic text-gold">не отправятся в ящик стола</span>
           </h2>
           <p className="mt-4 text-[16px] text-white/65 md:text-lg">
-            Брендированные съедобные букеты и боксы с логотипом вашей компании — для сотрудников, клиентов и партнёров.
+            Небольшие съедобные подарки в коробочках — для сотрудников, клиентов и партнёров.
           </p>
         </BlurFade>
 
@@ -101,9 +99,9 @@ export function Corporate() {
             </div>
 
             <div className="relative mt-5 overflow-hidden rounded-3xl">
-              <ParallaxImage src="/img/real/sea/m-20.webp" alt="Большой раковый сет на коллектив — работа мастерской" className="aspect-[16/9]" />
+              <ParallaxImage src="/img/real/sweet/sl-22.webp" alt="Сладкий бокс — работа мастерской" className="aspect-[16/9]" />
               <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
-                {['Логотип — на ленте', 'на топпере', 'на коробке'].map((t) => (
+                {['Компактные коробочки', 'единый стиль', 'на любое количество'].map((t) => (
                   <span key={t} className="rounded-full bg-black/60 px-3 py-1 text-[12px] font-bold backdrop-blur">{t}</span>
                 ))}
               </div>
@@ -118,7 +116,7 @@ export function Corporate() {
               ))}
             </div>
             <p className="mt-4 text-[14px] font-semibold text-white/75">
-              Скидка за объём: <span className="text-honey">от 10 шт. — −5%</span>, <span className="text-honey">от 30 шт. — −10%</span>
+              Скидка за объём: <span className="text-honey">от 10 шт. — −10%</span>, <span className="text-honey">от 20 шт. — −15%</span>
             </p>
 
             <figure className="mt-8 rounded-3xl border border-honey/25 bg-white/[0.04] p-5">
@@ -150,15 +148,12 @@ export function Corporate() {
                   <p className="mb-1.5 text-sm font-semibold text-white/60">Дата мероприятия</p>
                   <Input dark type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Дата мероприятия" className="[color-scheme:dark]" />
                 </div>
-                <Checkbox dark checked={logo} onChange={setLogo}>
-                  Нужен логотип компании
-                </Checkbox>
                 <Consent dark checked={consent} onChange={setConsent} />
                 {error && <p className="rounded-xl bg-berry/20 px-3 py-2 text-sm font-semibold text-white" role="alert">{error}</p>}
                 <Button type="submit" size="lg" disabled={loading}>
                   {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Получить коммерческое предложение'}
                 </Button>
-                <p className="text-center text-[12.5px] text-white/50">Работаем по договору и безналу</p>
+                <p className="text-center text-[12.5px] text-white/50">Предоплата 50% — фиксирует дату</p>
                 <a
                   href="/corporate-catalog.pdf"
                   download

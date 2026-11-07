@@ -119,7 +119,7 @@ export function Reviews() {
 
       {/* Фото-стена */}
       <div className="mt-12 md:mt-16">
-        <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Реальные букеты, реальные люди</p>
+        <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Наши букеты</p>
         <Marquee duration="60s">
           {WALL.map((src, i) => (
             <img key={i} src={src} alt="" loading="lazy" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />

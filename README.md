@@ -17,11 +17,11 @@ npm run test:unit      # маска телефона
 
 | Где | Что |
 |---|---|
-| `src/lib/config.ts` | телефон, WhatsApp, Telegram, адрес, **ссылка на профиль Авито (`reviewsUrl`)**, ИП/ИНН (`legal`, пусто — не показывается), дедлайн «на сегодня» (17:00). Рейтинг 5,0/55 и имя Мария — уже реальные |
+| `src/lib/config.ts` | телефон, MAX, Telegram, адрес, **ссылка на профиль Авито (`reviewsUrl`)**, ИП/ИНН (`legal`, пусто — не показывается), дедлайн «на сегодня» (17:00). Рейтинг 5,0/55 и имя Мария — уже реальные |
 | `src/lib/products.ts` | 17 позиций на реальных фото. **Названия, состав и цены — черновик**, сверьте с прайсом |
 | `public/img/real/*` | реальные фото работ (170) и скриншоты отзывов (16). Не хватает фото «букет в руках» — добавьте, когда будут |
 | `src/components/sections/reviews.tsx` | 6 реальных отзывов с Авито (дословно) — можно заменить другими |
-| `src/components/sections/corporate.tsx` | логотипы корпоративных клиентов — добавьте, когда будут разрешения |
+| `src/lib/config.ts` → `maxUrl` | ссылка на профиль в MAX (Профиль → «Поделиться») |
 | `src/lib/analytics.ts` | ID Яндекс Метрики (+ счётчик в `index.html`) |
 | `public/corporate-catalog.pdf` | заглушка; пересобрать: `npm run pdf` |
 | `/privacy`, `/oferta` | страницы политики и оферты (ссылки уже стоят) |
@@ -34,11 +34,11 @@ npm run test:unit      # маска телефона
 
 ## Цели Метрики (уже расставлены)
 
-`cta_header`, `cta_hero_catalog`, `cta_hero_quiz`, `wa_click{from}`, `tg_click{from}`, `phone_click{from}`, `order_open`,
+`cta_header`, `cta_hero_catalog`, `cta_hero_quiz`, `max_click{from}`, `tg_click{from}`, `phone_click{from}`, `order_open`,
 `catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, `lead_<source>`, `upsell_added`, `thanks_screen`,
 `exit_popup_show`, `corp_pdf_download`, `yandex_reviews_click`, `season_bar_click`.
 
-У каждой WA-кнопки свой предзаполненный текст (`WA` в `config.ts`) — видно, какая кнопка приводит клиентов.
+У каждой MSG-кнопки свой предзаполненный текст (`MSG` в `config.ts`) — видно, какая кнопка приводит клиентов.
 
 ## A/B и сезонность
 

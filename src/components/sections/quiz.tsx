@@ -64,7 +64,7 @@ const STEPS = [
 ] as const
 
 const CHANNELS = [
-  { key: 'wa', label: 'WhatsApp' },
+  { key: 'max', label: 'MAX' },
   { key: 'tg', label: 'Telegram' },
   { key: 'sms', label: 'SMS' },
 ] as const
@@ -79,7 +79,7 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [phone, setPhone] = useState('')
-  const [channel, setChannel] = useState<(typeof CHANNELS)[number]['key']>('wa')
+  const [channel, setChannel] = useState<(typeof CHANNELS)[number]['key']>('max')
   const [when, setWhen] = useState<(typeof WHEN)[number]['key']>('today')
   const [consent, setConsent] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -107,7 +107,7 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
     setLoading(true)
     const ok = await submitLead({ source: 'quiz', phone, contact: channel, when, ...answers })
     setLoading(false)
-    if (!ok) return setError('Не получилось отправить — попробуйте ещё раз или напишите в WhatsApp')
+    if (!ok) return setError('Не получилось отправить — попробуйте ещё раз или напишите в MAX')
     goal('quiz_complete')
     setQuizOpen(false)
     showThanks()

@@ -24,31 +24,42 @@ async function test(name, fn) {
     return { ctx, page }
   }
 
-  await test('Утро (10:00 Ульяновск): статус «на сегодня до 17:00»', async () => {
+  await test('Без временных рамок: нет «до 17:00», «от 2 часов», таймеров', async () => {
     const { ctx, page } = await mobile('2026-11-09T06:00:00Z')
-    await page.locator('p:visible', { hasText: 'Успеем доставить сегодня, если закажете до 17:00' }).first().waitFor()
+    const text = await page.evaluate(() => document.body.innerText)
+    for (const bad of ['17:00', 'от 2 часов', 'через 2 часа', 'доставим сегодня', 'роддом', 'не больше 6 часов', ' мин<', 'Чек с датой', 'реальные люди', 'логотип', 'Нужны документы', 'игристое', 'в руках человека', 'шоколад', 'WhatsApp']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
+    for (const good of ['1–2 дня', 'Карбышева, 37', '5 декабря', '−15%', 'предоплат', 'Новому городу']) assert.ok(text.toLowerCase().includes(good.toLowerCase()), 'нет: ' + good)
     await ctx.close()
   })
 
-  await test('Вечер (19:00 Ульяновск): статус «на завтра»', async () => {
-    const { ctx, page } = await mobile('2026-11-09T15:00:00Z')
-    await page.locator('p:visible', { hasText: 'Сегодня уже не успеем' }).first().waitFor()
-    await ctx.close()
-  })
-
-  await test('Липкая панель WhatsApp/Позвонить видна на мобильном', async () => {
+  await test('Липкая панель MAX/Позвонить видна на мобильном', async () => {
     const { ctx, page } = await mobile()
-    const wa = page.getByRole('link', { name: 'Написать в WhatsApp' })
+    const wa = page.getByRole('link', { name: 'Написать в MAX' })
     assert.ok(await wa.isVisible())
-    assert.match(await wa.getAttribute('href'), /^https:\/\/wa\.me\/79278007090\?text=/)
+    assert.match(await wa.getAttribute('href'), /^https:\/\/max\.ru\//)
+    assert.equal(await page.locator('a[href="https://t.me/+79631282556"]').count() > 0, true)
+    assert.equal(await page.locator('a[href="tel:+79631282556"]').count() > 0, true)
     assert.ok(await page.getByRole('link', { name: 'Позвонить' }).last().isVisible())
     await ctx.close()
   })
 
-  await test('Карточка: WA-ссылка содержит название букета', async () => {
+  await test('Каталог: «Состав» первым, карточки — категории без названий и «чел.», клик открывает категорию', async () => {
     const { ctx, page } = await mobile()
-    const href = await page.getByRole('link', { name: 'Спросить про «Мужской разговор» в WhatsApp' }).getAttribute('href')
-    assert.ok(decodeURIComponent(href).includes('Хочу букет «Мужской разговор»'))
+    const tabs = await page.locator('#catalog [role=tablist] [role=tab]').allTextContents()
+    assert.deepEqual(tabs, ['Состав', 'Кому', 'Цена'])
+    const titles = await page.locator('#catalog article h3').allTextContents()
+    const cats = ['Ягодный букет', 'Мясной букет', 'Букет из раков', 'Сухофрукты и орехи', 'Сладкий бокс', 'Мужской набор']
+    assert.ok(titles.every((t) => cats.includes(t)), titles.join(','))
+    assert.ok(!(await page.locator('#catalog').innerText()).includes('чел.'))
+    await page.locator('#catalog article').nth(1).getByRole('button', { name: /^\d+ работ|работ$/ }).filter({ hasText: 'работ' }).first().click()
+    const dlg = page.getByRole('dialog')
+    await dlg.getByRole('heading', { name: 'Раки и морепродукты' }).waitFor()
+    assert.equal(await dlg.locator('button[aria-label^="Открыть фото"]').count(), 36)
+    await dlg.locator('button[aria-label^="Открыть фото"]').nth(3).click()
+    await page.getByText('4 / 36').waitFor()
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    assert.equal(await page.locator('[role=dialog] h2', { hasText: 'Раки и морепродукты' }).count(), 1, 'категория должна остаться открытой')
     await ctx.close()
   })
 
@@ -62,10 +73,12 @@ async function test(name, fn) {
 
   await test('Фильтр «Для него» показывает только мужские букеты', async () => {
     const { ctx, page } = await mobile()
+    await page.locator('#catalog').getByRole('tab', { name: 'Кому' }).click()
     await page.locator('#catalog').getByRole('button', { name: 'Для него', exact: true }).click()
     await page.waitForTimeout(500)
     const names = await page.locator('#catalog article h3').allTextContents()
-    assert.deepEqual(names.sort(), ['Мужской разговор', 'Новогодняя ёлка', 'Острый перчик', 'Раки и креветки', 'Раковый букет', 'Сундук капитана', 'Тачка', 'Юбиляр'].sort())
+    assert.equal(names.length, 8)
+    assert.ok(!names.includes('Ягодный букет'), names.join(','))
     await ctx.close()
   })
 
@@ -73,7 +86,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     await page.locator('#catalog article').first().getByRole('button', { name: 'Заказать' }).click()
     const sheet = page.getByRole('dialog')
-    await sheet.getByText('Клубничное сердце').first().waitFor()
+    await sheet.getByText('Заказ: Ягодный букет').first().waitFor()
     await sheet.getByRole('button', { name: 'Оформить заказ' }).click()
     await sheet.getByRole('alert').filter({ hasText: 'Как к вам обращаться' }).waitFor()
     await sheet.getByLabel('Имя').fill('Ольга')
@@ -84,8 +97,8 @@ async function test(name, fn) {
     await sheet.locator('textarea').fill('С днём рождения!')
     await sheet.getByRole('button', { name: 'Оформить заказ' }).click()
     await sheet.getByText('Добавить к заказу?').waitFor()
-    await sheet.getByRole('button', { name: 'Добавить: Связка из 5 шаров' }).click()
-    await sheet.getByRole('button', { name: /Добавить за 790 ₽ и завершить/ }).click()
+    await sheet.getByRole('button', { name: /^Добавить: / }).first().click()
+    await sheet.getByRole('button', { name: /Добавить за .* и завершить/ }).click()
     await page.getByText('Спасибо, Ольга!').waitFor()
     await ctx.close()
   })
@@ -117,7 +130,7 @@ async function test(name, fn) {
     const f = page.locator('#corporate form')
     await f.getByLabel('Имя').fill('Ирина')
     await f.getByLabel('Телефон').fill('9270000000')
-    await f.getByRole('radio', { name: '10–30' }).click()
+    await f.getByRole('radio', { name: '10–20' }).click()
     await f.getByRole('button', { name: 'Получить коммерческое предложение' }).click()
     await page.getByText('Спасибо, Ирина!').waitFor()
     await ctx.close()
@@ -156,7 +169,7 @@ async function test(name, fn) {
 
   await test('Кнопки CTA на мобильном не ниже 44 px', async () => {
     const { ctx, page } = await mobile()
-    const small = await page.$$eval('main button, main a[href^="https://wa.me"]', (els) =>
+    const small = await page.$$eval('main button, main a[href^="https://max.ru"]', (els) =>
       els.filter((e) => e.offsetParent && e.getBoundingClientRect().height < 40 && e.textContent.trim().length > 8).map((e) => e.textContent.trim().slice(0, 40)),
     )
     assert.deepEqual(small, [])
@@ -195,11 +208,11 @@ async function test(name, fn) {
     }
   })
 
-  await test('Галерея: вкладка «Раки» → 36 фото, просмотр, листание, WhatsApp с номером фото', async () => {
+  await test('Галерея: вкладка «Раки» → 36 фото, просмотр, листание, MAX с номером фото', async () => {
     const { ctx, page } = await mobile()
     const g = page.locator('#gallery')
     await g.getByRole('tab', { name: /Раки и морепродукты/ }).click()
-    await g.getByRole('button', { name: /Показать ещё 24 фото/ }).click()
+    await g.getByRole('button', { name: /Показать ещё 12 фото/ }).click()
     assert.equal(await g.locator('button[aria-label^="Открыть фото"]').count(), 36)
     await g.locator('button[aria-label^="Открыть фото"]').first().click()
     const dlg = page.getByRole('dialog')
@@ -209,12 +222,13 @@ async function test(name, fn) {
     await page.keyboard.press('ArrowLeft')
     await dlg.getByText('1 / 36').waitFor()
     const href = decodeURIComponent(await dlg.getByRole('link', { name: /Хочу такой/ }).getAttribute('href'))
-    assert.match(href, /Букет из раков, фото №\d+ \(http.+\/img\/real\/sea\/.+\.webp\)/)
+    assert.match(href, /^https:\/\/max\.ru\//)
+    await dlg.getByText('· Букет из раков').waitFor()
     await page.keyboard.press('Escape')
     await ctx.close()
   })
 
-  await test('Отзывы с Авито: 16 скриншотов, открываются без кнопки WhatsApp', async () => {
+  await test('Отзывы с Авито: 16 скриншотов, открываются без кнопки MAX', async () => {
     const { ctx, page } = await mobile()
     const shots = page.locator('#reviews button[aria-label^="Отзыв "]')
     assert.equal(await shots.count(), 16)
@@ -251,7 +265,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.innerText)
     for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
-    for (const good of ['Мария', '5,0', '55 оценок', 'Авито', 'Раковый букет', 'Клубничное сердце']) assert.ok(text.includes(good), 'нет: ' + good)
+    for (const good of ['Мария', '5,0', '55 оценок', 'Авито', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
     const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
     assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))

@@ -4,8 +4,8 @@ import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { CardSpotlight } from '@/components/aceternity/card-spotlight'
 import { Button } from '@/components/ui/button'
-import { WhatsAppIcon } from '@/components/shared/icons'
-import { SITE, WA, waLink } from '@/lib/config'
+import { MaxIcon } from '@/components/shared/icons'
+import { SITE, MSG, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 
 const ROWS = [
@@ -13,15 +13,15 @@ const ROWS = [
   ['Один из десятка букетов на празднике', 'Все гости фотографируют и спрашивают «где заказывали?»'],
   ['Мужчине дарить неловко', 'Мясо, сыр и снеки — идеальный мужской подарок'],
   ['Нужна ваза, вода, уход', 'Готовый стол на компанию — открыл и угощаешь'],
-  ['25 роз в Ульяновске — от 4 500 ₽', 'За 3 990 ₽ — и подарок, и угощение на 2–3 человек'],
+  ['25 роз в Ульяновске — от 4 500 ₽', 'За 3 990 ₽ — и подарок, и угощение для всей компании'],
 ]
 
 const ADVANTAGES = [
-  { icon: '🌱', title: 'Свежее, как с грядки', text: 'Клубнику, раков, сыр и мясо закупаем утром в день сборки, за несколько часов до доставки. Запасов и «вчерашних» продуктов нет.' },
+  { icon: '🌱', title: 'Свежее, как с грядки', text: 'Клубнику, раков, сыр и мясо закупаем в день сборки. Запасов и «вчерашних» продуктов нет.' },
   { icon: '🎨', title: 'Выглядит на все деньги', text: 'Собираем по законам колористики, как флористы. Не пакет из супермаркета на палочках, а композиция, которую хочется сфотографировать.' },
-  { icon: '📦', title: 'Доедет идеальным', text: 'Расставляем в коробке и закрываем прозрачной плёнкой. Курьер Яндекс Go везёт напрямую, без заездов — ничего не сместится.' },
-  { icon: '🧤', title: 'Собрано чистыми руками — буквально', text: 'Мастер работает в перчатках и маске, на пищевых шпажках. Сыр и мясо в герметичной пищевой плёнке — можно сразу на стол.' },
-  { icon: '✏️', title: 'Под вас, а не по шаблону', text: 'Уберём орехи при аллергии, заменим дорблю на маасдам, добавим открытку с вашими словами и безалкогольное игристое.' },
+  { icon: '📦', title: 'Доедет идеальным', text: 'Упаковываем всё в прозрачную защитную плёнку. Курьер Яндекс Go везёт напрямую, без заездов — ничего не сместится.' },
+  { icon: '🧤', title: 'Собрано чистыми руками — буквально', text: 'Мастер работает в перчатках и маске, на пищевых шпажках. Сыр и мясо в защитной пищевой плёнке — можно сразу на стол.' },
+  { icon: '✏️', title: 'Под вас, а не по шаблону', text: 'Уберём орехи при аллергии, заменим дорблю на маасдам, добавим открытку с вашими словами.' },
   { icon: '💳', title: 'На любой бюджет', text: 'От компактного букета-комплимента за 2 490 ₽ до корзины на целый корпоратив. Назовите сумму — соберём лучшее в неё.' },
 ]
 
@@ -97,12 +97,12 @@ export function Why() {
         {/* мягкий CTA */}
         <BlurFade className="mt-10 flex flex-col items-start gap-4 rounded-3xl bg-honey-100 p-6 md:flex-row md:items-center md:justify-between md:p-8">
           <div>
-            <p className="font-display text-[22px] font-semibold leading-tight md:text-[26px]">Назовите бюджет и повод — пришлём 3 варианта с фото за 15 минут</p>
+            <p className="font-display text-[22px] font-semibold leading-tight md:text-[26px]">Назовите бюджет и повод — пришлём 3 варианта с фото</p>
             <p className="mt-1 text-[14px] text-ink-soft">Без обязательств: просто посмотрите, что можно собрать.</p>
           </div>
-          <Button variant="wa" size="lg" className="w-full shrink-0 md:w-auto" asChild>
-            <a href={waLink(WA.selection)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'why-selection' })}>
-              <WhatsAppIcon className="h-5 w-5" /> Получить подборку в WhatsApp
+          <Button variant="max" size="lg" className="w-full shrink-0 md:w-auto" asChild>
+            <a href={maxLink(MSG.selection)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'why-selection' })}>
+              <MaxIcon className="h-5 w-5" /> Получить подборку в MAX
             </a>
           </Button>
         </BlurFade>

@@ -11,7 +11,7 @@ const buttonVariants = cva(
         primary: 'bg-gold text-onaccent font-bold shadow-[0_8px_28px_-10px_rgb(212_175_55/0.75)] hover:shadow-[0_12px_36px_-8px_rgb(212_175_55/0.9)]',
         outline: 'border border-honey/45 bg-scrim/40 text-ink backdrop-blur hover:border-honey hover:bg-honey/10',
         dark: 'bg-scrim text-honey-600 border border-honey/40 hover:border-honey',
-        wa: 'bg-wa text-white hover:bg-wa-600 shadow-[0_8px_24px_-10px_rgb(26_158_82/0.7)]',
+        max: 'bg-max text-white hover:bg-max-600 shadow-[0_8px_24px_-10px_rgb(91_76_246/0.7)]',
         tg: 'bg-tg text-white hover:brightness-95',
         tgOutline: 'border-2 border-tg/40 text-[#1477a8] bg-surface hover:border-tg hover:bg-tg/5',
         ghost: 'text-ink hover:bg-ink/5',

@@ -7,11 +7,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input, Label, PhoneInput } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Consent } from '@/components/shared/consent'
-import { InstagramIcon, VkIcon, WhatsAppIcon } from '@/components/shared/icons'
-import { useOrderWindow } from '@/hooks/use-order-window'
-import { SITE, WA, waLink } from '@/lib/config'
+import { InstagramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
+import { SITE, MSG, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
-import { UPSELLS } from '@/lib/products'
+import { UPSELLS, productTitle } from '@/lib/products'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
@@ -23,20 +22,19 @@ const DATES = [
   { key: 'other', label: 'Другая дата' },
 ] as const
 export const CONTACTS = [
-  { key: 'wa', label: 'WhatsApp' },
+  { key: 'max', label: 'MAX' },
   { key: 'tg', label: 'Telegram' },
   { key: 'call', label: 'Позвоните' },
 ] as const
 
 export function OrderSheet() {
   const { order, closeOrder, showThanks } = useUI()
-  const { acceptingToday } = useOrderWindow()
   const [step, setStep] = useState<'form' | 'upsell'>('form')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [date, setDate] = useState<(typeof DATES)[number]['key']>('today')
+  const [date, setDate] = useState<(typeof DATES)[number]['key']>('tomorrow')
   const [otherDate, setOtherDate] = useState('')
-  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('wa')
+  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('max')
   const [card, setCard] = useState(false)
   const [cardText, setCardText] = useState('')
   const [consent, setConsent] = useState(true)
@@ -49,9 +47,9 @@ export function OrderSheet() {
       setStep('form')
       setError('')
       setExtras({})
-      setDate(acceptingToday ? 'today' : 'tomorrow')
+      setDate('tomorrow')
     }
-  }, [order, acceptingToday])
+  }, [order])
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
   const { product, size } = order
@@ -68,14 +66,14 @@ export function OrderSheet() {
       name,
       phone,
       contact,
-      product: product.name,
+      product: `${productTitle(product)} (${product.id})`,
       size: size.key,
       price: size.price,
       date: date === 'other' ? otherDate || 'другая' : date,
       card: card ? cardText || 'да' : 'нет',
     })
     setLoading(false)
-    if (!ok) return setError('Не получилось отправить. Напишите нам в WhatsApp — ответим за 5 минут.')
+    if (!ok) return setError('Не получилось отправить. Напишите нам в MAX — ответим за 5 минут.')
     setStep('upsell')
   }
 
@@ -83,7 +81,7 @@ export function OrderSheet() {
     const chosen = Object.entries(extras).filter(([, q]) => q > 0)
     if (chosen.length) {
       goal('upsell_added', { items: chosen.length })
-      await submitLead({ source: 'upsell', phone, name, product: product.name, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
+      await submitLead({ source: 'upsell', phone, name, product: `${productTitle(product)} (${product.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
     }
     closeOrder()
     showThanks(name)
@@ -92,11 +90,11 @@ export function OrderSheet() {
   const extrasSum = Object.entries(extras).reduce((s, [id, q]) => s + (UPSELLS.find((u) => u.id === id)?.price ?? 0) * q, 0)
 
   return (
-    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ букета «${product.name}»`}>
+    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: ${productTitle(product)}`}>
       <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3 md:mt-6">
         <img src={product.image} alt="" className="h-16 w-16 rounded-xl object-cover" />
         <div className="min-w-0">
-          <p className="truncate font-display text-lg font-semibold leading-tight">{product.name}</p>
+          <p className="truncate font-display text-lg font-semibold leading-tight">{productTitle(product)}</p>
           <p className="text-[13px] text-muted">
             Размер {size.key} · {size.note}
           </p>
@@ -117,7 +115,7 @@ export function OrderSheet() {
           <div>
             <Label>Дата доставки</Label>
             <Chips ariaLabel="Дата доставки" options={DATES} value={date} onChange={setDate} />
-            {date === 'today' && !acceptingToday && <p className="mt-2 text-[12.5px] font-semibold text-berry">Сегодня приём уже закрыт — постараемся, но лучше выбрать завтра.</p>}
+            {date === 'today' && <p className="mt-2 text-[12.5px] font-semibold text-ink-soft">День в день — по возможности: уточним и сразу ответим.</p>}
             {date === 'other' && <Input type="date" className="mt-2" value={otherDate} onChange={(e) => setOtherDate(e.target.value)} aria-label="Дата" />}
           </div>
           <div>
@@ -143,7 +141,7 @@ export function OrderSheet() {
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Оформить заказ'}
           </Button>
           <p className="-mt-1 text-center text-[13px] leading-snug text-muted">
-            Перезвоним за 10 минут, уточним адрес и время. Оплата — после согласования.
+            Перезвоним, уточним адрес и время. Оплата — после согласования.
           </p>
         </form>
       ) : (
@@ -197,9 +195,9 @@ export function ThanksDialog() {
         <DialogDescription className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           Мастер {SITE.masterName} уже смотрит вашу заявку и напишет в течение 10 минут.
         </DialogDescription>
-        <Button variant="wa" size="lg" className="mt-6 w-full" asChild>
-          <a href={waLink(WA.thanks)} target="_blank" rel="noopener" onClick={() => goal('wa_click', { from: 'thanks' })}>
-            <WhatsAppIcon className="h-5 w-5" /> Не хотите ждать? Напишите нам сами
+        <Button variant="max" size="lg" className="mt-6 w-full" asChild>
+          <a href={maxLink(MSG.thanks)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'thanks' })}>
+            <MaxIcon className="h-5 w-5" /> Не хотите ждать? Напишите нам сами
           </a>
         </Button>
         <p className="mt-5 text-[13px] text-muted">Пока ждёте — посмотрите свежие букеты</p>

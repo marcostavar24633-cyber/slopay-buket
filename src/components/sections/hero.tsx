@@ -3,9 +3,8 @@ import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTran
 import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
-import { WhatsAppIcon } from '@/components/shared/icons'
-import { useOrderWindow } from '@/hooks/use-order-window'
-import { SITE, WA, waLink } from '@/lib/config'
+import { MaxIcon } from '@/components/shared/icons'
+import { SITE, MSG, maxLink } from '@/lib/config'
 import { ANCHOR_PRICE } from '@/lib/products'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
@@ -15,7 +14,7 @@ import { rub } from '@/lib/utils'
 const variant = typeof location !== 'undefined' && new URLSearchParams(location.search).get('h') === 'b' ? 'B' : 'A'
 
 const BULLETS = [
-  { icon: '🚚', text: 'Доставка от 2 часов по всему Ульяновску' },
+  { icon: '🚚', text: 'Доставка по всему Ульяновску' },
   { icon: '🍓', text: 'Продукты закупаем в день сборки' },
   { icon: '⭐', text: `${SITE.rating} по ${SITE.reviewsCount} оценкам на ${SITE.reviewsSource}` },
   { icon: '✏️', text: 'Уберём или добавим любой ингредиент' },
@@ -23,7 +22,6 @@ const BULLETS = [
 
 export function Hero() {
   const { setQuizOpen } = useUI()
-  const { acceptingToday } = useOrderWindow()
   const ref = useRef<HTMLElement>(null)
   const reduce = useReducedMotion()
   // Параллакс по скроллу: фото отстаёт, текст уходит вверх и гаснет, карточка отзыва обгоняет
@@ -49,7 +47,7 @@ export function Hero() {
   const title =
     variant === 'A' ? (
       <>
-        Съедобные букеты в Ульяновске <span className="italic text-gold">с доставкой от 2 часов</span>
+        Съедобные букеты в Ульяновске <span className="italic text-gold">с доставкой до двери</span>
       </>
     ) : (
       <>
@@ -107,7 +105,7 @@ export function Hero() {
             ))}
           </motion.ul>
 
-          <HeroCtas className="mt-8 hidden md:flex" acceptingToday={acceptingToday} onQuiz={() => setQuizOpen(true)} />
+          <HeroCtas className="mt-8 hidden md:flex" onQuiz={() => setQuizOpen(true)} />
         </motion.div>
 
         {/* Фото — на мобильном минимум половина экрана */}
@@ -174,7 +172,7 @@ export function Hero() {
 
         {/* Мобильные CTA и буллиты — под фото */}
         <div className="order-3 md:hidden">
-          <HeroCtas acceptingToday={acceptingToday} onQuiz={() => setQuizOpen(true)} />
+          <HeroCtas onQuiz={() => setQuizOpen(true)} />
           <ul className="mt-6 grid grid-cols-2 gap-2.5">
             {BULLETS.map((b) => (
               <li key={b.text} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-3 text-[13px] font-semibold leading-snug">
@@ -193,7 +191,7 @@ export function Hero() {
   )
 }
 
-function HeroCtas({ className = 'flex', acceptingToday, onQuiz }: { className?: string; acceptingToday: boolean; onQuiz: () => void }) {
+function HeroCtas({ className = 'flex', onQuiz }: { className?: string; onQuiz: () => void }) {
   return (
     <div className={`${className} flex-col gap-3`}>
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -208,9 +206,7 @@ function HeroCtas({ className = 'flex', acceptingToday, onQuiz }: { className?: 
             Выбрать букет <ArrowRight className="h-5 w-5" />
           </ShimmerButton>
           <p className="mt-2 text-center text-[12.5px] font-semibold text-muted sm:text-left">
-            {acceptingToday
-              ? `Успеем доставить сегодня, если закажете до ${SITE.sameDayDeadlineHour}:00`
-              : 'Сегодня уже не успеем — принимаем заказы на завтра с 8:00'}
+            Лучше заказать за 1–2 дня — бывает, успеваем и день в день
           </p>
         </div>
         <Button
@@ -226,14 +222,14 @@ function HeroCtas({ className = 'flex', acceptingToday, onQuiz }: { className?: 
         </Button>
       </div>
       <a
-        href={waLink(WA.heroPhoto)}
+        href={maxLink(MSG.heroPhoto)}
         target="_blank"
         rel="noopener"
-        onClick={() => goal('wa_click', { from: 'hero-photo' })}
-        className="inline-flex items-center justify-center gap-2 text-[14px] font-semibold text-ink-soft underline decoration-wa/50 decoration-2 underline-offset-4 hover:text-ink sm:justify-start"
+        onClick={() => goal('max_click', { from: 'hero-photo' })}
+        className="inline-flex items-center justify-center gap-2 text-[14px] font-semibold text-ink-soft underline decoration-max/50 decoration-2 underline-offset-4 hover:text-ink sm:justify-start"
       >
-        <WhatsAppIcon className="h-4 w-4 text-wa" />
-        Или просто пришлите фото примера в WhatsApp — соберём похожий
+        <MaxIcon className="h-4 w-4 text-max" />
+        Или просто пришлите фото примера в MAX — соберём похожий
       </a>
     </div>
   )
