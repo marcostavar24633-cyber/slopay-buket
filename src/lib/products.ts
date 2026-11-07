@@ -1,11 +1,16 @@
+/**
+ * Каталог на реальных фото мастерской. Названия, состав «по фото» и цены — ЧЕРНОВИК:
+ * сверьте с прайсом Марии и поправьте здесь.
+ */
 export type Recipient = 'her' | 'him' | 'colleagues' | 'kids' | 'mama'
-export type Composition = 'meat' | 'sweet' | 'fruit' | 'box'
+export type Composition = 'berry' | 'meat' | 'sea' | 'dried' | 'sweet' | 'snack'
 export type Occasion = 'newyear'
 
 export interface Size {
   key: 'S' | 'M' | 'L'
   price: number
-  height: number
+  /** габарит: «≈ 40 см» или «Коробка 30×30 см» */
+  dims: string
   persons: string
   note: string
 }
@@ -14,8 +19,8 @@ export interface Product {
   id: string
   name: string
   image: string
-  /** фото букета в руках: главный страх «привезут крошечный» */
-  inHands?: string
+  /** вторая реальная работа той же категории — показывается по свайпу/наведению */
+  alt?: string
   composition: string
   sizes: Size[]
   recipients: Recipient[]
@@ -24,132 +29,235 @@ export interface Product {
   badges: Array<'hit' | 'today' | 'men' | 'new' | 'season'>
 }
 
+const R = (p: string) => `/img/real/${p}.webp`
+
 export const PRODUCTS: Product[] = [
   {
-    id: 'klubnichny-poceluy',
-    name: 'Клубничный поцелуй',
-    image: '/img/straw.webp',
-    inHands: '/img/inhands.webp',
-    composition: 'Клубника в бельгийском шоколаде с золотой посыпкой, упаковка в пудровую бумагу',
+    id: 'klubnichnoe-serdce',
+    name: 'Клубничное сердце',
+    image: R('berry/yag-1'),
+    alt: R('berry/yag-16'),
+    composition: 'Коробка-сердце: крупная клубника, голубика, макаронс, сахарные сердечки',
     sizes: [
-      { key: 'S', price: 2990, height: 30, persons: '1–2', note: '9 клубник' },
-      { key: 'M', price: 3990, height: 35, persons: '2–3', note: '15 клубник' },
-      { key: 'L', price: 5490, height: 42, persons: '3–5', note: '25 клубник' },
+      { key: 'S', price: 2990, dims: 'Сердце 25 см', persons: '1–2', note: '≈ 15 ягод клубники' },
+      { key: 'M', price: 3990, dims: 'Сердце 30 см', persons: '2–3', note: '≈ 22 ягоды клубники' },
+      { key: 'L', price: 5490, dims: 'Сердце 38 см', persons: '3–5', note: '≈ 35 ягод клубники' },
     ],
     recipients: ['her', 'mama'],
-    type: 'sweet',
+    type: 'berry',
     badges: ['hit', 'today'],
+  },
+  {
+    id: 'raki-buket',
+    name: 'Раковый букет',
+    image: R('sea/m-1'),
+    alt: R('sea/m-21'),
+    composition: 'Варёные раки, лимон, черри, свежая зелень, крафт и чёрная плёнка',
+    sizes: [
+      { key: 'S', price: 4990, dims: '≈ 45 см', persons: '2–3', note: '≈ 1 кг раков' },
+      { key: 'M', price: 6990, dims: '≈ 50 см', persons: '3–5', note: '≈ 1,5 кг раков' },
+      { key: 'L', price: 8990, dims: '≈ 55 см', persons: '5–7', note: '≈ 2 кг раков' },
+    ],
+    recipients: ['him', 'colleagues'],
+    type: 'sea',
+    badges: ['hit', 'men'],
   },
   {
     id: 'muzhskoy-razgovor',
     name: 'Мужской разговор',
-    image: '/img/meat.webp',
-    inHands: '/img/meathands.webp',
-    composition: 'Хамон, салями, охотничьи колбаски, пармезан и маасдам, претцели, черри, розмарин',
+    image: R('meat/k-1'),
+    alt: R('meat/k-34'),
+    composition: 'Сырокопчёные колбасы, сыр, свежие багеты, черри, сырные шарики, зелень',
     sizes: [
-      { key: 'S', price: 4490, height: 38, persons: '2–3', note: '≈ 600 г мяса и сыра' },
-      { key: 'M', price: 5990, height: 45, persons: '3–5', note: '≈ 900 г мяса и сыра' },
-      { key: 'L', price: 7990, height: 52, persons: '5–7', note: '≈ 1,3 кг мяса и сыра' },
+      { key: 'S', price: 3990, dims: '≈ 45 см', persons: '2–3', note: '≈ 700 г мяса и сыра' },
+      { key: 'M', price: 5490, dims: '≈ 50 см', persons: '3–5', note: '≈ 1 кг мяса и сыра' },
+      { key: 'L', price: 6990, dims: '≈ 55 см', persons: '5–7', note: '≈ 1,4 кг мяса и сыра' },
     ],
     recipients: ['him', 'colleagues'],
     type: 'meat',
     badges: ['hit', 'men', 'today'],
   },
   {
-    id: 'parizhskoe-utro',
-    name: 'Парижское утро',
-    image: '/img/hero.webp',
-    inHands: '/img/inhands.webp',
-    composition: '15 клубник в тёмном и белом шоколаде, 6 макаронс, эвкалипт, атласная лента',
+    id: 'klubnika-shlyapnaya',
+    name: 'Клубника в шляпной коробке',
+    image: R('berry/yag-14'),
+    alt: R('berry/yag-15'),
+    composition: 'Клубника, голубика, живые тюльпаны и эвкалипт в красной шляпной коробке',
     sizes: [
-      { key: 'S', price: 3790, height: 35, persons: '2–3', note: '11 клубник, 4 макаронс' },
-      { key: 'M', price: 4690, height: 40, persons: '3–4', note: '15 клубник, 6 макаронс' },
-      { key: 'L', price: 6490, height: 48, persons: '4–6', note: '23 клубники, 9 макаронс' },
+      { key: 'S', price: 3490, dims: 'Коробка Ø 18 см', persons: '2–3', note: '≈ 20 ягод клубники' },
+      { key: 'M', price: 4490, dims: 'Коробка Ø 22 см', persons: '3–4', note: '≈ 30 ягод клубники' },
     ],
     recipients: ['her', 'mama', 'colleagues'],
-    type: 'sweet',
-    badges: ['hit', 'today'],
+    type: 'berry',
+    badges: ['today'],
   },
   {
-    id: 'novogodnee-chudo',
-    name: 'Новогоднее чудо',
-    image: '/img/newyear.webp',
-    composition: 'Абхазские мандарины, клубника в шоколаде, имбирные пряники, сырное ассорти, ель и корица',
+    id: 'vostochnaya-skazka',
+    name: 'Восточная сказка',
+    image: R('dried/suh-11'),
+    alt: R('dried/suh-19'),
+    composition: 'Курага, финики, чернослив, цукаты, орехи и розы из вяленых фруктов',
     sizes: [
-      { key: 'S', price: 3990, height: 12, persons: '2–3', note: 'Коробка 25×25 см' },
-      { key: 'M', price: 5490, height: 14, persons: '3–5', note: 'Коробка 35×30 см' },
+      { key: 'S', price: 2990, dims: '≈ 35 см', persons: '2–4', note: '≈ 700 г сухофруктов' },
+      { key: 'M', price: 3990, dims: '≈ 40 см', persons: '4–6', note: '≈ 1 кг сухофруктов' },
+    ],
+    recipients: ['her', 'mama', 'colleagues'],
+    type: 'dried',
+    badges: ['today'],
+  },
+  {
+    id: 'yagody-i-rozy',
+    name: 'Ягоды и розы',
+    image: R('berry/yag-25'),
+    alt: R('berry/yag-17'),
+    composition: 'Большое сердце: клубника, малина, голубика, живые розы, макаронс',
+    sizes: [
+      { key: 'M', price: 6990, dims: 'Сердце 40 см', persons: '4–6', note: '≈ 50 ягод' },
+      { key: 'L', price: 8990, dims: 'Сердце 50 см', persons: '6–8', note: '≈ 75 ягод' },
+    ],
+    recipients: ['her'],
+    type: 'berry',
+    badges: ['hit'],
+  },
+  {
+    id: 'raki-krevetki',
+    name: 'Раки и креветки',
+    image: R('sea/m-16'),
+    alt: R('sea/m-31'),
+    composition: 'Раки, королевские креветки, черри, лимон, салат — готовый стол к пиву',
+    sizes: [
+      { key: 'M', price: 6990, dims: 'Корзина 40 см', persons: '3–5', note: '≈ 1,2 кг морепродуктов' },
+      { key: 'L', price: 9490, dims: 'Корзина 50 см', persons: '5–8', note: '≈ 1,8 кг морепродуктов' },
+    ],
+    recipients: ['him', 'colleagues'],
+    type: 'sea',
+    badges: ['men'],
+  },
+  {
+    id: 'pryanichnyy-domik',
+    name: 'Пряничный домик',
+    image: R('sweet/sl-10'),
+    alt: R('sweet/sl-8'),
+    composition: 'Деревянный домик: имбирные пряники, конфеты, орехи в шоколаде, мармелад',
+    sizes: [{ key: 'M', price: 2990, dims: 'Домик 30×25 см', persons: '2–4', note: '≈ 800 г сладостей' }],
+    recipients: ['kids', 'mama', 'colleagues', 'her'],
+    type: 'sweet',
+    occasions: ['newyear'],
+    badges: ['season'],
+  },
+  {
+    id: 'novogodnyaya-elka',
+    name: 'Новогодняя ёлка',
+    image: R('dried/suh-35'),
+    alt: R('dried/suh-1'),
+    composition: 'Поднос-ёлка: сухофрукты, цукаты, орехи, мармелад и конфеты',
+    sizes: [
+      { key: 'S', price: 3490, dims: 'Ёлка 35 см', persons: '3–5', note: '≈ 900 г' },
+      { key: 'M', price: 4490, dims: 'Ёлка 45 см', persons: '5–7', note: '≈ 1,3 кг' },
     ],
     recipients: ['her', 'him', 'mama', 'colleagues', 'kids'],
-    type: 'box',
+    type: 'dried',
     occasions: ['newyear'],
     badges: ['season', 'new'],
   },
   {
-    id: 'syrny-somelye',
-    name: 'Сырный сомелье',
-    image: '/img/cheese.webp',
-    composition: 'Камамбер, бри, дорблю, розы из прошутто, инжир, виноград, соты с мёдом, грецкий орех',
+    id: 'yubilyar',
+    name: 'Юбиляр',
+    image: R('meat/k-24'),
+    alt: R('meat/k-23'),
+    composition: 'Сыровяленые колбасы, сыр-косичка, твёрдый сыр, черри, зелень',
     sizes: [
-      { key: 'M', price: 6490, height: 45, persons: '4–6', note: '≈ 1 кг сыра и мяса' },
-      { key: 'L', price: 8490, height: 52, persons: '6–8', note: '≈ 1,4 кг сыра и мяса' },
-    ],
-    recipients: ['her', 'mama', 'colleagues', 'him'],
-    type: 'meat',
-    badges: [],
-  },
-  {
-    id: 'tropicheskiy-ray',
-    name: 'Тропический рай',
-    image: '/img/fruit.webp',
-    inHands: '/img/fruithands.webp',
-    composition: 'Цветы из ананаса, виноград двух сортов, киви, манго, голубика, физалис, мята',
-    sizes: [
-      { key: 'S', price: 3490, height: 35, persons: '2–4', note: '≈ 1,2 кг фруктов' },
-      { key: 'M', price: 4790, height: 42, persons: '4–6', note: '≈ 1,8 кг фруктов' },
-    ],
-    recipients: ['her', 'mama', 'kids'],
-    type: 'fruit',
-    badges: ['today'],
-  },
-  {
-    id: 'futbolny-vecher',
-    name: 'Футбольный вечер',
-    image: '/img/snack.webp',
-    composition: 'Колбаски, вяленое мясо, рыбные палочки, сырные косички, фисташки, гренки + лимонад',
-    sizes: [
-      { key: 'S', price: 3790, height: 40, persons: '2–3', note: '≈ 700 г снеков' },
-      { key: 'M', price: 4990, height: 48, persons: '3–5', note: '≈ 1 кг снеков' },
+      { key: 'M', price: 4490, dims: '≈ 50 см', persons: '3–5', note: '≈ 900 г мяса и сыра' },
+      { key: 'L', price: 5990, dims: '≈ 55 см', persons: '5–7', note: '≈ 1,3 кг мяса и сыра' },
     ],
     recipients: ['him', 'colleagues'],
     type: 'meat',
     badges: ['men'],
   },
   {
-    id: 'sladkoe-detstvo',
-    name: 'Сладкое детство',
-    image: '/img/kids.webp',
-    composition: 'Маршмеллоу, леденцы на палочке, безе, шоколадные батончики, клубника в шоколаде',
+    id: 'sunduk-kapitana',
+    name: 'Сундук капитана',
+    image: R('sea/m-35'),
+    alt: R('sea/m-9'),
+    composition: 'Деревянный сундук: раки, краб, лимоны, ракушки и топпер с надписью',
+    sizes: [{ key: 'L', price: 12990, dims: 'Сундук 45×30 см', persons: '6–10', note: '≈ 2,5 кг морепродуктов' }],
+    recipients: ['him', 'colleagues'],
+    type: 'sea',
+    badges: ['new'],
+  },
+  {
+    id: 'mame-s-lyubovyu',
+    name: 'Маме с любовью',
+    image: R('dried/suh-10'),
+    alt: R('dried/suh-3'),
+    composition: 'Деревянное сердце «маме»: орехи, финики, курага, конфеты',
+    sizes: [{ key: 'M', price: 3490, dims: 'Сердце 35 см', persons: '3–5', note: '≈ 800 г' }],
+    recipients: ['mama'],
+    type: 'dried',
+    badges: [],
+  },
+  {
+    id: 'rozy-i-konfety',
+    name: 'Розы и конфеты',
+    image: R('sweet/sl-25'),
+    alt: R('sweet/sl-16'),
+    composition: 'Ящик: живые розы и альстромерии + 20 конфет с хрустящей начинкой',
+    sizes: [{ key: 'M', price: 3990, dims: 'Ящик 30×25 см', persons: '2–4', note: '20 конфет' }],
+    recipients: ['her', 'mama'],
+    type: 'sweet',
+    badges: [],
+  },
+  {
+    id: 'ostryy-perchik',
+    name: 'Острый перчик',
+    image: R('meat/k-12'),
+    alt: R('meat/k-28'),
+    composition: 'Колбаски, перец чили, черри, сыр, лимон, зелень в чёрной упаковке',
     sizes: [
-      { key: 'S', price: 2490, height: 32, persons: '1–2', note: '≈ 25 сладостей' },
-      { key: 'M', price: 3490, height: 40, persons: '2–4', note: '≈ 40 сладостей' },
+      { key: 'S', price: 3790, dims: '≈ 45 см', persons: '2–3', note: '≈ 700 г' },
+      { key: 'M', price: 4990, dims: '≈ 50 см', persons: '3–5', note: '≈ 1 кг' },
     ],
-    recipients: ['kids'],
+    recipients: ['him', 'colleagues'],
+    type: 'meat',
+    badges: ['men'],
+  },
+  {
+    id: 'yagodnaya-korzina',
+    name: 'Ягодная корзина',
+    image: R('berry/yag-12'),
+    alt: R('berry/yag-22'),
+    composition: 'Плетёная корзина: клубника, ежевика, голубика, атласная лента',
+    sizes: [
+      { key: 'M', price: 4990, dims: 'Корзина 30 см', persons: '3–5', note: '≈ 1 кг ягод' },
+      { key: 'L', price: 6490, dims: 'Корзина 40 см', persons: '5–7', note: '≈ 1,5 кг ягод' },
+    ],
+    recipients: ['her', 'mama', 'colleagues'],
+    type: 'berry',
+    badges: [],
+  },
+  {
+    id: 'sladkiy-boks',
+    name: 'Сладкий бокс',
+    image: R('sweet/sl-22'),
+    alt: R('sweet/sl-7'),
+    composition: 'Шестигранный бокс: печенье, мармелад, безе, джем и конфеты',
+    sizes: [
+      { key: 'S', price: 2490, dims: 'Бокс 25 см', persons: '1–3', note: '≈ 600 г сладостей' },
+      { key: 'M', price: 3290, dims: 'Бокс 32 см', persons: '3–5', note: '≈ 900 г сладостей' },
+    ],
+    recipients: ['kids', 'colleagues', 'her'],
     type: 'sweet',
     badges: ['today'],
   },
   {
-    id: 'delovoy-podhod',
-    name: 'Деловой подход',
-    image: '/img/corp.webp',
-    composition: 'Бокс: 6 клубник в шоколаде, бри, мандарины, именная открытка, лента с вашим логотипом',
-    sizes: [
-      { key: 'S', price: 2290, height: 10, persons: '1–2', note: 'Бокс 20×20 см' },
-      { key: 'M', price: 3290, height: 12, persons: '2–3', note: 'Бокс 25×25 см' },
-    ],
-    recipients: ['colleagues'],
-    type: 'box',
-    occasions: ['newyear'],
-    badges: ['season'],
+    id: 'tachka',
+    name: 'Тачка',
+    image: R('snack/sn-3'),
+    composition: 'Подставки-машинки со снеками: чипсы, арахис, сухарики, вяленое мясо',
+    sizes: [{ key: 'M', price: 2490, dims: '2 машинки по 30 см', persons: '2–4', note: '≈ 700 г снеков' }],
+    recipients: ['him'],
+    type: 'snack',
+    badges: ['men'],
   },
 ]
 
@@ -164,10 +272,12 @@ export const RECIPIENT_TABS: { key: Recipient | 'all' | 'newyear'; label: string
 ]
 
 export const TYPE_TABS: { key: Composition; label: string }[] = [
-  { key: 'meat', label: 'Мясные и сырные' },
-  { key: 'sweet', label: 'Клубника и сладкое' },
-  { key: 'fruit', label: 'Фруктовые' },
-  { key: 'box', label: 'Праздничные боксы' },
+  { key: 'berry', label: 'Ягодные' },
+  { key: 'meat', label: 'Мясные' },
+  { key: 'sea', label: 'Раки и морепродукты' },
+  { key: 'dried', label: 'Сухофрукты и орехи' },
+  { key: 'sweet', label: 'Сладкие' },
+  { key: 'snack', label: 'Снеки' },
 ]
 
 export const PRICE_TABS = [
@@ -185,4 +295,5 @@ export const UPSELLS = [
 ]
 
 export const minPrice = (p: Product) => Math.min(...p.sizes.map((s) => s.price))
+/** Цена-якорь на первом экране: самый популярный малый — «Клубничное сердце» S. */
 export const ANCHOR_PRICE = 2990

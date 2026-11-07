@@ -47,7 +47,7 @@ export function FinalOffer() {
       <div aria-hidden className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-honey/10 blur-[120px]" />
       <div className="container-x relative grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
         <BlurFade className="relative">
-          <ParallaxImage src="/img/reaction.webp" alt="Счастливая получательница с букетом из клубники" className="aspect-[4/5] max-h-[620px] rounded-[32px] shadow-lift ring-1 ring-honey/30" />
+          <ParallaxImage src="/img/real/berry/yag-21.webp" alt="Сердце из клубники и голубики — работа мастерской" className="aspect-[4/5] max-h-[620px] rounded-[32px] shadow-lift ring-1 ring-honey/30" />
           <Parallax speed={-0.35} className="absolute left-4 top-4">
           <div className="rounded-2xl border border-honey/40 bg-scrim/80 px-4 py-3 shadow-lift backdrop-blur">
             <p className="flex items-center gap-1.5 text-[12px] font-bold text-muted">
@@ -125,7 +125,7 @@ export function Footer() {
           </p>
           <p>{SITE.hours} · заказы на сегодня до {SITE.sameDayDeadlineHour}:00</p>
           <p>Самовывоз из мастерской — бесплатно</p>
-          <p className="pt-3 text-[12px] leading-relaxed text-white/45">{SITE.legal}</p>
+          {SITE.legal && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{SITE.legal}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
             <a id="privacy" href="/privacy" className="underline underline-offset-2">Политика конфиденциальности</a>
             <a href="/oferta" className="underline underline-offset-2">Публичная оферта</a>
@@ -220,7 +220,7 @@ export function ExitPopup() {
   return (
     <Dialog open={open && !busy} onOpenChange={setOpen}>
       <DialogContent className="max-w-md overflow-hidden p-0 md:p-0">
-        <img src="/img/straw.webp" alt="" className="h-40 w-full object-cover" />
+        <img src="/img/real/berry/yag-24.webp" alt="" className="h-40 w-full object-cover" />
         <div className="p-6">
           <DialogTitle className="font-display text-[26px] font-semibold leading-tight">Не успели выбрать?</DialogTitle>
           <DialogDescription className="mt-2 text-[15px] text-ink-soft">Пришлём подборку из 5 хитов с ценами в WhatsApp — выберете спокойно.</DialogDescription>

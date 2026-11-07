@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Hand, Plus, Ruler, Users } from 'lucide-react'
+import { Camera, Plus, Ruler, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SectionTitle } from '@/components/shared/section-title'
 import { WhatsAppIcon } from '@/components/shared/icons'
@@ -155,17 +155,15 @@ function ProductCard({ product }: { product: Product }) {
         {/* мобильный: свайп; десктоп: второе фото по наведению */}
         <div ref={scroller} onScroll={onScroll} className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto md:overflow-hidden">
           <img src={product.image} alt={product.name} loading="lazy" onLoad={resetSlide} width={720} height={720} className="h-full w-full shrink-0 snap-start object-cover transition duration-500 md:group-hover:opacity-0" />
-          {product.inHands ? (
+          {product.alt && (
             <img
-              src={product.inHands}
-              alt={`${product.name} — в руках, реальный размер`}
+              src={product.alt}
+              alt={`Похожая работа — ${product.name}`}
               loading="lazy"
               width={720}
               height={720}
               className="h-full w-full shrink-0 snap-start object-cover md:absolute md:inset-0 md:opacity-0 md:transition md:duration-500 md:group-hover:opacity-100"
             />
-          ) : (
-            <SizeScheme size={size} className="shrink-0 snap-start md:absolute md:inset-0 md:opacity-0 md:transition md:duration-500 md:group-hover:opacity-100" />
           )}
         </div>
         <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
@@ -175,10 +173,15 @@ function ProductCard({ product }: { product: Product }) {
             </span>
           ))}
         </div>
-        <span className="pointer-events-none absolute bottom-3 right-3 hidden items-center transition group-hover:opacity-0 gap-1 rounded-full bg-scrim/90 px-2.5 py-1 text-[11px] font-bold text-ink-soft shadow-soft backdrop-blur md:inline-flex">
-          <Hand className="h-3 w-3" /> {product.inHands ? 'Наведите — фото в руках' : 'Наведите — размер'}
+        <span className="pointer-events-none absolute bottom-3 right-3 hidden items-center gap-1 rounded-full bg-scrim/90 px-2.5 py-1 text-[11px] font-bold text-ink-soft shadow-soft backdrop-blur md:inline-flex">
+          <Camera className="h-3 w-3" /> Реальное фото
         </span>
-        <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 md:hidden">
+        {product.alt && (
+          <span className="pointer-events-none absolute bottom-3 left-3 hidden rounded-full bg-scrim/90 px-2.5 py-1 text-[11px] font-bold text-ink-soft opacity-0 shadow-soft backdrop-blur transition group-hover:opacity-100 md:inline-flex">
+            Похожая работа
+          </span>
+        )}
+        <div className={cn('pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 md:hidden', !product.alt && 'hidden')}>
           {[0, 1].map((i) => (
             <span key={i} className={cn('h-1.5 rounded-full bg-surface shadow transition-all', slide === i ? 'w-5' : 'w-1.5 opacity-60')} />
           ))}
@@ -192,7 +195,7 @@ function ProductCard({ product }: { product: Product }) {
         </p>
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] font-semibold text-muted">
           <span className="inline-flex items-center gap-1">
-            <Ruler className="h-3.5 w-3.5" /> {product.type === 'box' ? size.note.replace('Коробка ', '').replace('Бокс ', '') : `Высота ${size.height} см`}
+            <Ruler className="h-3.5 w-3.5" /> {size.dims}
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="h-3.5 w-3.5" /> на {size.persons} чел.
@@ -239,30 +242,6 @@ function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
     </article>
-  )
-}
-
-/** Для букетов без фото в руках — наглядная схема размера относительно человека. */
-function SizeScheme({ size, className }: { size: Size; className?: string }) {
-  const h = Math.min(100, (size.height / 55) * 100)
-  return (
-    <div className={cn('flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-cream to-cream-2 p-6 pb-12', className)}>
-      <div className="flex items-end gap-6">
-        <svg viewBox="0 0 60 170" className="h-44 text-ink/20" fill="currentColor" aria-hidden>
-          <circle cx="30" cy="16" r="14" />
-          <path d="M8 44c0-6 5-10 11-10h22c6 0 11 4 11 10v50h-9v76H32v-60h-4v60H17V94H8z" />
-        </svg>
-        <div className="flex flex-col items-center">
-          <div className="relative w-16 rounded-t-[40px] bg-honey/70" style={{ height: `${(h / 100) * 120}px` }}>
-            <span className="absolute -right-12 top-1/2 -translate-y-1/2 text-xs font-bold text-ink">{size.height} см</span>
-          </div>
-          <div className="h-2 w-20 rounded-full bg-ink/10" />
-        </div>
-      </div>
-      <p className="mt-3 text-center text-[13px] font-bold text-ink-soft">
-        Реальный размер · на {size.persons} человек
-      </p>
-    </div>
   )
 }
 

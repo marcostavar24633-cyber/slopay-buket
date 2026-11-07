@@ -17,7 +17,7 @@ const variant = typeof location !== 'undefined' && new URLSearchParams(location.
 const BULLETS = [
   { icon: '🚚', text: 'Доставка от 2 часов по всему Ульяновску' },
   { icon: '🍓', text: 'Продукты закупаем в день сборки' },
-  { icon: '🎁', text: `${SITE.ordersCount}+ букетов уже подарили ульяновцы` },
+  { icon: '⭐', text: `${SITE.rating} по ${SITE.reviewsCount} оценкам на ${SITE.reviewsSource}` },
   { icon: '✏️', text: 'Уберём или добавим любой ингредиент' },
 ]
 
@@ -68,7 +68,7 @@ export function Hero() {
         <motion.div className="order-1" style={{ y: textY, opacity: textOpacity }}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <a
-              href={SITE.yandexReviews}
+              href={SITE.reviewsUrl}
               target="_blank"
               rel="noopener"
               className="mb-3 inline-flex items-center gap-2 rounded-full border border-line bg-scrim/80 py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-ink-soft shadow-soft backdrop-blur md:mb-6"
@@ -76,7 +76,7 @@ export function Hero() {
               <span className="flex items-center gap-1 rounded-full bg-honey px-2 py-0.5 text-onaccent">
                 <Star className="h-3 w-3 fill-onaccent text-onaccent" /> {SITE.rating}
               </span>
-              {SITE.reviewsCount} отзывов на Яндекс Картах
+              {SITE.reviewsCount} оценок на {SITE.reviewsSource} — все пятёрки
             </a>
             <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
               {title}
@@ -89,8 +89,8 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-4 hidden max-w-xl text-lg leading-relaxed text-ink-soft md:block"
           >
-            Авторские композиции из клубники, элитных сыров, мясных деликатесов и фруктов. Собираем из свежих продуктов
-            в день доставки — букет удивит и будет съеден до последней ягоды.
+            Клубничные сердца, мясные и раковые букеты, сухофрукты и сладкие боксы. Собираем из свежих продуктов в день
+            доставки — букет удивит и будет съеден до последней ягоды.
           </motion.p>
 
           <motion.ul
@@ -125,12 +125,12 @@ export function Hero() {
             className="relative mx-auto aspect-[4/5] h-[44svh] max-h-[640px] min-h-[300px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]"
           >
             <img
-              src="/img/hero.webp"
-              alt="Букет из клубники в бельгийском шоколаде и макаронс в руках"
+              src="/img/real/berry/yag-14.webp"
+              alt="Клубника с голубикой и тюльпанами в шляпной коробке — работа мастерской"
               className="h-full w-full scale-105 object-cover animate-[kenburns_18s_ease-in-out_infinite_alternate]"
               fetchPriority="high"
-              width={900}
-              height={1125}
+              width={1100}
+              height={1100}
             />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
@@ -141,7 +141,7 @@ export function Hero() {
                 </p>
               </div>
               <div className="hidden rounded-2xl bg-scrim/85 px-3.5 py-2.5 text-[12px] font-semibold text-ink backdrop-blur sm:block">
-                «Парижское утро» · 4 690 ₽
+                «Клубника в шляпной коробке» · от 3 490 ₽
               </div>
             </div>
           </motion.div>
@@ -157,13 +157,13 @@ export function Hero() {
             className="absolute -left-6 bottom-28 hidden w-60 rounded-2xl border border-honey/25 bg-surface/90 p-3.5 shadow-lift backdrop-blur lg:block xl:-left-12"
           >
             <div className="flex items-center gap-2.5">
-              <img src="/img/reaction.webp" alt="" className="h-10 w-10 rounded-full object-cover" loading="lazy" />
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#8bc34a] text-lg font-bold text-white">А</span>
               <div>
-                <p className="text-[13px] font-bold">Ксения, Засвияжье</p>
-                <p className="text-[11px] text-muted">доставлено за 1 ч 35 мин</p>
+                <p className="text-[13px] font-bold">Андрей · {SITE.reviewsSource}</p>
+                <p className="text-[11px] text-muted">мужской букет на день рождения</p>
               </div>
             </div>
-            <p className="mt-2 text-[13px] leading-snug text-ink-soft">«Жена в восторге, клубника сладкая, как летом!»</p>
+            <p className="mt-2 text-[13px] leading-snug text-ink-soft">«Собрала по высшему классу. Родные были в шоке»</p>
             <div className="mt-1.5 flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-honey text-honey" />
@@ -184,8 +184,8 @@ export function Hero() {
             ))}
           </ul>
           <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
-            Авторские композиции из клубники, элитных сыров, мясных деликатесов и фруктов. Собираем из свежих продуктов в
-            день доставки.
+            Клубничные сердца, мясные и раковые букеты, сухофрукты и сладкие боксы. Собираем из свежих продуктов в день
+            доставки.
           </p>
         </div>
       </div>

@@ -11,20 +11,22 @@ export const SITE = {
   tgUser: 'slopay_buket', // личный аккаунт магазина, не канал
   instagram: 'https://instagram.com/slopay_buket',
   vk: 'https://vk.com/slopay_buket',
-  yandexReviews: 'https://yandex.ru/maps/org/slopay_buket/0000000000/reviews/',
+  /** Профиль с отзывами на Авито — вставьте реальную ссылку */
+  reviewsUrl: 'https://www.avito.ru/',
+  reviewsSource: 'Авито',
   address: 'пр-т Ленинского Комсомола, 38, Новый город',
   hours: 'Ежедневно 8:00–21:00',
   sameDayDeadlineHour: 17, // до скольки принимаем «на сегодня»
   openHour: 8,
   timeZone: 'Europe/Ulyanovsk',
-  legal: 'ИП Савельева Анна Сергеевна · ИНН 732812345678 · ОГРНИП 323730000012345',
-  rating: '4,9',
-  reviewsCount: 186,
-  ordersCount: 300,
-  repeatShare: 42,
-  avgDelivery: '1 ч 40 мин',
+  /** Реквизиты ИП/самозанятого (ФИО, ИНН). Пусто — строка в подвале не показывается. */
+  legal: '',
+  /** Реальные данные со скриншотов Авито */
+  rating: '5,0',
+  reviewsCount: 55,
+  sinceYear: 2020,
   freeDeliveryFrom: 6000,
-  masterName: 'Анна',
+  masterName: 'Мария',
   corpDeadline: '15 декабря',
   seasonSlotsLeft: 23,
 } as const

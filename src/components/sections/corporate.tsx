@@ -27,7 +27,6 @@ const FORMATS = [
   { t: 'Фуршет-букет на корпоратив', p: 'от 9 900 ₽' },
 ]
 
-const CLIENTS = ['ВолгаТехСтрой', 'Симбирск-Логистик', 'Клиника «Здоровье+»', 'Ульяновскэнергосбыт*', 'IT-парк Симбирск*', 'Банк «Венец»*']
 
 const QTY = [
   { key: '5-10', label: '5–10' },
@@ -102,9 +101,9 @@ export function Corporate() {
             </div>
 
             <div className="relative mt-5 overflow-hidden rounded-3xl">
-              <ParallaxImage src="/img/corp.webp" alt="Корпоративные боксы с логотипом компании на ленте" className="aspect-[16/9]" />
+              <ParallaxImage src="/img/real/sea/m-20.webp" alt="Большой раковый сет на коллектив — работа мастерской" className="aspect-[16/9]" />
               <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
-                {['Логотип на ленте', 'на топпере', 'на коробке', 'на шоколаде'].map((t) => (
+                {['Логотип — на ленте', 'на топпере', 'на коробке'].map((t) => (
                   <span key={t} className="rounded-full bg-black/60 px-3 py-1 text-[12px] font-bold backdrop-blur">{t}</span>
                 ))}
               </div>
@@ -122,15 +121,13 @@ export function Corporate() {
               Скидка за объём: <span className="text-honey">от 10 шт. — −5%</span>, <span className="text-honey">от 30 шт. — −10%</span>
             </p>
 
-            <div className="mt-8">
-              <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.14em] text-white/40">Нам доверяют в Ульяновске</p>
-              <div className="flex flex-wrap gap-2">
-                {CLIENTS.map((c) => (
-                  <span key={c} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[13px] font-bold text-white/55">{c}</span>
-                ))}
-              </div>
-              <p className="mt-2 text-[11px] text-white/30">* — логотипы-заглушки: замените на реальных клиентов с их разрешения</p>
-            </div>
+            <figure className="mt-8 rounded-3xl border border-honey/25 bg-white/[0.04] p-5">
+              <div className="flex gap-0.5 text-honey">★★★★★</div>
+              <blockquote className="mt-2 font-display text-[20px] italic leading-snug text-white">
+                «Начальнику очень понравился подарок! Довольный начальник — довольные сотрудники!»
+              </blockquote>
+              <figcaption className="mt-3 text-[13px] text-white/55">Надя Ч. · букет из раков · {SITE.reviewsSource}, октябрь 2022</figcaption>
+            </figure>
           </div>
 
           <BlurFade delay={0.1}>

@@ -65,7 +65,7 @@ async function test(name, fn) {
     await page.locator('#catalog').getByRole('button', { name: 'Для него', exact: true }).click()
     await page.waitForTimeout(500)
     const names = await page.locator('#catalog article h3').allTextContents()
-    assert.deepEqual(names.sort(), ['Мужской разговор', 'Новогоднее чудо', 'Сырный сомелье', 'Футбольный вечер'].sort())
+    assert.deepEqual(names.sort(), ['Мужской разговор', 'Новогодняя ёлка', 'Острый перчик', 'Раки и креветки', 'Раковый букет', 'Сундук капитана', 'Тачка', 'Юбиляр'].sort())
     await ctx.close()
   })
 
@@ -73,7 +73,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     await page.locator('#catalog article').first().getByRole('button', { name: 'Заказать' }).click()
     const sheet = page.getByRole('dialog')
-    await sheet.getByText('Клубничный поцелуй').first().waitFor()
+    await sheet.getByText('Клубничное сердце').first().waitFor()
     await sheet.getByRole('button', { name: 'Оформить заказ' }).click()
     await sheet.getByRole('alert').filter({ hasText: 'Как к вам обращаться' }).waitFor()
     await sheet.getByLabel('Имя').fill('Ольга')
@@ -99,7 +99,7 @@ async function test(name, fn) {
     await dlg.getByText('+ открытка с вашим текстом в подарок').waitFor()
     await dlg.getByLabel('Телефон').fill('9271112233')
     await dlg.getByRole('button', { name: 'Получить 3 варианта' }).click()
-    await page.getByText('Мастер Анна уже смотрит вашу заявку').waitFor()
+    await page.getByText('Мастер Мария уже смотрит вашу заявку').waitFor()
     await ctx.close()
   })
 
@@ -244,6 +244,17 @@ async function test(name, fn) {
       if (!r.ok()) failed.push(u)
     }
     assert.deepEqual(failed, [])
+    await ctx.close()
+  })
+
+  await test('Реальные данные: Мария, 5,0 по 55 оценкам на Авито, без выдуманных цифр', async () => {
+    const { ctx, page } = await mobile()
+    const text = await page.evaluate(() => document.body.innerText)
+    for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
+    for (const good of ['Мария', '5,0', '55 оценок', 'Авито', 'Раковый букет', 'Клубничное сердце']) assert.ok(text.includes(good), 'нет: ' + good)
+    const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
+    const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
+    assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))
     await ctx.close()
   })
 

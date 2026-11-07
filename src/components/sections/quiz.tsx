@@ -44,9 +44,10 @@ const STEPS = [
     key: 'taste',
     q: 'Что любит получатель?',
     options: [
-      { v: 'Сладкое', e: '🍓' },
+      { v: 'Ягоды и сладкое', e: '🍓' },
       { v: 'Мясо и сыр', e: '🧀' },
-      { v: 'Фрукты', e: '🍍' },
+      { v: 'Раки и морепродукты', e: '🦞' },
+      { v: 'Сухофрукты и орехи', e: '🥜' },
       { v: 'Не знаю, на ваш вкус', e: '🤷' },
     ],
   },
@@ -186,9 +187,9 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
 function MasterBadge({ compact }: { compact?: boolean }) {
   return (
     <div className={cn('flex items-center gap-3', compact ? '' : 'rounded-2xl bg-surface p-3 shadow-soft')}>
-      <img src="/img/founder.webp" alt={`Мастер ${SITE.masterName}`} className="h-12 w-12 rounded-full object-cover object-top" loading="lazy" />
+      <span aria-hidden className="bg-gold grid h-12 w-12 shrink-0 place-items-center rounded-full font-display text-xl font-bold text-onaccent">{SITE.masterName[0]}</span>
       <p className="text-[13px] leading-snug text-ink-soft">
-        Подберёт <b className="text-ink">{SITE.masterName}</b>, собрала {SITE.ordersCount}+ букетов
+        Подберёт <b className="text-ink">{SITE.masterName}</b> — собирает букеты с {SITE.sinceYear} года
       </p>
     </div>
   )
@@ -211,10 +212,10 @@ export function QuizSection() {
               sub="Пришлём 3 идеальных варианта с ценами и фото — в удобный мессенджер."
             />
             <div className="relative hidden overflow-hidden rounded-3xl lg:block">
-              <ParallaxImage src="/img/founder.webp" alt={`Мастер ${SITE.masterName} в мастерской`} className="aspect-square" imgClassName="object-top" />
+              <ParallaxImage src="/img/real/berry/yag-25.webp" alt="Сердце из клубники, малины и роз — работа мастерской" className="aspect-square" />
               <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-scrim/95 p-4 backdrop-blur">
                 <p className="font-display text-lg font-semibold">Подберёт {SITE.masterName}</p>
-                <p className="text-[13px] text-ink-soft">Основатель мастерской, собрала {SITE.ordersCount}+ букетов</p>
+                <p className="text-[13px] text-ink-soft">Собирает букеты с {SITE.sinceYear} года · {SITE.rating} ★ на {SITE.reviewsSource}</p>
               </div>
             </div>
             <div className="lg:hidden">
