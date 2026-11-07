@@ -263,3 +263,10 @@ body {
 .legal ul { list-style: disc; padding-left: 1.25rem; margin-top: 0.75rem; }
 .legal li { margin-top: 0.3rem; }
 .legal h1 { color: var(--color-ink); }
+
+/* Производительность: разделы ниже первых экранов браузер не отрисовывает, пока до них не долистали */
+main > section:nth-of-type(n + 4),
+main > footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}

@@ -38,10 +38,9 @@ export function ParallaxImage({
   const y = useTransform(scrollYProgress, [0, 1], [`${-strength * 100}%`, `${strength * 100}%`])
   return (
     <div ref={ref} className={cn('relative overflow-hidden', className)}>
-      <motion.img
+      <motion.img loading={eager ? 'eager' : 'lazy'}
         src={src}
         alt={alt}
-        loading={eager ? 'eager' : 'lazy'}
         style={reduce ? undefined : { y, scale: 1 + strength * 2.2 }}
         className={cn('h-full w-full object-cover will-change-transform', imgClassName)}
       />

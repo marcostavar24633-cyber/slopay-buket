@@ -37,7 +37,7 @@ export function Process() {
                 <div className="grid h-full place-items-center bg-gradient-to-b from-honey-100 to-cream-2 p-5">
                   <div className="w-[70%] rounded-[26px] border-[6px] border-black bg-[#0b141a] p-1.5 shadow-lift ring-1 ring-honey/40">
                     <div className="overflow-hidden rounded-2xl bg-[#202c33]">
-                      <img src={s.img} alt="Фото готового букета в MAX перед отправкой" className="aspect-square w-full object-cover" loading="lazy" />
+                      <img loading="lazy" src={s.img} alt="Фото готового букета в MAX перед отправкой" className="aspect-square w-full object-cover" />
                       <p className="px-2 py-1.5 text-[10px] leading-tight text-white">Ваш букет готов 💐 Отправляем?</p>
                     </div>
                   </div>
@@ -74,7 +74,7 @@ export function Process() {
           <BlurFade className="relative">
             <div className="grid grid-cols-2 gap-3">
               {COLLAGE.map((src, i) => (
-                <img key={src} src={src} alt="Работа мастерской" loading="lazy" className={`aspect-square w-full rounded-3xl object-cover shadow-lift ring-1 ring-honey/25 ${i % 2 ? 'translate-y-6' : ''}`} />
+                <img loading="lazy" key={src} src={src} alt="Работа мастерской" className={`aspect-square w-full rounded-3xl object-cover shadow-lift ring-1 ring-honey/25 ${i % 2 ? 'translate-y-6' : ''}`} />
               ))}
             </div>
             <Parallax speed={-0.3} className="absolute -bottom-8 left-5 right-5 md:-right-8 md:left-auto md:w-64">

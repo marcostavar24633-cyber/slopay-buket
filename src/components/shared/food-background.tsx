@@ -189,17 +189,19 @@ function Layer({
  * При «уменьшить движение» и режиме экономии трафика — только статичный кадр.
  * Затемнение — переменная --video-scrim (своя для тёмной и светлой темы).
  */
-function BgVideo({ still }: { still: boolean }) {
+function BgVideo({ still, mobile }: { still: boolean; mobile: boolean }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [src, setSrc] = useState<string | null>(null)
   useEffect(() => {
-    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
-    if (still || saveData) return
-    const start = () => setSrc('/video/bg-food.mp4?v=2')
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection
+    // экономия трафика или медленная связь — только неподвижный кадр
+    if (still || conn?.saveData || /(^|-)2g|3g/.test(conn?.effectiveType ?? '')) return
+    // телефонам — лёгкая версия 640×360 (≈0,8 МБ) вместо 1280×720 (≈4 МБ)
+    const start = () => setSrc(mobile ? '/video/bg-food-mobile.mp4' : '/video/bg-food.mp4?v=2')
     if (document.readyState === 'complete') start()
     else window.addEventListener('load', start, { once: true })
     return () => window.removeEventListener('load', start)
-  }, [still])
+  }, [still, mobile])
   useEffect(() => {
     if (src) ref.current?.play().catch(() => {})
   }, [src])
@@ -208,7 +210,7 @@ function BgVideo({ still }: { still: boolean }) {
       <video
         ref={ref}
         className="absolute inset-0 h-full w-full object-cover"
-        poster="/video/bg-food-poster.webp"
+        poster={mobile ? '/video/bg-food-poster-mobile.webp' : '/video/bg-food-poster.webp'}
         src={src ?? undefined}
         autoPlay
         muted
@@ -243,22 +245,23 @@ export function FoodBackground() {
 
   const dust = useMemo(() => {
     const r = rng(99)
-    return Array.from({ length: mobile ? 22 : 48 }, () => ({ x: r() * 100, y: r() * 100, s: 1 + r() * 2.2, d: 2.5 + r() * 4, delay: -r() * 6 }))
+    return Array.from({ length: mobile ? 0 : 48 }, () => ({ x: r() * 100, y: r() * 100, s: 1 + r() * 2.2, d: 2.5 + r() * 4, delay: -r() * 6 }))
   }, [mobile])
 
   const glowY = useTransform(scrollY, (v) => (reduce ? 0 : -(v * 0.03) % 400))
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <BgVideo still={reduce} />
+      <BgVideo still={reduce} mobile={mobile} />
       {/* сияние */}
       <motion.div className="absolute inset-0" style={{ y: glowY }}>
-        <div className="absolute -left-[10%] top-[5%] h-[55vmax] w-[55vmax] rounded-full bg-[radial-gradient(circle,var(--aurora-1),transparent_62%)] [animation:aurora_22s_ease-in-out_infinite_alternate]" />
-        <div className="absolute -right-[15%] top-[45%] h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,var(--aurora-2),transparent_60%)] [animation:aurora_28s_ease-in-out_infinite_alternate-reverse]" />
+        <div className="absolute -left-[10%] top-[5%] h-[55vmax] w-[55vmax] rounded-full bg-[radial-gradient(circle,var(--aurora-1),transparent_62%)] [animation:aurora_22s_ease-in-out_infinite_alternate] max-md:[animation:none]" />
+        <div className="absolute -right-[15%] top-[45%] h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,var(--aurora-2),transparent_60%)] [animation:aurora_28s_ease-in-out_infinite_alternate-reverse] max-md:[animation:none]" />
       </motion.div>
 
-      {LAYERS.map((l, i) => (
-        <Layer key={i} layer={l} scrollY={scrollY} mx={mx} my={my} mobile={mobile} still={reduce} />
+      {/* на телефонах — один неподвижный слой иконок: меньше работы процессору */}
+      {(mobile ? LAYERS.slice(1, 2) : LAYERS).map((l, i) => (
+        <Layer key={i} layer={l} scrollY={scrollY} mx={mx} my={my} mobile={mobile} still={reduce || mobile} />
       ))}
 
       {/* золотая пыль */}

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useInView } from 'motion/react'
 import { ArrowRight, ExternalLink, Star } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { NumberTicker } from '@/components/magicui/number-ticker'
@@ -33,6 +34,32 @@ const REVIEWS = [
 /** Фото-стена — реальные работы (миниатюры), два встречных ряда. */
 const WALL = ITEMS.slice(0, 14).map((p) => p.thumb)
 const WALL2 = ITEMS.slice(14, 28).map((p) => p.thumb)
+
+function PhotoWall() {
+  const ref = useRef<HTMLDivElement>(null)
+  const near = useInView(ref, { once: true, margin: '900px 0px' })
+  return (
+    <div ref={ref} className="mt-12 md:mt-16">
+      <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Наши букеты</p>
+      {near ? (
+        <>
+          <Marquee duration="60s">
+            {WALL.map((src, i) => (
+              <img key={i} src={src} alt="" decoding="async" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />
+            ))}
+          </Marquee>
+          <Marquee duration="70s" reverse className="mt-4">
+            {WALL2.map((src, i) => (
+              <img key={i} src={src} alt="" decoding="async" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
+            ))}
+          </Marquee>
+        </>
+      ) : (
+        <div className="h-[304px] md:h-[384px]" />
+      )}
+    </div>
+  )
+}
 
 export function Reviews() {
   return (
@@ -118,20 +145,8 @@ export function Reviews() {
         </div>
       </div>
 
-      {/* Фото-стена */}
-      <div className="mt-12 md:mt-16">
-        <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Наши букеты</p>
-        <Marquee duration="60s">
-          {WALL.map((src, i) => (
-            <img key={i} src={src} alt="" loading="eager" decoding="async" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />
-          ))}
-        </Marquee>
-        <Marquee duration="70s" reverse className="mt-4">
-          {WALL2.map((src, i) => (
-            <img key={i} src={src} alt="" loading="eager" decoding="async" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
-          ))}
-        </Marquee>
-      </div>
+      {/* Фото-стена: картинки подключаются, только когда до ленты осталось ~1 экран */}
+      <PhotoWall />
 
       <div className="container-x mt-10 flex flex-col items-center gap-3 text-center">
         <Button size="lg" onClick={() => { goal('cta_reviews_catalog'); scrollToId('catalog') }}>
@@ -167,7 +182,7 @@ function AvitoShots() {
             className="group relative h-64 w-[240px] shrink-0 cursor-zoom-in snap-start overflow-hidden rounded-2xl bg-[#1f1f1f] ring-1 ring-line md:h-72 md:w-[260px]"
             aria-label={`Отзыв ${i + 1} из ${REVIEW_SHOTS.length}`}
           >
-            <img src={r.src} alt={`Скриншот отзыва покупателя №${i + 1}`} loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]" />
+            <img loading="lazy" src={r.src} alt={`Скриншот отзыва покупателя №${i + 1}`} decoding="async" className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]" />
             <span aria-hidden className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
             <span className="absolute bottom-2 left-3 text-[12px] font-bold text-white">Читать отзыв →</span>
           </button>

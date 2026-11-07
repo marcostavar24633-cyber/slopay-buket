@@ -26,7 +26,7 @@ async function test(name, fn) {
 
   await test('Без временных рамок: нет «до 17:00», «от 2 часов», таймеров', async () => {
     const { ctx, page } = await mobile('2026-11-09T06:00:00Z')
-    const text = await page.evaluate(() => document.body.innerText)
+    const text = await page.evaluate(() => document.body.textContent)
     for (const bad of ['17:00', 'от 2 часов', 'через 2 часа', 'доставим сегодня', 'роддом', 'не больше 6 часов', ' мин<', 'Чек с датой', 'реальные люди', 'логотип', 'Нужны документы', 'игристое', 'в руках человека', 'шоколад', 'WhatsApp']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
     for (const good of ['1–2 дня', 'Карбышева, 37', '5 декабря', '−15%', 'предоплат', 'Новому городу']) assert.ok(text.toLowerCase().includes(good.toLowerCase()), 'нет: ' + good)
     await ctx.close()
@@ -83,7 +83,7 @@ async function test(name, fn) {
 
   await test('Гарантия свежести: скидка, 2 часа, без замены', async () => {
     const { ctx, page } = await mobile()
-    const text = await page.evaluate(() => document.body.innerText)
+    const text = await page.evaluate(() => document.body.textContent)
     assert.ok(text.includes('в течение 2 часов после вручения') && text.includes('сделаем скидку'))
     assert.ok(!text.includes('мы подтвердим'))
     for (const bad of ['пересоберём', 'привезём замену', 'вернём деньги']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
@@ -220,7 +220,7 @@ async function test(name, fn) {
   await test('Нет раздела «Наши работы» и числа 55 в оценках', async () => {
     const { ctx, page } = await mobile()
     assert.equal(await page.locator('#gallery').count(), 0)
-    const text = await page.evaluate(() => document.body.innerText)
+    const text = await page.evaluate(() => document.body.textContent)
     assert.ok(!/55 оцен|по 55/.test(text), 'найдено 55')
     assert.ok(!text.includes('Наши работы'))
     await ctx.close()
@@ -261,7 +261,7 @@ async function test(name, fn) {
 
   await test('Реальные данные: Мария, 5,0 по 55 оценкам на Авито, без выдуманных цифр', async () => {
     const { ctx, page } = await mobile()
-    const text = await page.evaluate(() => document.body.innerText)
+    const text = await page.evaluate(() => document.body.textContent)
     for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
     for (const good of ['Мария', '5,0', 'Авито', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
@@ -327,7 +327,7 @@ async function test(name, fn) {
   await test('Нет выдуманного: Instagram, «23 слота», «в течение часа»', async () => {
     const { ctx, page } = await mobile()
     const html = await page.content()
-    const text = await page.evaluate(() => document.body.innerText)
+    const text = await page.evaluate(() => document.body.textContent)
     assert.ok(!/instagram/i.test(html))
     for (const bad of ['23 слота', 'осталось 23', 'в течение часа']) assert.ok(!text.includes(bad), bad)
     await ctx.close()

@@ -10,6 +10,9 @@ import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
+/** Страница пришла с готовой разметкой (пререндер) — не проигрываем появление первого экрана повторно. */
+const PRE = typeof document !== 'undefined' && document.getElementById('root')?.hasAttribute('data-prerendered')
+
 /** A/B заголовка: ?h=b — вариант под таргет и соцсети. По умолчанию A (поисковый трафик). */
 const variant = typeof location !== 'undefined' && new URLSearchParams(location.search).get('h') === 'b' ? 'B' : 'A'
 
@@ -64,7 +67,7 @@ export function Hero() {
       <div className="container-x relative grid items-center gap-5 md:gap-10 lg:grid-cols-[1.1fr_1fr]">
         {/* Текст */}
         <motion.div className="order-1" style={{ y: textY, opacity: textOpacity }}>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <motion.div initial={PRE ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <a
               href={SITE.reviewsUrl}
               target="_blank"
@@ -82,7 +85,7 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
+            initial={PRE ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-4 hidden max-w-xl text-lg leading-relaxed text-ink-soft md:block"
@@ -92,7 +95,7 @@ export function Hero() {
           </motion.p>
 
           <motion.ul
-            initial={{ opacity: 0 }}
+            initial={PRE ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 hidden grid-cols-2 gap-x-6 gap-y-3 md:grid"
@@ -110,7 +113,7 @@ export function Hero() {
 
         {/* Фото — на мобильном минимум половина экрана */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
+          initial={PRE ? false : { opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
           className="relative order-2 [perspective:1200px]"
@@ -124,6 +127,8 @@ export function Hero() {
           >
             <img
               src="/img/real/berry/hero-heart.webp"
+              srcSet="/img/real/berry/hero-heart-720.webp 720w, /img/real/berry/hero-heart.webp 1100w"
+              sizes="(max-width: 767px) 60vw, 520px"
               alt="«Ежевичный вальс»: сердце из клубники, ежевики, голубики и роз — работа мастерской"
               className="h-full w-full scale-105 object-cover animate-[kenburns_18s_ease-in-out_infinite_alternate]"
               fetchPriority="high"
@@ -148,7 +153,7 @@ export function Hero() {
 
           {/* Плавающая карточка соцдоказательства */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={PRE ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
             style={{ y: cardY }}

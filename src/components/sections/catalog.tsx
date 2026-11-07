@@ -29,7 +29,7 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
       <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`Открыть фото: ${item.name}`}>
-        <img src={item.thumb} alt={`«${item.name}» — ${item.desc}`} loading="lazy" width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <img loading="lazy" src={item.thumb} alt={`«${item.name}» — ${item.desc}`} width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         {hit && (
           <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-honey px-2.5 py-1 text-[11px] font-bold text-onaccent shadow-soft">
             <Flame className="h-3.5 w-3.5" /> Хит
@@ -148,7 +148,7 @@ export function Catalog() {
                   active ? 'ring-4 ring-honey' : 'ring-line hover:ring-honey/60',
                 )}
               >
-                <img src={COVER[c.key]} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <img loading="lazy" src={COVER[c.key]} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <span className="absolute inset-x-3 bottom-3 text-white md:inset-x-5 md:bottom-4">
                   <span className="block font-display text-[17px] font-semibold leading-tight md:text-[26px]">{c.label}</span>

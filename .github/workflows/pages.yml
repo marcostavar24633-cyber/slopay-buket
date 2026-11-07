@@ -30,6 +30,11 @@ jobs:
         env:
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
         run: npx vite build --base /${{ github.event.repository.name }}/
+      - name: Пререндер (готовая разметка для поисковиков и быстрого первого экрана)
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+          node scripts/prerender.cjs dist /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
