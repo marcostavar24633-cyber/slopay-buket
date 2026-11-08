@@ -5,7 +5,6 @@
 import { Corporate } from '@/components/sections/corporate'
 import { Occasions } from '@/components/sections/occasions'
 import { Why } from '@/components/sections/why'
-import { QuizDialog, QuizSection } from '@/components/sections/quiz'
 import { Reviews } from '@/components/sections/reviews'
 import { Process } from '@/components/sections/process'
 import { Delivery, HowToOrder } from '@/components/sections/delivery'
@@ -20,7 +19,6 @@ export function BelowMain() {
       <Occasions />
       <Corporate />
       <Why />
-      <QuizSection />
       <Reviews />
       <Process />
       <HowToOrder />
@@ -35,7 +33,6 @@ export function BelowRest() {
   return (
     <>
       <Footer />
-      <QuizDialog />
       <CookieNotice />
     </>
   )

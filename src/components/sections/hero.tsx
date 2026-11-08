@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
-import { ArrowRight, Sparkles, Star } from 'lucide-react'
+import { ArrowRight, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { MaxIcon, TelegramIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { ANCHOR_PRICE } from '@/lib/products'
 import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
-import { scrollToId, useUI } from '@/lib/ui-store'
+import { scrollToId } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
 /** Страница пришла с готовой разметкой (пререндер) — не проигрываем появление первого экрана повторно. */
@@ -25,7 +24,6 @@ const BULLETS = [
 ]
 
 export function Hero() {
-  const { setQuizOpen } = useUI()
   const ref = useRef<HTMLElement>(null)
   const reduce = useReducedMotion()
   // Параллакс по скроллу: фото отстаёт, текст уходит вверх и гаснет, карточка отзыва обгоняет
@@ -109,7 +107,7 @@ export function Hero() {
             ))}
           </motion.ul>
 
-          <HeroCtas className="mt-8 hidden md:flex" onQuiz={() => setQuizOpen(true)} />
+          <HeroCtas className="mt-8 hidden md:flex" />
         </motion.div>
 
         {/* Фото — на мобильном минимум половина экрана */}
@@ -166,7 +164,7 @@ export function Hero() {
 
         {/* Мобильные CTA и буллиты — под фото */}
         <div className="order-3 md:hidden">
-          <HeroCtas onQuiz={() => setQuizOpen(true)} />
+          <HeroCtas />
           <ul className="mt-6 grid grid-cols-2 gap-2.5">
             {BULLETS.map((b) => (
               <li key={b.text} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-3 text-[13px] font-semibold leading-snug">
@@ -185,12 +183,13 @@ export function Hero() {
   )
 }
 
-function HeroCtas({ className = 'flex', onQuiz }: { className?: string; onQuiz: () => void }) {
+function HeroCtas({ className = 'flex' }: { className?: string }) {
   return (
     <div className={`${className} flex-col gap-3`}>
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex flex-col items-center sm:items-start">
-          <ShimmerButton
+          <Button
+            size="lg"
             className="w-full sm:w-auto"
             onClick={() => {
               goal('cta_hero_catalog')
@@ -198,22 +197,11 @@ function HeroCtas({ className = 'flex', onQuiz }: { className?: string; onQuiz: 
             }}
           >
             Выбрать букет <ArrowRight className="h-5 w-5" />
-          </ShimmerButton>
+          </Button>
           <p className="mt-2 text-center text-[12.5px] font-semibold text-muted sm:text-left">
             Лучше заказать за 1–2 дня — бывает, успеваем и день в день
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full sm:w-auto"
-          onClick={() => {
-            goal('cta_hero_quiz')
-            onQuiz()
-          }}
-        >
-          <Sparkles className="h-5 w-5 text-honey-600" /> Подобрать за 1 минуту
-        </Button>
       </div>
       <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[14px] font-semibold text-ink-soft sm:justify-start">
         Или пришлите фото примера — соберём похожий:

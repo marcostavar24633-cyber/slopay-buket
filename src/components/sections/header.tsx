@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { id: 'hits', label: 'Хиты' },
   { id: 'catalog', label: 'Каталог' },
-  { id: 'quiz', label: 'Подобрать букет' },
   { id: 'reviews', label: 'Отзывы' },
   { id: 'delivery', label: 'Доставка' },
   { id: 'corporate', label: 'Корпоративным' },

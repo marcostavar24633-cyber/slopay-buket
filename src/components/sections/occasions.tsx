@@ -2,17 +2,17 @@ import { ArrowRight } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import type { GalleryCat } from '@/lib/gallery'
 import { goal } from '@/lib/analytics'
-import { scrollToId, useUI } from '@/lib/ui-store'
+import { scrollToId } from '@/lib/ui-store'
 
 /**
- * «По поводам»: люди ищут подарок под повод — плитка ведёт в нужную категорию каталога,
- * в квиз или в корпоративный блок. Фото — реальные работы.
+ * «По поводам»: люди ищут подарок под повод — плитка ведёт в нужную категорию каталога
+ * или в корпоративный блок. Фото — реальные работы.
  */
-type Go = { cat: GalleryCat } | { quiz: true } | { corporate: true }
+type Go = { cat: GalleryCat } | { corporate: true }
 const OCCASIONS: { t: string; d: string; img: string; go: Go }[] = [
   { t: '8 Марта', d: 'ягодные сердца и корзины', img: '/img/real/berry/thumbs/yag-20.webp', go: { cat: 'berry' } },
   { t: '14 Февраля', d: 'клубника и розы', img: '/img/real/berry/thumbs/yag-24.webp', go: { cat: 'berry' } },
-  { t: 'День рождения', d: 'подберём за 1 минуту', img: '/img/real/berry/thumbs/yag-22.webp', go: { quiz: true } },
+  { t: 'День рождения', d: 'сердца, корзины, мясные', img: '/img/real/berry/thumbs/yag-22.webp', go: { cat: 'berry' } },
   { t: '23 Февраля и мужчине', d: 'мясные и раковые букеты', img: '/img/real/meat/thumbs/k-36.webp', go: { cat: 'meat' } },
   { t: 'Маме', d: 'сухофрукты и орехи', img: '/img/real/dried/thumbs/suh-10.webp', go: { cat: 'dried' } },
   { t: 'Новый год', d: 'праздничные наборы', img: '/img/real/dried/thumbs/suh-1.webp', go: { cat: 'dried' } },
@@ -21,10 +21,8 @@ const OCCASIONS: { t: string; d: string; img: string; go: Go }[] = [
 ]
 
 export function Occasions() {
-  const { setQuizOpen } = useUI()
   const open = (o: (typeof OCCASIONS)[number]) => {
     goal('occasion_click', { occasion: o.t })
-    if ('quiz' in o.go) return setQuizOpen(true)
     if ('corporate' in o.go) {
       window.dispatchEvent(new CustomEvent('prefill-corporate'))
       return scrollToId('corporate')

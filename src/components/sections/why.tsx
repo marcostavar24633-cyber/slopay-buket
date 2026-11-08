@@ -2,7 +2,6 @@ import { Check, X } from 'lucide-react'
 import { ParallaxImage } from '@/components/aceternity/parallax'
 import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
-import { CardSpotlight } from '@/components/aceternity/card-spotlight'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { MSG } from '@/lib/config'
 
@@ -84,11 +83,11 @@ export function Why() {
         <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0">
           {ADVANTAGES.map((a, i) => (
             <BlurFade key={a.title} delay={i * 0.05} className="w-[82%] shrink-0 snap-center md:w-auto">
-              <CardSpotlight className="h-full rounded-3xl border border-line bg-cream p-6">
+              <div className="h-full rounded-3xl border border-line bg-cream p-6">
                 <span className="grid h-14 w-14 place-items-center rounded-2xl bg-surface text-[28px] shadow-soft">{a.icon}</span>
                 <h3 className="mt-5 text-lg font-extrabold leading-snug">{a.title}</h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{a.text}</p>
-              </CardSpotlight>
+              </div>
             </BlurFade>
           ))}
         </div>
