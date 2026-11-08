@@ -77,7 +77,7 @@ Pages на бесплатном тарифе работает только дл�
 ## Цели Метрики (уже расставлены)
 
 `cta_header`, `cta_hero_catalog`, `cta_hero_quiz`, `max_click{from}`, `tg_click{from}`, `phone_click{from}`, `order_open`,
-`catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, `lead_<source>`, `upsell_added`, `thanks_screen`,
+`catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, `lead_<source>`, `thanks_screen`,
 `exit_popup_show`, `corp_pdf_download`, `yandex_reviews_click`.
 
 У каждой MSG-кнопки свой предзаполненный текст (`MSG` в `config.ts`) — видно, какая кнопка приводит клиентов.

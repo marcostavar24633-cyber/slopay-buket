@@ -278,11 +278,5 @@ export const PRICE_TABS = [
   { key: 'p4', label: 'от 8 000 ₽', min: 8000, max: Infinity },
 ] as const
 
-export const UPSELLS = [
-  { id: 'balloons', name: 'Связка из 5 шаров', price: 790, emoji: '🎈' },
-  { id: 'bear', name: 'Плюшевый мишка 25 см', price: 890, emoji: '🧸' },
-  { id: 'candle', name: 'Свеча-цифра', price: 250, emoji: '🕯️' },
-]
-
 /** Цена-якорь на первом экране — самая доступная работа. */
 export const ANCHOR_PRICE = Math.min(...ITEMS.map((i) => i.price))

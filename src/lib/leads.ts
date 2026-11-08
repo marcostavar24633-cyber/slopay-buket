@@ -7,7 +7,6 @@ export type LeadSource =
   | 'corporate'
   | 'final'
   | 'exit-popup'
-  | 'upsell'
 
 export interface Lead {
   source: LeadSource

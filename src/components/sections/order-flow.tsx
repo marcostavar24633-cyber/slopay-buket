@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Loader2, Minus, Plus } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
@@ -10,11 +10,10 @@ import { Consent } from '@/components/shared/consent'
 import { VkIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink } from '@/lib/config'
 import { isPhoneValid } from '@/lib/phone'
-import { UPSELLS } from '@/lib/products'
 import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
-import { cn, rub } from '@/lib/utils'
+import { rub } from '@/lib/utils'
 
 const DATES = [
   { key: 'today', label: 'Сегодня' },
@@ -29,7 +28,6 @@ export const CONTACTS = [
 
 export function OrderSheet() {
   const { order, closeOrder, showThanks } = useUI()
-  const [step, setStep] = useState<'form' | 'upsell'>('form')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [date, setDate] = useState<(typeof DATES)[number]['key']>('tomorrow')
@@ -40,13 +38,10 @@ export function OrderSheet() {
   const [consent, setConsent] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [extras, setExtras] = useState<Record<string, number>>({})
 
   useEffect(() => {
     if (order) {
-      setStep('form')
       setError('')
-      setExtras({})
       setDate('tomorrow')
     }
   }, [order])
@@ -74,23 +69,12 @@ export function OrderSheet() {
     })
     setLoading(false)
     if (!ok) return setError('Не получилось отправить. Напишите нам в MAX — ответим за 5 минут.')
-    setStep('upsell')
-  }
-
-  const finish = async () => {
-    const chosen = Object.entries(extras).filter(([, q]) => q > 0)
-    if (chosen.length) {
-      goal('upsell_added', { items: chosen.length })
-      await submitLead({ source: 'upsell', phone, name, product: `«${item.name}», ${item.title} (${item.id})`, extras: chosen.map(([id, q]) => `${UPSELLS.find((u) => u.id === id)?.name} ×${q}`).join(', ') })
-    }
     closeOrder()
     showThanks(name)
   }
 
-  const extrasSum = Object.entries(extras).reduce((s, [id, q]) => s + (UPSELLS.find((u) => u.id === id)?.price ?? 0) * q, 0)
-
   return (
-    <Sheet open={!!order} onOpenChange={(v) => !v && (step === 'upsell' ? finish() : closeOrder())} title={`Заказ: «${item.name}»`}>
+    <Sheet open={!!order} onOpenChange={(v) => !v && closeOrder()} title={`Заказ: «${item.name}»`}>
       <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3 md:mt-6">
         <img src={item.thumb} alt="" className="h-16 w-16 rounded-xl object-cover" />
         <div className="min-w-0">
@@ -98,11 +82,10 @@ export function OrderSheet() {
           <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-honey-600">{item.title}</p>
           <p className="line-clamp-2 text-[13px] leading-snug text-muted">{item.desc}</p>
         </div>
-        <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight"><span className="block text-[11px] font-semibold text-muted">примерно</span>от {rub(item.price + extrasSum)}</p>
+        <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight"><span className="block text-[11px] font-semibold text-muted">примерно</span>от {rub(item.price)}</p>
       </div>
 
-      {step === 'form' ? (
-        <form onSubmit={submit} className="mt-5 flex flex-col gap-4" noValidate>
+      <form onSubmit={submit} className="mt-5 flex flex-col gap-4" noValidate>
           <div>
             <Label htmlFor="o-name">Имя</Label>
             <Input id="o-name" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к вам обращаться" />
@@ -142,42 +125,7 @@ export function OrderSheet() {
           <p className="-mt-1 text-center text-[13px] leading-snug text-muted">
             Перезвоним, уточним адрес и время. Оплата — после согласования.
           </p>
-        </form>
-      ) : (
-        <div className="mt-5">
-          <div className="flex items-center gap-2 rounded-2xl bg-green-500/10 px-4 py-3 text-[14px] font-bold text-green-300">
-            <Check className="h-5 w-5" /> Заявка принята! Пока мастер её смотрит —
-          </div>
-          <h3 className="mt-4 font-display text-2xl font-semibold">Добавить к заказу?</h3>
-          <p className="mt-1 text-[14px] text-ink-soft">Привезём вместе с букетом, одной доставкой.</p>
-          <ul className="mt-4 flex flex-col gap-2.5">
-            {UPSELLS.map((u) => {
-              const q = extras[u.id] ?? 0
-              return (
-                <li key={u.id} className={cn('flex items-center gap-3 rounded-2xl border bg-surface p-3 transition', q ? 'border-honey' : 'border-line')}>
-                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-cream-2 text-2xl">{u.emoji}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-bold leading-tight">{u.name}</p>
-                    <p className="text-[13px] text-muted">{rub(u.price)}</p>
-                  </div>
-                  {q > 0 && (
-                    <button onClick={() => setExtras((x) => ({ ...x, [u.id]: q - 1 }))} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-cream-2" aria-label="Убрать">
-                      <Minus className="h-4 w-4" />
-                    </button>
-                  )}
-                  {q > 0 && <span className="w-4 text-center font-bold">{q}</span>}
-                  <button onClick={() => setExtras((x) => ({ ...x, [u.id]: q + 1 }))} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-honey text-onaccent" aria-label={`Добавить: ${u.name}`}>
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-          <Button size="lg" className="mt-5 w-full" onClick={finish}>
-            {extrasSum ? `Добавить за ${rub(extrasSum)} и завершить` : 'Нет, спасибо — завершить'}
-          </Button>
-        </div>
-      )}
+      </form>
     </Sheet>
   )
 }

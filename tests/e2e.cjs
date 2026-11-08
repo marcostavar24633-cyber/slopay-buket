@@ -97,7 +97,7 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Шторка заказа: валидация → отправка → допродажа → «Спасибо»', async () => {
+  await test('Шторка заказа: валидация → отправка → «Спасибо» (без допродажи)', async () => {
     const { ctx, page } = await mobile()
     await page.locator('#hits article').first().getByRole('button', { name: 'Заказать' }).click()
     const sheet = page.getByRole('dialog')
@@ -112,10 +112,8 @@ async function test(name, fn) {
     await sheet.getByText('Добавить открытку с моим текстом').click()
     await sheet.locator('textarea').fill('С днём рождения!')
     await sheet.getByRole('button', { name: 'Оформить заказ' }).click()
-    await sheet.getByText('Добавить к заказу?').waitFor()
-    await sheet.getByRole('button', { name: /^Добавить: / }).first().click()
-    await sheet.getByRole('button', { name: /Добавить за .* и завершить/ }).click()
     await page.getByText('Спасибо, Ольга!').waitFor()
+    assert.equal(await page.getByText('Добавить к заказу?').count(), 0)
     await ctx.close()
   })
 

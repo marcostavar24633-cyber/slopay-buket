@@ -13,7 +13,6 @@ const LABELS: Record<string, string> = {
   corporate: '💼 Корпоративный заказ',
   final: '🎯 Заявка внизу страницы',
   'exit-popup': '🚪 Всплывающее окно',
-  upsell: '➕ Допродажа',
 }
 
 const FIELDS: Record<string, string> = {
