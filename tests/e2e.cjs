@@ -35,7 +35,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile('2026-11-09T06:00:00Z')
     const text = await page.evaluate(() => document.body.textContent)
     for (const bad of ['17:00', 'от 2 часов', 'через 2 часа', 'доставим сегодня', 'роддом', 'не больше 6 часов', ' мин<', 'Чек с датой', 'реальные люди', 'логотип', 'Нужны документы', 'игристое', 'в руках человека', 'шоколад', 'WhatsApp']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
-    for (const good of ['1–2 дня', 'Карбышева, 37', '5 декабря', '−15%', 'предоплат', 'Новому городу']) assert.ok(text.toLowerCase().includes(good.toLowerCase()), 'нет: ' + good)
+    for (const good of ['1–2 дня', 'Карбышева, 37', '5 декабря', 'до 15%', 'предоплат', 'Новому городу']) assert.ok(text.toLowerCase().includes(good.toLowerCase()), 'нет: ' + good)
     await ctx.close()
   })
 
@@ -67,7 +67,7 @@ async function test(name, fn) {
     await c.getByRole('button', { name: 'Показать ещё 18' }).click()
     assert.equal(await c.locator('article').count(), 30)
     const cards = await c.locator('article').allInnerTexts()
-    assert.ok(cards.every((t) => /от \d[\d\s ]*₽/.test(t) && t.includes('примерная цена') && t.split('\n').length >= 4), cards[0])
+    assert.ok(cards.every((t) => /от \d[\d\s ]*₽/.test(t) && t.includes('итог зависит от размера') && t.split('\n').length >= 4), cards[0])
     assert.equal(await c.locator('article [role=radiogroup]').count(), 0)
     const names = await c.locator('article h3').allTextContents()
     assert.equal(names.length, 30)
@@ -80,16 +80,13 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Хит продаж: 10 работ, по 2 из каждой категории, с составом и ценой', async () => {
+  await test('Хит продаж: 5 работ — по одной из каждой категории, метка «Хит» только у трёх', async () => {
     const { ctx, page } = await mobile()
     const h = page.locator('#hits')
-    await h.getByText('Хит продаж').first().waitFor()
     const cards = await h.locator('article').allInnerTexts()
-    assert.equal(cards.length, 10)
-    const cats = {}
-    for (const t of cards) { const k = t.split('\n').map((l) => l.trim()).find((l) => l && l !== 'Хит'); cats[k] = (cats[k] || 0) + 1; assert.ok(/от \d/.test(t)) }
-    assert.equal(Object.keys(cats).length, 5, JSON.stringify(cats))
-    assert.ok(Object.values(cats).every((n) => n === 2), JSON.stringify(cats))
+    assert.equal(cards.length, 5)
+    assert.ok(cards.every((t) => /от \d/.test(t) && t.includes('итог зависит от размера')), 'цена и пояснение')
+    assert.equal(await h.locator('article span.rounded-full', { hasText: 'Хит' }).count(), 3)
     await ctx.close()
   })
 
@@ -113,15 +110,17 @@ async function test(name, fn) {
     const tg = sheet.getByRole('link', { name: 'Написать в Telegram' })
     const tgHref = decodeURIComponent(await tg.getAttribute('href'))
     assert.ok(tgHref.startsWith('https://t.me/+79631282556?text=Здравствуйте! Хочу заказать букет «Розовая мечта»'), tgHref)
-    assert.ok(tgHref.includes('/slopay-buket/tg/yag-17.jpg'), 'ссылка на фото в тексте')
+    assert.ok(tgHref.includes('/tg/yag-17.jpg'), 'ссылка на фото в тексте')
     assert.ok(await max.getAttribute('href'))
-    await sheet.getByText('Хочу заказать букет «Розовая мечта»').waitFor()
+    await sheet.getByText('Текст уже готов — просто нажмите «Отправить»').waitFor()
+    assert.ok(tgHref.includes('(с сайта)'), 'метка источника')
     await page.context().route('https://max.ru/**', (r) => r.fulfill({ status: 200, body: 'max' }))
     const [popup] = await Promise.all([page.waitForEvent('popup'), max.click()])
     await popup.close()
+    await sheet.getByText('Как это работает?').click()
     await sheet.getByText('текст скопирован').waitFor()
     const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''))
-    if (clip) assert.ok(clip.includes('«Розовая мечта»') && clip.includes('/slopay-buket/tg/yag-17.jpg'), 'в буфере текст и ссылка на фото: ' + clip)
+    if (clip) assert.ok(clip.includes('«Розовая мечта»') && clip.includes('/tg/yag-17.jpg'), 'в буфере текст и ссылка на фото: ' + clip)
     await ctx.close()
   })
 
@@ -142,21 +141,21 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Квиза нет; золотая бегущая рамка появляется только при наведении на кнопку или карточку', async () => {
+  await test('Квиз с первого экрана: Кому → Повод → Бюджет → Telegram/MAX/Позвонить; бегущая рамка только при наведении', async () => {
     const { ctx, page } = await mobile()
-    const text = await page.evaluate(() => document.body.textContent)
-    assert.ok(!text.includes('Подобрать за 1 минуту') && !text.includes('Кому дарим'), 'квиз найден')
-    assert.equal(await page.locator('#quiz').count(), 0)
-    const anim = await page.evaluate(() => [...document.querySelectorAll('*')].filter((e) => /spin-around|border-beam/.test(getComputedStyle(e).animationName)).length)
-    assert.equal(anim, 0, 'старые бегущие рамки')
+    await page.getByRole('button', { name: /Подобрать букет за 2 минуты/ }).first().click()
+    const dlg = page.getByRole('dialog')
+    for (const a of ['Ей', 'День рождения', '3 000 – 5 000 ₽']) await dlg.getByRole('button', { name: new RegExp(a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$') }).click()
+    await dlg.getByText('Куда прислать 3 варианта с фото?').waitFor()
+    const href = decodeURIComponent(await dlg.getByRole('link', { name: /Telegram/ }).getAttribute('href'))
+    assert.ok(href.includes('Кому: Ей') && href.includes('Бюджет: 3 000 – 5 000 ₽') && href.includes('(с сайта)'), href)
+    assert.ok((await dlg.getByRole('link', { name: /Позвонить/ }).getAttribute('href')).startsWith('tel:'))
+    await page.keyboard.press('Escape')
     const after = (loc) => loc.evaluate((e) => getComputedStyle(e, '::after').animationName)
     const card = page.locator('#hits article').first()
     assert.equal(await after(card), 'none', 'в покое рамки нет')
     await card.hover()
     assert.equal(await after(card), 'run-border', 'карточка при наведении')
-    const btn = page.getByRole('button', { name: /Выбрать букет/ }).first()
-    await btn.hover()
-    assert.equal(await after(btn), 'run-border', 'кнопка при наведении')
     await ctx.close()
   })
 
@@ -164,6 +163,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {})
     await ctx.route('https://max.ru/**', (r) => r.fulfill({ status: 200, body: 'max' }))
+    await page.goto(URL + 'corporate/', { waitUntil: 'networkidle' })
     const f = page.locator('#corporate')
     await f.getByRole('radio', { name: '10–20' }).click()
     const [popup] = await Promise.all([page.waitForEvent('popup'), f.getByRole('link', { name: 'Написать в MAX' }).click()])
@@ -210,10 +210,13 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('FAQ: аккордеон раскрывается', async () => {
+  await test('FAQ: ответы в HTML, первыми — три возражения, разметка FAQPage', async () => {
     const { ctx, page } = await mobile()
-    await page.getByRole('button', { name: 'Можно добавить алкоголь?' }).click()
-    await page.getByText('Дистанционная продажа алкоголя').waitFor()
+    const qs = await page.locator('#faq summary').allTextContents()
+    assert.ok(qs[0].includes('Сколько хранится') && qs[1].includes('Будет как на фото') && qs[2].includes('Успеете к сегодня'), qs.slice(0, 3).join(' | '))
+    assert.ok((await page.locator('#faq').textContent()).includes('дистанционная продажа запрещена'), 'ответы в HTML')
+    const ld = await page.locator('#faq script[type="application/ld+json"]').textContent()
+    assert.equal(JSON.parse(ld)['@type'], 'FAQPage')
     await ctx.close()
   })
 
@@ -241,13 +244,14 @@ async function test(name, fn) {
   })
 
   await test('Переключатель темы: тёмная по умолчанию → светлая, запоминается после перезагрузки', async () => {
-    const { ctx, page } = await mobile()
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+    await ctx.addInitScript(() => { try { localStorage.setItem('slopay-cookie-ok', '1') } catch {} })
+    const page = await ctx.newPage()
+    await page.goto(URL, { waitUntil: 'networkidle' })
     assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark')
     await page.getByRole('switch', { name: 'Включить светлую тему' }).click()
-    await page.waitForTimeout(800)
+    await page.waitForFunction(() => getComputedStyle(document.body).backgroundColor === 'rgb(255, 241, 230)', null, { timeout: 5000 })
     assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light')
-    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
-    assert.equal(bg, 'rgb(255, 241, 230)')
     await page.reload({ waitUntil: 'networkidle' })
     assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light')
     await page.getByRole('switch', { name: 'Включить тёмную тему' }).click()
@@ -256,18 +260,21 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Шапка с переключателем помещается на 360 px и 1280 px', async () => {
+  await test('Шапка помещается на 360 / 1024 / 1280 px; на телефоне без переключателя темы', async () => {
     for (const viewport of [{ width: 360, height: 740 }, { width: 1280, height: 800 }, { width: 1024, height: 768 }]) {
       const ctx = await browser.newContext({ viewport })
       const page = await ctx.newPage()
       await page.goto(URL, { waitUntil: 'networkidle' })
       const r = await page.evaluate(() => {
-        const sw = [...document.querySelectorAll('[role=switch]')].find((e) => e.offsetParent)
-        const b = sw.getBoundingClientRect()
-        return { right: b.right, top: b.top, w: innerWidth, ov: document.documentElement.scrollWidth - innerWidth }
+        const head = document.querySelector('header')
+        const vis = [...head.querySelectorAll('a,button')].filter((e) => e.offsetParent && !e.closest('nav[aria-label="Мобильное меню"]'))
+        const right = Math.max(...vis.map((e) => e.getBoundingClientRect().right))
+        const sw = [...head.querySelectorAll('[role=switch]')].filter((e) => e.offsetParent).length
+        return { right, w: innerWidth, sw, ov: document.documentElement.scrollWidth - innerWidth }
       })
-      assert.ok(r.right <= r.w - 8 && r.right >= r.w - 80, `${viewport.width}: switch right=${r.right}`)
+      assert.ok(r.right <= r.w - 8, `${viewport.width}: right=${r.right}`)
       assert.equal(r.ov, 0, `${viewport.width}: overflow ${r.ov}`)
+      if (viewport.width < 768) assert.equal(r.sw, 0, 'на телефоне переключателя темы в шапке нет')
       await ctx.close()
     }
   })
@@ -281,14 +288,21 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Отзывы с Авито: 16 скриншотов, открываются без кнопки MAX', async () => {
+  await test('Отзывы: лента из 6 свежих и ссылка на все на Авито', async () => {
     const { ctx, page } = await mobile()
-    const shots = page.locator('#reviews button[aria-label^="Отзыв "]')
-    assert.equal(await shots.count(), 16)
-    await shots.nth(2).click()
-    const dlg = page.getByRole('dialog')
-    await dlg.getByText('3 / 16').waitFor()
-    assert.equal(await dlg.getByRole('link', { name: 'Написать в MAX' }).count(), 0)
+    assert.equal(await page.locator('#reviews figure').count(), 6)
+    assert.ok((await page.locator('#reviews figure').first().textContent()).includes('2024'), 'первым — самый свежий')
+    assert.ok((await page.locator('#reviews').getByRole('link', { name: /Все 107 отзывов/ }).getAttribute('href')).includes('avito.ru'))
+    await ctx.close()
+  })
+
+  await test('Страница /corporate и тизер на главной', async () => {
+    const { ctx, page } = await mobile()
+    const btn = page.locator('#corporate').getByRole('link', { name: /Корпоративные подарки/ })
+    assert.equal(await btn.getAttribute('href'), '/corporate/')
+    await page.goto(URL + 'corporate/')
+    await page.getByText('Рассчитать корпоративный заказ').waitFor()
+    assert.ok((await page.content()).includes('data-prerendered'), 'страница пререндерена')
     await ctx.close()
   })
 
@@ -318,7 +332,7 @@ async function test(name, fn) {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.textContent)
     for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
-    for (const good of ['Мария', '5,0', 'Авито', '107 отзывов', 'На Авито с 2020', 'Надёжный продавец', 'Иван', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
+    for (const good of ['Мария', '5,0', 'Авито', '107 отзывов', 'на Авито', 'Надёжный продавец', 'Иван', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
     const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
     assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))

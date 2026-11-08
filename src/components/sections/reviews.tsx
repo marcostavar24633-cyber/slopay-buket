@@ -1,160 +1,82 @@
-import { useState } from 'react'
-import { ArrowRight, ExternalLink, Star } from 'lucide-react'
+import { ExternalLink, Star } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
-import { NumberTicker } from '@/components/magicui/number-ticker'
-import { BlurFade } from '@/components/magicui/blur-fade'
-import { Button } from '@/components/ui/button'
 import { REVIEWS } from '@/lib/reviews'
 import { SITE } from '@/lib/config'
 import { goal } from '@/lib/analytics'
-import { scrollToId } from '@/lib/ui-store'
-import { REVIEW_SHOTS } from '@/lib/gallery'
-import { ITEMS } from '@/lib/products'
-import { Lightbox } from '@/components/sections/gallery'
 
-/** Только проверяемые цифры: страница продавца на Авито и галерея работ. */
+/** Только проверяемые цифры со страницы продавца на Авито — сразу в HTML, без анимации счётчиков. */
 const STATS = [
-  { v: 5, dec: 1, suffix: '', label: `средняя оценка на ${SITE.reviewsSource}`, star: true },
-  { v: SITE.reviewsCount, suffix: '', label: 'отзывов на Авито — все на 5 ★' },
-  { v: Math.floor(ITEMS.length / 10) * 10, suffix: '+', label: 'работ в каталоге на сайте' },
-  { text: `с ${SITE.avitoSince.split(' ').pop()}`, label: 'на Авито · «Надёжный продавец»' },
+  { big: SITE.rating, star: true, label: `средняя оценка на ${SITE.reviewsSource}` },
+  { big: String(SITE.reviewsCount), label: 'отзывов — все на 5 ★' },
+  { big: `с ${SITE.avitoSince.split(' ').pop()}`, label: 'на Авито · «Надёжный продавец»' },
 ]
 
-/** Реальные отзывы с Авито — дословно (сокращено «…»), фамилии до инициала. Скриншоты — в AvitoShots. */
+/** 6 самых свежих отзывов — короткая лента. */
+const toDate = (d: string) => {
+  const M = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+  const [day, mon, year] = d.split(' ')
+  return new Date(+year, M.indexOf(mon), +day).getTime()
+}
+const FRESH = [...REVIEWS].sort((a, b) => toDate(b.date) - toDate(a.date)).slice(0, 6)
 
 export function Reviews() {
   return (
-    <section id="reviews" className="overflow-hidden bg-surface py-14 md:py-24">
+    <section id="reviews" className="overflow-hidden bg-surface py-14 md:py-20">
       <div className="container-x">
         <SectionTitle
-          eyebrow="Отзывы и реакции"
+          eyebrow="Отзывы"
           title={
             <>
-              За этими эмоциями <span className="italic text-gold">заказывают у нас</span>
+              {SITE.reviewsCount} отзывов — <span className="italic text-gold">и все на пять звёзд</span>
             </>
           }
-          sub={`Все оценки на ${SITE.reviewsSource} — 5 звёзд. Ниже — настоящие отзывы, без правок.`}
+          sub={`Настоящие отзывы покупателей с ${SITE.reviewsSource}, без правок.`}
         />
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-          {STATS.map((s, i) => (
-            <BlurFade key={s.label} delay={i * 0.05} className="rounded-3xl border border-line bg-cream p-5 md:p-6">
-              <p className="flex items-center gap-1.5 text-[34px] font-extrabold leading-none tracking-tight md:text-[44px]">
-                {s.text ?? (
-                  <>
-                    <span>
-                      <NumberTicker value={s.v!} decimals={s.dec} />
-                      {s.suffix}
-                    </span>
-                  </>
-                )}
-                {s.star && <Star className="h-7 w-7 fill-honey text-honey" />}
+        <div className="grid grid-cols-3 gap-3 md:gap-5">
+          {STATS.map((s) => (
+            <div key={s.label} className="rounded-3xl border border-line bg-cream p-3.5 md:p-6">
+              <p className="flex items-center gap-1 text-[24px] font-extrabold leading-none tracking-tight md:text-[40px]">
+                {s.big}
+                {s.star && <Star className="h-5 w-5 fill-honey text-honey md:h-7 md:w-7" />}
               </p>
-              <p className="mt-2 text-[13px] font-semibold leading-snug text-ink-soft md:text-[14px]">{s.label}</p>
-            </BlurFade>
+              <p className="mt-1.5 text-[12px] font-semibold leading-snug text-ink-soft md:text-[14px]">{s.label}</p>
+            </div>
           ))}
         </div>
 
-        <AvitoShots />
-
-        {/* Реальные отзывы + карточка Авито */}
-        <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-[1fr_340px]">
-          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0">
-            {REVIEWS.map((r, i) => (
-              <BlurFade key={r.name} delay={(i % 2) * 0.05} className="flex w-[85%] shrink-0 snap-center flex-col rounded-3xl border border-line bg-cream p-5 sm:w-auto">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, k) => (
-                      <Star key={k} className="h-4 w-4 fill-honey text-honey" />
-                    ))}
-                  </div>
-                  <span className="rounded-full bg-surface px-2.5 py-0.5 text-[11px] font-bold text-muted">{r.tag}</span>
-                </div>
-                <p className="mt-3 flex-1 text-[15px] leading-relaxed">«{r.text}»</p>
-                <p className="mt-4 text-[13px] font-bold">
-                  {r.name} <span className="font-semibold text-muted">· {r.item} · {r.date}</span>
-                </p>
-              </BlurFade>
-            ))}
-          </div>
-          <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-            <a
-              href={SITE.reviewsUrl}
-              target="_blank"
-              rel="noopener"
-              onClick={() => goal('reviews_source_click')}
-              className="group rounded-3xl bg-panel text-ink border border-honey/25 p-6 transition hover:shadow-lift"
-            >
-              <div className="flex items-center gap-2 text-[13px] font-bold text-ink/70">
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-[#00aaff] text-[12px] font-extrabold text-white">A</span>
-                {SITE.reviewsSource}
-              </div>
-              <p className="mt-4 flex items-end gap-2 text-[56px] font-extrabold leading-none">
-                {SITE.rating}
-                <span className="mb-2 flex gap-0.5">
+        {/* лента 6 свежих отзывов */}
+        <div className="no-scrollbar -mx-4 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:mt-8 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
+          {FRESH.map((r) => (
+            <figure key={r.name} className="flex w-[82%] shrink-0 snap-center flex-col rounded-3xl border border-line bg-cream p-5 md:w-auto">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex gap-0.5" aria-label="5 звёзд из 5">
                   {Array.from({ length: 5 }).map((_, k) => (
-                    <Star key={k} className="h-5 w-5 fill-honey text-honey" />
+                    <Star key={k} className="h-4 w-4 fill-honey text-honey" />
                   ))}
-                </span>
-              </p>
-              <p className="mt-2 text-[14px] text-ink/70">
-                {SITE.reviewsCount} отзывов · все оценки — пятёрки
-              </p>
-              <ul className="mt-4 flex flex-col gap-1.5 text-[13px] font-semibold text-ink/80">
-                <li>🛡️ Надёжный продавец</li>
-                <li>✅ Данные подтверждены</li>
-                <li>📅 На Авито с {SITE.avitoSince}</li>
-              </ul>
-              <p className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-bold text-honey">
-                Все отзывы на {SITE.reviewsSource} <ExternalLink className="h-4 w-4" />
-              </p>
-            </a>
-          </div>
+                </div>
+                <span className="text-[12px] font-semibold text-muted">{r.date}</span>
+              </div>
+              <blockquote className="mt-3 flex-1 text-[15px] leading-relaxed">«{r.text}»</blockquote>
+              <figcaption className="mt-4 text-[13px] font-bold">
+                {r.name} <span className="font-semibold text-muted">· {r.item}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <a
+            href={SITE.reviewsUrl}
+            target="_blank"
+            rel="noopener"
+            onClick={() => goal('reviews_source_click')}
+            className="run-border inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-cream px-5 text-[14px] font-bold text-ink"
+          >
+            Все {SITE.reviewsCount} отзывов на {SITE.reviewsSource} <ExternalLink className="h-4 w-4" />
+          </a>
         </div>
       </div>
-
-
-      <div className="container-x mt-10 flex flex-col items-center gap-3 text-center">
-        <Button size="lg" onClick={() => { goal('cta_reviews_catalog'); scrollToId('catalog') }}>
-          Хочу так же — выбрать букет <ArrowRight className="h-5 w-5" />
-        </Button>
-        <a href={SITE.reviewsUrl} target="_blank" rel="noopener" className="text-[14px] font-semibold text-ink-soft underline underline-offset-4">
-          Все отзывы на {SITE.reviewsSource} →
-        </a>
-      </div>
     </section>
-  )
-}
-
-/** Лента скриншотов реальных отзывов с Авито, по клику — на весь экран. */
-function AvitoShots() {
-  const [open, setOpen] = useState<number | null>(null)
-  return (
-    <div className="mt-10 md:mt-14">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-        <p className="text-[15px] font-bold">
-          Настоящие отзывы с Авито <span className="font-semibold text-muted">· 5,0 ★ · скриншоты без правок</span>
-        </p>
-        <p className="text-[13px] text-muted">Нажмите, чтобы прочитать целиком</p>
-      </div>
-      <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
-        {REVIEW_SHOTS.map((r, i) => (
-          <button
-            key={r.src}
-            onClick={() => {
-              setOpen(i)
-              goal('review_shot_open', { i })
-            }}
-            className="group relative h-64 w-[240px] shrink-0 cursor-zoom-in snap-start overflow-hidden rounded-2xl bg-[#1f1f1f] ring-1 ring-line md:h-72 md:w-[260px]"
-            aria-label={`Отзыв ${i + 1} из ${REVIEW_SHOTS.length}`}
-          >
-            <img loading="lazy" src={r.src} alt={`Скриншот отзыва покупателя №${i + 1}`} decoding="async" className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]" />
-            <span aria-hidden className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
-            <span className="absolute bottom-2 left-3 text-[12px] font-bold text-white">Читать отзыв →</span>
-          </button>
-        ))}
-      </div>
-      <Lightbox list={REVIEW_SHOTS} index={open} onIndex={setOpen} cta={false} />
-    </div>
   )
 }

@@ -1,51 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
-import { ArrowRight, Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MaxIcon, TelegramIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
-import { ANCHOR_PRICE } from '@/lib/products'
+import { ANCHOR_PRICE, ITEMS } from '@/lib/products'
 import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
-import { scrollToId } from '@/lib/ui-store'
+import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
-
-/** Страница пришла с готовой разметкой (пререндер) — не проигрываем появление первого экрана повторно. */
-const PRE = typeof document !== 'undefined' && document.getElementById('root')?.hasAttribute('data-prerendered')
 
 /** A/B заголовка: ?h=b — вариант под таргет и соцсети. По умолчанию A (поисковый трафик). */
 const variant = typeof location !== 'undefined' && new URLSearchParams(location.search).get('h') === 'b' ? 'B' : 'A'
 
-const BULLETS = [
-  { icon: '🚚', text: 'Доставка по всему Ульяновску' },
-  { icon: '🍓', text: 'Продукты закупаем в день сборки' },
-  { icon: '⭐', text: `Рейтинг ${SITE.rating} на ${SITE.reviewsSource}` },
-  { icon: '✏️', text: 'Уберём или добавим любой ингредиент' },
+/** Три доказательства с цифрами — только проверяемое. */
+const PROOFS = [
+  { big: `${SITE.rating} ★`, text: `${SITE.reviewsCount} отзывов на ${SITE.reviewsSource}` },
+  { big: `${Math.floor(ITEMS.length / 10) * 10}+`, text: 'реальных работ в каталоге' },
+  { big: `с ${SITE.sinceYear}`, text: 'собираем букеты в Ульяновске' },
 ]
 
-export function Hero() {
-  const ref = useRef<HTMLElement>(null)
-  const reduce = useReducedMotion()
-  // Параллакс по скроллу: фото отстаёт, текст уходит вверх и гаснет, карточка отзыва обгоняет
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 140])
-  const textY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -60])
-  const textOpacity = useTransform(scrollYProgress, [0, 0.8], [1, reduce ? 1 : 0.2])
-  const cardY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -160])
-  // 3D-наклон фото за курсором (десктоп)
-  const rx = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 })
-  const ry = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 })
-  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (reduce || e.pointerType !== 'mouse') return
-    const r = e.currentTarget.getBoundingClientRect()
-    ry.set(((e.clientX - r.left) / r.width - 0.5) * 10)
-    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 10)
-  }
-  const onLeave = () => {
-    rx.set(0)
-    ry.set(0)
-  }
+/** Букет на фото первого экрана — его честная цена. */
+const HERO_ITEM = ITEMS.find((i) => i.id === 'yag-24')
 
+export function Hero() {
   const title =
     variant === 'A' ? (
       <>
@@ -58,125 +36,79 @@ export function Hero() {
     )
 
   return (
-    <section ref={ref} id="top" className="relative overflow-hidden pb-10 pt-4 md:pb-20 md:pt-10">
+    <section id="top" className="relative overflow-hidden pb-10 pt-4 md:pb-20 md:pt-10">
       <div aria-hidden className="grain pointer-events-none absolute inset-0" />
       <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-honey/20 blur-[120px]" />
-      <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[420px] w-[420px] rounded-full bg-honey/10 blur-[120px]" />
 
       <div className="container-x relative grid items-center gap-5 md:gap-10 lg:grid-cols-[1.1fr_1fr]">
-        {/* Текст */}
-        <motion.div className="order-1" style={{ y: textY, opacity: textOpacity }}>
-          <motion.div initial={PRE ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <a
-              href={SITE.reviewsUrl}
-              target="_blank"
-              rel="noopener"
-              className="mb-3 inline-flex items-center gap-2 rounded-full border border-line bg-scrim/80 py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-ink-soft shadow-soft backdrop-blur md:mb-6"
-            >
-              <span className="flex items-center gap-1 rounded-full bg-honey px-2 py-0.5 text-onaccent">
-                <Star className="h-3 w-3 fill-onaccent text-onaccent" /> {SITE.rating}
-              </span>
-              · {SITE.reviewsCount} отзывов на {SITE.reviewsSource}
-            </a>
-            <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
-              {title}
-            </h1>
-          </motion.div>
-
-          <motion.p
-            initial={PRE ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-4 hidden max-w-xl text-lg leading-relaxed text-ink-soft md:block"
+        {/* Текст: H1 → УТП → 3 доказательства → 2 CTA */}
+        <div className="order-1">
+          <a
+            href={SITE.reviewsUrl}
+            target="_blank"
+            rel="noopener"
+            className="mb-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-scrim/80 py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-ink-soft shadow-soft backdrop-blur md:mb-6"
           >
-            Клубничные сердца, мясные и раковые букеты, сухофрукты и сладкие боксы. Собираем из свежих продуктов в день
-            доставки — букет удивит и будет съеден до последней ягоды.
-          </motion.p>
-
-          <motion.ul
-            initial={PRE ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 hidden grid-cols-2 gap-x-6 gap-y-3 md:grid"
-          >
-            {BULLETS.map((b) => (
-              <li key={b.text} className="flex items-start gap-2.5 text-[15px] font-semibold leading-snug">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-surface text-base shadow-soft">{b.icon}</span>
-                <span className="pt-1">{b.text}</span>
+            <span className="flex items-center gap-1 rounded-full bg-honey px-2 py-0.5 text-onaccent">
+              <Star className="h-3 w-3 fill-onaccent text-onaccent" /> {SITE.rating}
+            </span>
+            · {SITE.reviewsCount} отзывов на {SITE.reviewsSource}
+          </a>
+          <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
+            {title}
+          </h1>
+          <p className="mt-3 max-w-xl text-[16px] font-semibold leading-relaxed text-ink-soft md:mt-5 md:text-lg">
+            Закупаем ягоды, мясо и раков утром в день сборки — и присылаем фото готового букета до отправки.
+          </p>
+          <ul className="mt-5 hidden grid-cols-3 gap-3 md:grid">
+            {PROOFS.map((p) => (
+              <li key={p.text} className="rounded-2xl border border-line bg-surface/80 p-3.5">
+                <b className="block text-[24px] font-extrabold leading-none tracking-tight text-honey-600">{p.big}</b>
+                <span className="mt-1.5 block text-[13px] font-semibold leading-snug text-ink-soft">{p.text}</span>
               </li>
             ))}
-          </motion.ul>
+          </ul>
+          <HeroCtas className="mt-5 flex md:mt-7" />
+        </div>
 
-          <HeroCtas className="mt-8 hidden md:flex" />
-        </motion.div>
-
-        {/* Фото — на мобильном минимум половина экрана */}
-        <motion.div
-          initial={PRE ? false : { opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative order-2 [perspective:1200px]"
-          style={{ y: imgY }}
-        >
-          <motion.div
-            onPointerMove={onMove}
-            onPointerLeave={onLeave}
-            style={{ rotateX: rx, rotateY: ry }}
-            className="relative mx-auto aspect-square h-[38svh] max-w-full max-h-[640px] min-h-[260px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]"
-          >
+        {/* Фото — видно сразу, без анимаций; честная цена букета на фото */}
+        <div className="relative order-2">
+          <div className="relative mx-auto aspect-square h-[34svh] max-w-full max-h-[640px] min-h-[240px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]">
             <img
-              src="/img/real/berry/hero-heart.webp"
+              src="/img/real/berry/hero-heart-720.webp"
               srcSet="/img/real/berry/hero-heart-720.webp 720w, /img/real/berry/hero-heart.webp 1100w"
               sizes="(max-width: 767px) 60vw, 520px"
-              alt="«Ежевичный вальс»: сердце из клубники, ежевики, голубики и роз — работа мастерской"
-              className="h-full w-full scale-105 object-cover animate-[kenburns_18s_ease-in-out_infinite_alternate]"
+              alt="«Ежевичный вальс»: сердце из клубники, ежевики и кустовых роз — работа мастерской"
+              className="h-full w-full object-cover"
               fetchPriority="high"
               width={1100}
               height={1026}
             />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-              <div className="rounded-2xl border border-honey/40 bg-scrim/75 px-4 py-3 shadow-lift backdrop-blur">
-                <p className="text-[12px] font-semibold text-muted">Букеты</p>
-                <p className="text-gold text-2xl font-extrabold leading-none tracking-tight">
-                  от {rub(ANCHOR_PRICE)}
-                </p>
-              </div>
-              <div className="hidden rounded-2xl bg-scrim/85 px-3.5 py-2.5 text-[12px] font-semibold text-ink backdrop-blur sm:block">
-                «Ежевичный вальс» · от 4 200 ₽
-              </div>
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3 rounded-2xl border border-honey/40 bg-scrim/80 px-4 py-2.5 shadow-lift backdrop-blur md:bottom-4 md:left-4 md:right-auto">
+              <p className="text-[14px] font-extrabold leading-tight text-ink">
+                «{HERO_ITEM?.name}» — {rub(HERO_ITEM?.price ?? 0)}
+              </p>
+              <p className="mt-0.5 text-[12.5px] font-semibold text-ink-soft">есть варианты от {rub(ANCHOR_PRICE)}</p>
             </div>
-          </motion.div>
-          {/* золотая рамка-ореол */}
+          </div>
           <div aria-hidden className="pointer-events-none absolute -inset-3 -z-10 mx-auto hidden rounded-[40px] border border-honey/25 lg:block lg:max-w-[544px]" />
-
-          {/* Плавающая карточка соцдоказательства */}
-          <motion.div
-            initial={PRE ? false : { opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            style={{ y: cardY }}
-            className="absolute -left-6 bottom-28 hidden w-60 rounded-2xl border border-honey/25 bg-surface/90 p-3.5 shadow-lift backdrop-blur lg:block xl:-left-12"
-          >
+          {/* Плавающая карточка соцдоказательства (компьютер) */}
+          <div className="absolute -left-6 bottom-28 hidden w-60 rounded-2xl border border-honey/25 bg-surface/90 p-3.5 shadow-lift backdrop-blur lg:block xl:-left-12">
             <RotatingQuote />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        {/* Мобильные CTA и буллиты — под фото */}
+        {/* Мобильные: CTA и доказательства под фото */}
         <div className="order-3 md:hidden">
-          <HeroCtas />
-          <ul className="mt-6 grid grid-cols-2 gap-2.5">
-            {BULLETS.map((b) => (
-              <li key={b.text} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-3 text-[13px] font-semibold leading-snug">
-                <span className="text-lg">{b.icon}</span>
-                {b.text}
+          <ul className="grid grid-cols-3 gap-2">
+            {PROOFS.map((p) => (
+              <li key={p.text} className="rounded-2xl border border-line bg-surface p-2.5">
+                <b className="block text-[18px] font-extrabold leading-none text-honey-600">{p.big}</b>
+                <span className="mt-1 block text-[11.5px] font-semibold leading-snug text-ink-soft">{p.text}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
-            Клубничные сердца, мясные и раковые букеты, сухофрукты и сладкие боксы. Собираем из свежих продуктов в день
-            доставки.
-          </p>
         </div>
       </div>
     </section>
@@ -184,35 +116,32 @@ export function Hero() {
 }
 
 function HeroCtas({ className = 'flex' }: { className?: string }) {
+  const { setQuizOpen } = useUI()
   return (
     <div className={`${className} flex-col gap-3`}>
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="flex flex-col items-center sm:items-start">
-          <Button
-            size="lg"
-            className="w-full sm:w-auto"
-            onClick={() => {
-              goal('cta_hero_catalog')
-              scrollToId('catalog')
-            }}
-          >
-            Выбрать букет <ArrowRight className="h-5 w-5" />
-          </Button>
-          <p className="mt-2 text-center text-[12.5px] font-semibold text-muted sm:text-left">
-            Лучше заказать за 1–2 дня — бывает, успеваем и день в день
-          </p>
-        </div>
+      <Button
+        size="lg"
+        className="w-full sm:w-auto sm:self-start"
+        onClick={() => {
+          goal('cta_hero_quiz')
+          setQuizOpen(true)
+        }}
+      >
+        <Sparkles className="h-5 w-5" /> Подобрать букет за 2 минуты
+      </Button>
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:self-start">
+        <Button variant="tg" size="md" asChild>
+          <a href={tgLink(MSG.hero)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'hero' })}>
+            <TelegramIcon className="h-5 w-5" /> <span className="sm:hidden">Telegram</span><span className="hidden sm:inline">Написать в Telegram</span>
+          </a>
+        </Button>
+        <Button variant="max" size="md" asChild>
+          <a href={maxLink(MSG.hero)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'hero' })}>
+            <MaxIcon className="h-5 w-5" /> MAX
+          </a>
+        </Button>
       </div>
-      <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[14px] font-semibold text-ink-soft sm:justify-start">
-        Или пришлите фото примера — соберём похожий:
-        <a href={maxLink(MSG.heroPhoto)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'hero-photo' })} className="inline-flex items-center gap-1 text-ink underline decoration-max/60 decoration-2 underline-offset-4">
-          <MaxIcon className="h-4 w-4 text-max" /> MAX
-        </a>
-        ·
-        <a href={tgLink(MSG.heroPhoto)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'hero-photo' })} className="inline-flex items-center gap-1 text-ink underline decoration-tg/60 decoration-2 underline-offset-4">
-          <TelegramIcon className="h-4 w-4 text-tg" /> Telegram
-        </a>
-      </p>
+      <p className="text-center text-[12.5px] font-semibold text-muted sm:text-left">Ответим в течение 15 минут, с 8:00 до 21:00</p>
     </div>
   )
 }

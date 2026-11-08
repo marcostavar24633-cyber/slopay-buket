@@ -30,7 +30,7 @@ export function CookieNotice() {
     <div
       role="region"
       aria-label="Уведомление о cookie"
-      className="fixed inset-x-3 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[70] mx-auto flex max-w-xl items-center gap-3 rounded-2xl border border-line bg-surface/95 p-3.5 text-[13px] leading-snug text-ink-soft shadow-lift backdrop-blur-xl data-[on]:animate-[fade-in_300ms_ease-out] md:bottom-5 md:left-5 md:right-auto md:mx-0"
+      className="fixed inset-x-3 bottom-[calc(100px+env(safe-area-inset-bottom))] z-[70] mx-auto flex max-w-xl items-center gap-3 rounded-2xl border border-line bg-surface/95 p-3.5 text-[13px] leading-snug text-ink-soft shadow-lift backdrop-blur-xl data-[on]:animate-[fade-in_300ms_ease-out] md:bottom-5 md:left-5 md:right-auto md:mx-0"
       data-on
     >
       <Cookie className="h-5 w-5 shrink-0 text-honey" aria-hidden />

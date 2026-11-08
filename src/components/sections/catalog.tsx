@@ -5,7 +5,7 @@ import { SectionTitle } from '@/components/shared/section-title'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { Lightbox } from '@/components/sections/gallery'
 import { GALLERY_CATS, type GalleryCat } from '@/lib/gallery'
-import { HITS, ITEMS, PRICE_TABS, RECIPIENT_CATS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
+import { HITS, HIT_LEADERS, ITEMS, PRICE_TABS, RECIPIENT_CATS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
 import { MSG } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
@@ -22,8 +22,15 @@ const COVER: Record<GalleryCat, string> = {
   snack: '/img/real/snack/thumbs/sn-3.webp',
 }
 const PAGE = 12
+const SORT_TABS = [
+  { key: 'popular', label: 'Популярные' },
+  { key: 'asc', label: 'Дешевле' },
+  { key: 'desc', label: 'Дороже' },
+] as const
+type SortKey = (typeof SORT_TABS)[number]['key']
+const HIT_IDS_SET = new Set(HITS.map((h) => h.id))
 
-/** Карточка работы: фото, состав, примерная цена, «Заказать». */
+/** Карточка работы: фото, состав, цена «от», «Заказать». */
 export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void; hit?: boolean }) {
   const { openOrder } = useUI()
   return (
@@ -41,8 +48,8 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
         <h3 className="mt-1 font-display text-[19px] font-semibold leading-tight md:text-[21px]">{item.name}</h3>
         <p className="mt-1.5 text-[13.5px] leading-snug text-ink-soft">{item.desc}</p>
         <div className="mt-auto pt-3">
-          <p className="text-[12px] font-semibold text-muted">примерная цена</p>
           <p className="text-[22px] font-extrabold leading-none tracking-tight">от {rub(item.price)}</p>
+          <p className="mt-1 text-[11.5px] font-semibold leading-snug text-muted">итог зависит от размера и сезона — назовём точно за 5 минут</p>
           <div className="mt-3">
             <Button size="sm" className="h-11 w-full" onClick={() => openOrder(item)}>
               Заказать
@@ -68,13 +75,13 @@ export function Hits() {
               Хит продаж — <span className="italic text-gold">заказывают чаще всего</span>
             </>
           }
-          sub="По две самые популярные работы из каждой категории. Цены примерные — точную назовём после согласования состава."
+          sub="Пять букетов, которые заказывают чаще всего — по одному из каждой категории."
         />
         {/* на телефоне — лента, листается вбок; на компьютере — сетка */}
-        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-4">
+        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-5">
           {HITS.map((it, i) => (
             <div key={it.id} className="w-[46%] shrink-0 snap-start md:w-auto">
-              <ItemCard item={it} hit onOpen={() => setOpen(i)} />
+              <ItemCard item={it} hit={HIT_LEADERS.has(it.id)} onOpen={() => setOpen(i)} />
             </div>
           ))}
         </div>
@@ -91,6 +98,7 @@ export function Catalog() {
   const [who, setWho] = useState<Recipient | 'all'>('all')
   const [price, setPrice] = useState<(typeof PRICE_TABS)[number]['key']>('all')
   const [showAll, setShowAll] = useState(false)
+  const [sort, setSort] = useState<SortKey>('popular')
   const [open, setOpen] = useState<number | null>(null)
   const filtered = who !== 'all' || price !== 'all'
   // блок «По поводам» открывает нужную категорию
@@ -112,7 +120,14 @@ export function Catalog() {
     return (cat ? itemsOf(cat) : ITEMS)
       .filter((i) => who === 'all' || i.recipients.includes(who))
       .filter((i) => i.price >= r.min && i.price < r.max)
-  }, [cat, who, price, filtered])
+      .map((i, n) => ({ i, n }))
+      .sort((a, b) =>
+        sort === 'asc' ? a.i.price - b.i.price || a.n - b.n
+        : sort === 'desc' ? b.i.price - a.i.price || a.n - b.n
+        : Number(HIT_IDS_SET.has(b.i.id)) - Number(HIT_IDS_SET.has(a.i.id)) || a.n - b.n,
+      )
+      .map(({ i }) => i)
+  }, [cat, who, price, filtered, sort])
   const heading = cat ? CATS.find((c) => c.key === cat)?.label : 'Подборка по фильтрам'
   const resetFilters = () => {
     setWho('all')
@@ -135,10 +150,10 @@ export function Catalog() {
           eyebrow="Каталог"
           title={
             <>
-              Выберите категорию — <span className="italic text-gold">покажем все наши работы</span>
+              {Math.floor(ITEMS.length / 10) * 10}+ букетов с ценами — <span className="italic text-gold">выберите свой</span>
             </>
           }
-          sub="Под каждым фото — состав и примерная цена. Соберём такой же или похожий под ваш бюджет."
+          sub="Только реальные работы мастерской: под каждым фото — состав и цена «от». Соберём такой же или похожий под ваш бюджет."
         />
 
         <div className="mb-4 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Кому букет">
@@ -159,7 +174,7 @@ export function Catalog() {
                   active ? 'ring-4 ring-honey' : 'ring-line hover:ring-honey/60',
                 )}
               >
-                <img loading="lazy" src={COVER[c.key]} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <img loading="lazy" src={COVER[c.key]} alt={`${c.label} — работа мастерской`} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <span className="absolute inset-x-3 bottom-3 text-white md:inset-x-5 md:bottom-4">
                   <span className="block font-display text-[17px] font-semibold leading-tight md:text-[26px]">{c.label}</span>
@@ -178,6 +193,7 @@ export function Catalog() {
 
         <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Фильтр по цене">
           <FilterRow label="Цена" options={PRICE_TABS} value={price} onChange={(v) => { setPrice(v); setShowAll(false); goal('catalog_filter', { price: v }) }} />
+          <FilterRow label="Порядок" options={SORT_TABS} value={sort} onChange={(v) => { setSort(v); goal('catalog_sort', { sort: v }) }} />
         </div>
 
         <div id="catalog-list" className="scroll-mt-24">
@@ -242,7 +258,7 @@ function FilterRow<K extends string>({ label, options, value, onChange }: { labe
             aria-checked={value === o.key}
             onClick={() => onChange(o.key)}
             className={cn(
-              'h-10 shrink-0 cursor-pointer rounded-full border px-3.5 text-[13.5px] font-semibold transition',
+              'run-border h-11 shrink-0 cursor-pointer rounded-full border px-3.5 text-[13.5px] font-semibold transition',
               value === o.key ? 'border-honey bg-honey text-onaccent' : 'border-line bg-cream hover:border-honey/60',
             )}
           >
@@ -262,7 +278,8 @@ function CustomBanner() {
         <p className="font-display text-[24px] font-semibold leading-tight">Не нашли подходящий?</p>
         <p className="mt-1 text-[15px] text-ink/75">Соберём индивидуальный букет по вашему фото или списку любимых продуктов получателя.</p>
       </div>
-      <MessengerButtons row text={MSG.custom} from="custom" className="relative w-full shrink-0 md:w-[380px] [&_p]:text-ink/60" />
+      <MessengerButtons row text={MSG.custom} from="custom" className="relative hidden w-full shrink-0 md:block md:w-[380px] [&_p]:text-ink/60" />
+      <p className="relative text-[13px] font-semibold text-muted md:hidden">Напишите нам — кнопки MAX и Telegram внизу экрана.</p>
     </div>
   )
 }

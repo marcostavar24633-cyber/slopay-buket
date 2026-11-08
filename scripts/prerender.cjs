@@ -39,9 +39,11 @@ server.listen(0, async () => {
         localStorage.setItem('slopay-cookie-ok', '1')
       } catch {}
     })
+    for (const [sub, waitFor] of [['', '#faq'], ['corporate/', '#corporate']]) {
+    if (!fs.existsSync(path.join(dist, sub, 'index.html'))) continue
     const page = await ctx.newPage()
-    await page.goto(`http://localhost:${port}${base}`, { waitUntil: 'networkidle' })
-    await page.waitForSelector('#faq', { timeout: 20000 })
+    await page.goto(`http://localhost:${port}${base}${sub}`, { waitUntil: 'networkidle' })
+    await page.waitForSelector(waitFor, { timeout: 20000 })
     await page.waitForTimeout(500)
     const html = await page.evaluate(() => {
       const root = document.getElementById('root')
@@ -62,11 +64,13 @@ server.listen(0, async () => {
       })
       return root.innerHTML
     })
-    const file = path.join(dist, 'index.html')
+    const file = path.join(dist, sub, 'index.html')
     const src = fs.readFileSync(file, 'utf8')
     if (!src.includes('<div id="root"></div>')) throw new Error('не нашёл <div id="root"></div>')
     fs.writeFileSync(file, src.replace('<div id="root"></div>', `<div id="root" data-prerendered="">${html}</div>`))
     console.log(`[prerender] ${path.relative(process.cwd(), file)}: +${Math.round(html.length / 1024)} КБ разметки`)
+    await page.close()
+    }
   } finally {
     await browser.close()
     server.close()

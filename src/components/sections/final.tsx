@@ -11,7 +11,7 @@ export function Footer() {
       <div className="container-x grid gap-10 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr]">
         <div>
           <Logo light />
-          <a href={SITE.phoneHref} className="mt-6 flex items-center gap-2 text-2xl font-extrabold text-white">
+          <a href={SITE.phoneHref} className="mt-6 flex min-h-11 items-center gap-2 text-2xl font-extrabold text-white">
             <Phone className="h-5 w-5" /> {SITE.phoneDisplay}
           </a>
           <div className="mt-4 flex gap-2">
@@ -34,8 +34,8 @@ export function Footer() {
           <p>Самовывоз из мастерской — бесплатно</p>
           {legalLine() && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{legalLine()}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
-            <a id="privacy" href="/privacy/" className="underline underline-offset-2">Политика конфиденциальности</a>
-            <a href="/oferta/" className="underline underline-offset-2">Публичная оферта</a>
+            <a id="privacy" href="/privacy/" className="inline-flex min-h-11 items-center underline underline-offset-2">Политика конфиденциальности</a>
+            <a href="/oferta/" className="inline-flex min-h-11 items-center underline underline-offset-2">Публичная оферта</a>
           </div>
         </div>
         <div className="relative h-56 overflow-hidden rounded-3xl bg-graphite-2 md:col-span-2 lg:col-span-1">

@@ -253,7 +253,9 @@ export const itemBySrc = (src: string) => ITEMS.find((i) => i.src === src)
 export const minPriceOf = (cat: GalleryCat) => Math.min(...itemsOf(cat).map((i) => i.price))
 
 /** Хиты продаж: по 2 работы из каждой категории. */
-const HIT_IDS = ['yag-17', 'yag-20', 'k-17', 'k-36', 'm-1', 'm-14', 'suh-11', 'suh-20', 'sl-21', 'sl-25']
+/** Хит продаж: по одному из каждой категории; метка «Хит» — только у трёх лидеров. */
+const HIT_IDS = ['yag-17', 'k-36', 'm-1', 'suh-11', 'sl-25']
+export const HIT_LEADERS = new Set(['yag-17', 'k-36', 'm-1'])
 export const HITS: Item[] = HIT_IDS.map((id) => ITEMS.find((i) => i.id === id)).filter((i): i is Item => !!i)
 
 export const RECIPIENT_TABS: { key: Recipient | 'all'; label: string }[] = [

@@ -263,7 +263,7 @@ body {
 
 /* Отступ под липкую мобильную панель */
 @media (max-width: 767px) {
-  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
 }
 
 @keyframes acc-down { from { height: 0 } to { height: var(--radix-accordion-content-height) } }

@@ -14,7 +14,7 @@ const SITE_URL = (
 ).replace(/\/$/, '')
 
 /** Папки и файлы из public/, на которые код ссылается от корня: '/img/…', '/video/…' и т. п. */
-const PUBLIC_ROOTS = 'img|video|logo-256\\.webp|favicon-64\\.png|apple-touch-icon\\.png|og-image\\.jpg|corporate-catalog\\.pdf|privacy/|oferta/'
+const PUBLIC_ROOTS = 'img|video|logo-256\\.webp|favicon-64\\.png|apple-touch-icon\\.png|og-image\\.jpg|corporate-catalog\\.pdf|privacy/|oferta/|corporate/'
 
 /**
  * Сайт может жить не в корне домена (GitHub Pages: /slopay-buket/).
@@ -49,7 +49,7 @@ function seo(): Plugin {
     generateBundle() {
       const today = new Date().toISOString().slice(0, 10)
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: `User-agent: *\nAllow: /\n\nHost: ${SITE_URL}\nSitemap: ${SITE_URL}/sitemap.xml\n` })
-      const urls = [`${SITE_URL}/`, `${SITE_URL}/oferta/`, `${SITE_URL}/privacy/`]
+      const urls = [`${SITE_URL}/`, `${SITE_URL}/corporate/`, `${SITE_URL}/oferta/`, `${SITE_URL}/privacy/`]
       this.emitFile({
         type: 'asset',
         fileName: 'sitemap.xml',
@@ -70,6 +70,7 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
         privacy: path.resolve(__dirname, 'privacy/index.html'),
         oferta: path.resolve(__dirname, 'oferta/index.html'),
+        corporate: path.resolve(__dirname, 'corporate/index.html'),
       },
       output: {
         // библиотеки отдельно: кэшируются браузером между обновлениями сайта

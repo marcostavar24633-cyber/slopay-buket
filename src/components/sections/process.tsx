@@ -3,7 +3,12 @@ import { Parallax } from '@/components/aceternity/parallax'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { SITE } from '@/lib/config'
 
-const COLLAGE = ['/img/real/sea/m-16.webp', '/img/real/berry/yag-21.webp', '/img/real/meat/k-1.webp', '/img/real/dried/suh-21.webp']
+const COLLAGE = [
+  ['/img/real/sea/m-16.webp', 'Букет из раков и креветок с черри и лимоном — работа мастерской'],
+  ['/img/real/berry/yag-21.webp', 'Сердце из клубники, голубики и малины — работа мастерской'],
+  ['/img/real/meat/k-1.webp', 'Мясной букет с колбасами, сыром и багетами — работа мастерской'],
+  ['/img/real/dried/suh-21.webp', 'Шляпная коробка с сухофруктами и розой из кураги — работа мастерской'],
+]
 
 export function Process() {
   return (
@@ -13,8 +18,8 @@ export function Process() {
         <div className="grid items-center gap-8 md:grid-cols-[0.8fr_1.2fr] md:gap-14">
           <BlurFade className="relative">
             <div className="grid grid-cols-2 gap-3">
-              {COLLAGE.map((src, i) => (
-                <img loading="lazy" key={src} src={src} alt="Работа мастерской" className={`aspect-square w-full rounded-3xl object-cover shadow-lift ring-1 ring-honey/25 ${i % 2 ? 'translate-y-6' : ''}`} />
+              {COLLAGE.map(([src, alt], i) => (
+                <img loading="lazy" key={src} src={src} alt={alt} className={`aspect-square w-full rounded-3xl object-cover shadow-lift ring-1 ring-honey/25 ${i % 2 ? 'translate-y-6' : ''}`} />
               ))}
             </div>
             <Parallax speed={-0.3} className="absolute -bottom-8 left-5 right-5 md:-right-8 md:left-auto md:w-64">

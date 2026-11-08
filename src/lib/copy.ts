@@ -1,5 +1,8 @@
 /** Копирование сразу в момент нажатия — на телефонах асинхронное копирование не успевает до перехода в мессенджер. */
-export function copyNow(text: string) {
+import { withSource } from './config'
+
+export function copyNow(raw: string) {
+  const text = withSource(raw)
   try {
     const ta = document.createElement('textarea')
     ta.value = text

@@ -14,34 +14,52 @@ const STEPS = [
   { n: '04', t: 'Курьер доставит и вручит', d: 'Пришлём ссылку Яндекс Go — следите за курьером на карте.' },
 ]
 
+const GUARANTEES = [
+  { icon: '📸', t: 'Фото до отправки', d: 'Пришлём фото готового букета — вы видите именно то, что получит человек.' },
+  { icon: '🛡️', t: 'Гарантия свежести', d: 'Продукт несвежий? Пришлите фото в течение 2 часов после вручения — после проверки сделаем скидку на заказ.' },
+  { icon: '⏰', t: 'Доставим вовремя', d: 'Курьер Яндекс Go везёт напрямую. Задержались по нашей вине — доставку оплатим сами.' },
+]
+
 const DETAILS = [
   { icon: CalendarCheck, t: 'Доставка к удобному времени', d: 'Договоримся о дате и времени вручения. Лучше заказать за 1–2 дня, в отдельных случаях соберём день в день.' },
   { icon: EyeOff, t: 'Анонимно, сюрпризом', d: 'Не скажем, от кого, пока не разрешите. Курьер вручит молча или с вашей фразой.' },
   { icon: CreditCard, t: 'Оплата удобным способом', d: 'Перевод по СБП, карта онлайн, для юрлиц — по счёту. Оплата после согласования букета.' },
 ]
 
+/** «4 шага и 3 гарантии» — как заказать и чем мы отвечаем, одним блоком. */
 export function HowToOrder() {
   return (
-    <section id="how" className="bg-surface py-14 md:py-24">
+    <section id="how" className="bg-surface py-14 md:py-20">
       <div className="container-x">
         <SectionTitle
-          eyebrow="Как заказать"
+          eyebrow="4 шага и 3 гарантии"
           title={
             <>
               Пара сообщений — <span className="italic text-gold">и букет едет к получателю</span>
             </>
           }
         />
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s, i) => (
-            <BlurFade key={s.n} delay={i * 0.06} className="relative rounded-3xl border border-line bg-cream p-6">
-              <span className="font-display text-[44px] font-semibold italic leading-none text-honey">{s.n}</span>
-              <h3 className="mt-4 text-[17px] font-extrabold">{s.t}</h3>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">{s.d}</p>
-            </BlurFade>
+        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s) => (
+            <li key={s.n} className="relative rounded-3xl border border-line bg-cream p-5">
+              <span className="font-display text-[36px] font-semibold italic leading-none text-honey">{s.n}</span>
+              <h3 className="mt-3 text-[16px] font-extrabold">{s.t}</h3>
+              <p className="mt-1 text-[14px] leading-relaxed text-ink-soft">{s.d}</p>
+            </li>
           ))}
         </ol>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <ul className="mt-3 grid gap-3 md:grid-cols-3">
+          {GUARANTEES.map((g) => (
+            <li key={g.t} className="flex gap-3 rounded-3xl border border-honey/30 bg-honey-100 p-5">
+              <span className="text-[26px] leading-none">{g.icon}</span>
+              <span>
+                <b className="block text-[16px] font-extrabold">{g.t}</b>
+                <span className="mt-1 block text-[14px] leading-relaxed text-ink-soft">{g.d}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-8 hidden justify-center gap-3 md:flex">
           <Button variant="max" size="lg" asChild>
             <a href={maxLink(MSG.howOrder)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'how-order' })}>
               <MaxIcon className="h-5 w-5" /> Заказать в MAX
@@ -66,7 +84,7 @@ export function Delivery() {
           eyebrow="Доставка по Ульяновску"
           title={
             <>
-              Доставляем <span className="italic text-gold">по всему Ульяновску</span> — к удобному вам времени
+              Привезём к нужному часу — <span className="italic text-gold">по всему Ульяновску</span>
             </>
           }
           sub="Мастерская в Новом городе. Привезём и в Заволжье, и на правый берег — доставка курьером по тарифам Яндекс Go."

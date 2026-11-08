@@ -2,8 +2,9 @@ import { lazy, Suspense } from 'react'
 import { UIProvider } from '@/lib/ui-store'
 import { FoodBackground } from '@/components/shared/food-background'
 import { Header, MobileBar } from '@/components/sections/header'
+import { SeasonBar } from '@/components/shared/season-bar'
 import { Hero } from '@/components/sections/hero'
-import { Catalog, Hits } from '@/components/sections/catalog'
+import { Hits } from '@/components/sections/catalog'
 import { OrderSheet } from '@/components/sections/order-flow'
 
 const below = () => import('@/below')
@@ -20,10 +21,10 @@ export default function App() {
     <UIProvider>
       <FoodBackground />
       <Header />
+      <SeasonBar />
       <main>
         <Hero />
         <Hits />
-        <Catalog />
         <Suspense fallback={<div className="min-h-[100vh]" />}>
           <BelowMain />
         </Suspense>

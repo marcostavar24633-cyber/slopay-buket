@@ -71,7 +71,7 @@ export function Lightbox({
                 <motion.img
                   key={p.src}
                   src={p.src}
-                  alt=""
+                  alt={item ? `«${item.name}» — ${item.desc}` : "Фото работы мастерской"}
                   custom={dir}
                   initial={{ opacity: 0, x: dir * 60 }}
                   animate={{ opacity: 1, x: 0 }}

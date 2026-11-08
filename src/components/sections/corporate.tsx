@@ -134,7 +134,7 @@ export function Corporate() {
                   href="/corporate-catalog.pdf"
                   download
                   onClick={() => goal('corp_pdf_download')}
-                  className="mt-1 inline-flex items-center justify-center gap-2 text-[14px] font-bold text-honey underline underline-offset-4"
+                  className="mt-1 inline-flex min-h-11 items-center justify-center gap-2 text-[14px] font-bold text-honey underline underline-offset-4"
                 >
                   <Download className="h-4 w-4" /> Скачать каталог корпоративных подарков (PDF)
                 </a>

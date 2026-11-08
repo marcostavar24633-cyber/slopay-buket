@@ -5,7 +5,7 @@
 /** Адрес фото букетов: с того же сайта, где открыта страница (github.io или слопайбукет.рф). */
 function photoBase() {
   const live = typeof location !== 'undefined' && /(github\.io|xn--80acmogcvipsi\.xn--p1ai)$/.test(location.hostname)
-  return (live ? location.origin + import.meta.env.BASE_URL : 'https://marcostavar24633-cyber.github.io/slopay-buket/') + 'tg/'
+  return (live ? location.origin + import.meta.env.BASE_URL : 'https://xn--80acmogcvipsi.xn--p1ai/') + 'tg/'
 }
 
 export const SITE = {
@@ -57,11 +57,30 @@ export const maxLink = (_text?: string) => SITE.maxUrl
  * Telegram по номеру. Параметр text официально поддерживается (core.telegram.org/api/links → Phone number links):
  * Telegram вписывает его в поле ввода, клиенту остаётся нажать «Отправить».
  */
-export const tgLink = (text?: string) => `https://t.me/+${SITE.tgPhone}${text ? `?text=${encodeURIComponent(text.startsWith('@') ? ' ' + text : text)}` : ''}`
+export const tgLink = (text?: string) => `https://t.me/+${SITE.tgPhone}${text ? `?text=${encodeURIComponent(withSource(text))}` : ''}`
+
+/**
+ * Сезонный баннер под шапкой: показывается в своём промежутке дат, с отсчётом дней до конца приёма заказов.
+ * Добавляйте новые сезоны сюда (даты — по Ульяновску).
+ */
+export const SEASONS: { from: string; until: string; text: string; href: string }[] = [
+  { from: '2026-10-15', until: '2026-12-05', text: '🎄 Новогодние букеты и корпоративные подарки: приём заказов до 5 декабря', href: 'corporate/' },
+  { from: '2027-01-15', until: '2027-02-12', text: '❤️ 14 Февраля: сердца из клубники — бронируйте дату заранее', href: '#catalog' },
+  { from: '2027-02-15', until: '2027-03-06', text: '🌷 8 Марта: ягодные букеты и корзины — бронируйте дату заранее', href: '#catalog' },
+]
+
+/** Метка источника в каждом готовом сообщении — чтобы в переписке видеть заказы с сайта. */
+export const SOURCE_TAG = '(с сайта)'
+export function withSource(text: string) {
+  if (text.includes(SOURCE_TAG)) return text
+  const i = text.indexOf('\n')
+  return i < 0 ? `${text} ${SOURCE_TAG}` : `${text.slice(0, i)} ${SOURCE_TAG}${text.slice(i)}`
+}
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
 export const MSG = {
-  header: 'Здравствуйте! Хочу заказать съедобный букет.',
+  header: 'Здравствуйте! Хочу подобрать букет',
+  hero: 'Здравствуйте! Хочу подобрать букет',
   mobileBar: 'Здравствуйте! Хочу заказать букет.',
   heroPhoto: 'Здравствуйте! Пришлю фото примера — соберёте похожий? 📷',
   custom: 'Здравствуйте! Хочу индивидуальный букет. Вот что люблю / вот фото-пример:',

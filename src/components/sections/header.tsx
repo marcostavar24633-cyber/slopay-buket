@@ -11,20 +11,20 @@ import { goal } from '@/lib/analytics'
 import { scrollToId } from '@/lib/ui-store'
 import { cn } from '@/lib/utils'
 
-const NAV = [
+const NAV: { id: string; label: string; href?: string }[] = [
   { id: 'hits', label: 'Хиты' },
   { id: 'catalog', label: 'Каталог' },
   { id: 'reviews', label: 'Отзывы' },
   { id: 'delivery', label: 'Доставка' },
-  { id: 'corporate', label: 'Корпоративным' },
+  { id: 'corporate', label: 'Компаниям', href: 'corporate/' },
 ]
 
 export function Logo({ light }: { light?: boolean }) {
   return (
-    <a href="#top" className="group flex min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label="Слопай букет — на главную">
+    <a href="#top" className="group flex min-h-11 min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label="Слопай букет — на главную">
       <img
         src="/logo-256.webp"
-        alt=""
+        alt="Логотип «Слопай букет»"
         width={48}
         height={48}
         className="h-10 w-10 shrink-0 rounded-full shadow-soft ring-1 ring-honey/30 transition duration-500 group-hover:rotate-[-10deg] md:h-12 md:w-12"
@@ -57,7 +57,7 @@ export function Header() {
 
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Основное меню">
           {NAV.map((n) => (
-            <a key={n.id} href={`#${n.id}`} className="whitespace-nowrap rounded-full px-3 py-2 text-[14px] font-semibold text-ink-soft transition hover:bg-ink/5 hover:text-ink">
+            <a key={n.id} href={n.href ? import.meta.env.BASE_URL + n.href : `#${n.id}`} className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3 py-2 text-[14px] font-semibold text-ink-soft transition hover:bg-ink/5 hover:text-ink">
               {n.label}
             </a>
           ))}
@@ -80,7 +80,7 @@ export function Header() {
             <TelegramIcon className="h-[18px] w-[18px]" />
           </a>
           <Button size="md" className="px-5" onClick={() => { goal('cta_header'); scrollToId('catalog') }}>
-            Заказать букет
+            Каталог с ценами
           </Button>
           <button onClick={() => setOpen((v) => !v)} className="run-border grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-honey text-onaccent xl:hidden" aria-label="Меню" aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -90,16 +90,18 @@ export function Header() {
 
         {/* мобильный: трубка + MSG + бургер */}
         <div className="flex items-center gap-1.5 md:hidden">
-          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header-m' })} className="run-border grid h-10 w-10 place-items-center rounded-full border border-line bg-surface max-[379px]:hidden" aria-label="Позвонить">
+          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header-m' })} className="run-border grid h-11 w-11 place-items-center rounded-full border border-line bg-surface max-[419px]:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
           </a>
-          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header-m' })} className="run-border grid h-10 w-10 place-items-center rounded-full bg-max text-white" aria-label="MAX">
+          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header-m' })} className="run-border grid h-11 w-11 place-items-center rounded-full bg-max text-white" aria-label="MAX">
             <MaxIcon className="h-5 w-5" />
           </a>
-          <button onClick={() => setOpen((v) => !v)} className="run-border grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-honey text-onaccent" aria-label="Меню" aria-expanded={open}>
+          <button onClick={() => { goal('cta_header_m'); scrollToId('catalog') }} className="run-border h-11 cursor-pointer whitespace-nowrap rounded-full bg-gold px-3.5 text-[13px] font-bold text-onaccent">
+            Каталог
+          </button>
+          <button onClick={() => setOpen((v) => !v)} className="run-border grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-line bg-surface" aria-label="Меню" aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <ThemeToggle className="h-10 w-10" />
         </div>
       </div>
 
@@ -113,7 +115,7 @@ export function Header() {
           >
             <nav className="container-x flex flex-col py-3" aria-label="Мобильное меню">
               {NAV.map((n) => (
-                <a key={n.id} href={`#${n.id}`} onClick={() => setOpen(false)} className="border-b border-line/70 py-3.5 text-lg font-bold last:border-0">
+                <a key={n.id} href={n.href ? import.meta.env.BASE_URL + n.href : `#${n.id}`} onClick={() => setOpen(false)} className="border-b border-line/70 py-3.5 text-lg font-bold last:border-0">
                   {n.label}
                 </a>
               ))}
@@ -121,6 +123,9 @@ export function Header() {
                 <StatusPill />
                 <a href={SITE.phoneHref} className="text-xl font-extrabold">{SITE.phoneDisplay}</a>
                 <span className="text-sm text-muted">{SITE.hours}</span>
+                <div className="mt-2 flex items-center gap-3 text-sm font-semibold text-ink-soft md:hidden">
+                  <ThemeToggle /> Светлая / тёмная тема
+                </div>
               </div>
             </nav>
           </motion.div>
@@ -132,14 +137,15 @@ export function Header() {
 
 export function MobileBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl md:hidden">
+      <p className="mb-1.5 text-center text-[11.5px] font-bold uppercase tracking-[0.12em] text-muted">Заказать в 1 сообщение</p>
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
         <a
           href={maxLink(MSG.mobileBar)}
           target="_blank"
           rel="noopener"
           onClick={() => goal('max_click', { from: 'mobile-bar' })}
-          className="run-border flex h-10 items-center justify-center gap-1.5 rounded-full bg-max text-[14px] font-bold text-white active:scale-[0.98]"
+          className="run-border flex h-11 items-center justify-center gap-1.5 rounded-full bg-max text-[14px] font-bold text-white active:scale-[0.98]"
         >
           <MaxIcon className="h-4 w-4" /> MAX
         </a>
@@ -148,7 +154,7 @@ export function MobileBar() {
           target="_blank"
           rel="noopener"
           onClick={() => goal('tg_click', { from: 'mobile-bar' })}
-          className="run-border flex h-10 items-center justify-center gap-1.5 rounded-full bg-tg text-[14px] font-bold text-white active:scale-[0.98]"
+          className="run-border flex h-11 items-center justify-center gap-1.5 rounded-full bg-tg text-[14px] font-bold text-white active:scale-[0.98]"
         >
           <TelegramIcon className="h-4 w-4" /> Telegram
         </a>
@@ -156,7 +162,7 @@ export function MobileBar() {
           href={SITE.phoneHref}
           onClick={() => goal('phone_click', { from: 'mobile-bar' })}
           aria-label="Позвонить"
-          className="run-border grid h-10 w-10 place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
+          className="run-border grid h-11 w-11 place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
         >
           <Phone className="h-4 w-4" />
         </a>
