@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ParallaxImage } from '@/components/aceternity/parallax'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, Gift, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
 import { PhoneInput } from '@/components/ui/input'
@@ -157,9 +157,6 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
           ) : (
             <form onSubmit={submit} noValidate>
               <h3 className="font-display text-[26px] font-semibold leading-tight">Готово! Куда прислать подборку?</h3>
-              <p className="mt-3 flex items-center gap-2 rounded-2xl bg-honey-100 px-4 py-3 text-[14px] font-bold">
-                <Gift className="h-5 w-5 shrink-0 text-honey-600" /> + открытка с вашим текстом в подарок
-              </p>
               <div className="mt-4 flex flex-col gap-4">
                 <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
                 <div>

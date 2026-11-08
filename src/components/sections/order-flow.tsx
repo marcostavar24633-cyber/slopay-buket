@@ -1,76 +1,36 @@
 import { useEffect, useState } from 'react'
-import { Loader2 } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { Chips } from '@/components/ui/chips'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input, Label, PhoneInput } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { Consent } from '@/components/shared/consent'
-import { VkIcon, MaxIcon } from '@/components/shared/icons'
-import { SITE, MSG, maxLink } from '@/lib/config'
-import { isPhoneValid } from '@/lib/phone'
-import { submitLead } from '@/lib/leads'
+import { VkIcon, MaxIcon, TelegramIcon } from '@/components/shared/icons'
+import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
-const DATES = [
-  { key: 'today', label: 'Сегодня' },
-  { key: 'tomorrow', label: 'Завтра' },
-  { key: 'other', label: 'Другая дата' },
-] as const
 export const CONTACTS = [
   { key: 'max', label: 'MAX' },
   { key: 'tg', label: 'Telegram' },
   { key: 'call', label: 'Позвоните' },
 ] as const
 
+/** Окно заказа: без формы — клиент сразу пишет в MAX или Telegram, текст заказа копируется сам. */
 export function OrderSheet() {
-  const { order, closeOrder, showThanks } = useUI()
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [date, setDate] = useState<(typeof DATES)[number]['key']>('tomorrow')
-  const [otherDate, setOtherDate] = useState('')
-  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('max')
-  const [card, setCard] = useState(false)
-  const [cardText, setCardText] = useState('')
-  const [consent, setConsent] = useState(true)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const { order, closeOrder } = useUI()
+  const [copied, setCopied] = useState<'' | 'max' | 'tg'>('')
 
   useEffect(() => {
-    if (order) {
-      setError('')
-      setDate('tomorrow')
-    }
+    if (order) setCopied('')
   }, [order])
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
   const item = order
+  const text = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()}, от ${rub(item.price)}). На какую дату свободно?`
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return setError('Как к вам обращаться?')
-    if (!isPhoneValid(phone)) return setError('Проверьте номер телефона')
-    if (!consent) return setError('Нужно согласие на обработку данных')
-    setError('')
-    setLoading(true)
-    const ok = await submitLead({
-      source: 'order-drawer',
-      name,
-      phone,
-      contact,
-      product: `«${item.name}», ${item.title} (${item.id})`,
-      photo: location.origin + item.src,
-      price: item.price,
-      date: date === 'other' ? otherDate || 'другая' : date,
-      card: card ? cardText || 'да' : 'нет',
-    })
-    setLoading(false)
-    if (!ok) return setError('Не получилось отправить. Напишите нам в MAX — ответим за 5 минут.')
-    closeOrder()
-    showThanks(name)
+  const go = (to: 'max' | 'tg') => {
+    goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'order', product: item.id })
+    navigator.clipboard?.writeText(text).catch(() => {})
+    setCopied(to)
   }
 
   return (
@@ -85,47 +45,36 @@ export function OrderSheet() {
         <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight"><span className="block text-[11px] font-semibold text-muted">примерно</span>от {rub(item.price)}</p>
       </div>
 
-      <form onSubmit={submit} className="mt-5 flex flex-col gap-4" noValidate>
-          <div>
-            <Label htmlFor="o-name">Имя</Label>
-            <Input id="o-name" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к вам обращаться" />
-          </div>
-          <div>
-            <Label htmlFor="o-phone">Телефон</Label>
-            <PhoneInput id="o-phone" value={phone} onChange={setPhone} />
-          </div>
-          <div>
-            <Label>Дата доставки</Label>
-            <Chips ariaLabel="Дата доставки" options={DATES} value={date} onChange={setDate} />
-            {date === 'today' && <p className="mt-2 text-[12.5px] font-semibold text-ink-soft">День в день — по возможности: уточним и сразу ответим.</p>}
-            {date === 'other' && <Input type="date" className="mt-2" value={otherDate} onChange={(e) => setOtherDate(e.target.value)} aria-label="Дата" />}
-          </div>
-          <div>
-            <Label>Как связаться</Label>
-            <Chips ariaLabel="Способ связи" options={CONTACTS} value={contact} onChange={setContact} />
-          </div>
-          <Checkbox checked={card} onChange={setCard}>
-            Добавить открытку с моим текстом — бесплатно
-          </Checkbox>
-          {card && (
-            <textarea
-              value={cardText}
-              onChange={(e) => setCardText(e.target.value)}
-              rows={3}
-              maxLength={200}
-              placeholder="С днём рождения, любимая! ❤️"
-              className="w-full rounded-2xl border border-line bg-surface p-4 text-base outline-none focus:border-honey-600 focus:ring-4 focus:ring-honey/25"
-            />
-          )}
-          <Consent checked={consent} onChange={setConsent} />
-          {error && <p className="rounded-xl bg-berry/10 px-3 py-2 text-sm font-semibold text-berry" role="alert">{error}</p>}
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Оформить заказ'}
-          </Button>
-          <p className="-mt-1 text-center text-[13px] leading-snug text-muted">
-            Перезвоним, уточним адрес и время. Оплата — после согласования.
-          </p>
-      </form>
+      <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
+        Напишите нам в удобный мессенджер — уточним состав, дату и доставку, пришлём фото готового букета перед отправкой.
+      </p>
+
+      <div className="mt-5 flex flex-col gap-3">
+        <Button variant="max" size="lg" asChild>
+          <a href={maxLink(text)} target="_blank" rel="noopener" onClick={() => go('max')}>
+            <MaxIcon className="h-5 w-5" /> Написать в MAX
+          </a>
+        </Button>
+        <Button variant="tg" size="lg" asChild>
+          <a href={tgLink(text)} target="_blank" rel="noopener" onClick={() => go('tg')}>
+            <TelegramIcon className="h-5 w-5" /> Написать в Telegram
+          </a>
+        </Button>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-dashed border-line bg-surface/60 p-3.5">
+        <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
+          {copied ? '✓ Текст скопирован — вставьте его в чат' : 'Текст сообщения скопируется сам'}
+        </p>
+        <p className="mt-1.5 text-[14px] leading-snug text-ink">{text}</p>
+      </div>
+
+      <p className="mt-4 text-center text-[13px] text-muted">
+        Или позвоните:{' '}
+        <a href={SITE.phoneHref} className="font-bold text-ink underline underline-offset-4" onClick={() => goal('phone_click', { from: 'order' })}>
+          {SITE.phoneDisplay}
+        </a>
+      </p>
     </Sheet>
   )
 }

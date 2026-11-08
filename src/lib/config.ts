@@ -42,7 +42,8 @@ export const legalLine = () => [SITE.ownerName, SITE.inn && `ИНН ${SITE.inn}`
 /** MAX не поддерживает предзаполненный текст — ведём в профиль. Аргумент оставлен для аналитики и будущего API. */
 export const maxLink = (_text?: string) => SITE.maxUrl
 
-export const tgLink = (_text?: string) => `https://t.me/+${SITE.tgPhone}`
+/** Telegram по номеру; текст подставляется в поле ввода в новых версиях Telegram (в старых — клиент вставит скопированный). */
+export const tgLink = (text?: string) => `https://t.me/+${SITE.tgPhone}${text ? `?text=${encodeURIComponent(text)}` : ''}`
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
 export const MSG = {
