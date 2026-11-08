@@ -125,13 +125,21 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Квиза «Подобрать за 1 минуту» и бегущих рамок нет', async () => {
+  await test('Квиза нет; золотая бегущая рамка появляется только при наведении на кнопку или карточку', async () => {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.textContent)
     assert.ok(!text.includes('Подобрать за 1 минуту') && !text.includes('Кому дарим'), 'квиз найден')
     assert.equal(await page.locator('#quiz').count(), 0)
     const anim = await page.evaluate(() => [...document.querySelectorAll('*')].filter((e) => /spin-around|border-beam/.test(getComputedStyle(e).animationName)).length)
-    assert.equal(anim, 0, 'бегущая рамка')
+    assert.equal(anim, 0, 'старые бегущие рамки')
+    const after = (loc) => loc.evaluate((e) => getComputedStyle(e, '::after').animationName)
+    const card = page.locator('#hits article').first()
+    assert.equal(await after(card), 'none', 'в покое рамки нет')
+    await card.hover()
+    assert.equal(await after(card), 'run-border', 'карточка при наведении')
+    const btn = page.getByRole('button', { name: /Выбрать букет/ }).first()
+    await btn.hover()
+    assert.equal(await after(btn), 'run-border', 'кнопка при наведении')
     await ctx.close()
   })
 

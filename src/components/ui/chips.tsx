@@ -27,7 +27,7 @@ export function Chips<T extends string>({
             aria-checked={active}
             onClick={() => onChange(o.key)}
             className={cn(
-              'h-11 rounded-full border px-4 text-sm font-semibold transition cursor-pointer',
+              'run-border h-11 rounded-full border px-4 text-sm font-semibold transition cursor-pointer',
               dark
                 ? active
                   ? 'border-honey bg-honey text-onaccent'

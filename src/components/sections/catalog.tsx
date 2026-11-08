@@ -27,7 +27,7 @@ const PAGE = 12
 export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void; hit?: boolean }) {
   const { openOrder } = useUI()
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+    <article className="run-border group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
       <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`Открыть фото: ${item.name}`}>
         <img loading="lazy" src={item.thumb} alt={`«${item.name}» — ${item.desc}`} width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         {hit && (
@@ -155,7 +155,7 @@ export function Catalog() {
                 aria-selected={active}
                 onClick={() => pick(c.key)}
                 className={cn(
-                  'group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-3xl text-left ring-1 transition md:aspect-[16/10]',
+                  'run-border group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-3xl text-left ring-1 transition md:aspect-[16/10]',
                   active ? 'ring-4 ring-honey' : 'ring-line hover:ring-honey/60',
                 )}
               >

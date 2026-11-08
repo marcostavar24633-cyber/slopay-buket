@@ -46,7 +46,7 @@ export function Occasions() {
             <button
               key={o.t}
               onClick={() => open(o)}
-              className="group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-3xl text-left ring-1 ring-line transition hover:ring-honey/60"
+              className="run-border group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-3xl text-left ring-1 ring-line transition hover:ring-honey/60"
             >
               <img loading="lazy" src={o.img} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
               <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />

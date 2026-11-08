@@ -70,19 +70,19 @@ export function Header() {
             </a>
             <StatusPill compact className="whitespace-nowrap text-[12px]" />
           </div>
-          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface 2xl:hidden" aria-label="Позвонить">
+          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="run-border grid h-11 w-11 place-items-center rounded-full border border-line bg-surface 2xl:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
           </a>
-          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-max text-white transition hover:bg-max-600" aria-label="Написать в MAX">
+          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header' })} className="run-border grid h-11 w-11 place-items-center rounded-full bg-max text-white transition hover:bg-max-600" aria-label="Написать в MAX">
             <MaxIcon className="h-5 w-5" />
           </a>
-          <a href={tgLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-tg text-white transition hover:brightness-95" aria-label="Написать в Telegram">
+          <a href={tgLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'header' })} className="run-border grid h-11 w-11 place-items-center rounded-full bg-tg text-white transition hover:brightness-95" aria-label="Написать в Telegram">
             <TelegramIcon className="h-[18px] w-[18px]" />
           </a>
           <Button size="md" className="px-5" onClick={() => { goal('cta_header'); scrollToId('catalog') }}>
             Заказать букет
           </Button>
-          <button onClick={() => setOpen((v) => !v)} className="grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-honey text-onaccent xl:hidden" aria-label="Меню" aria-expanded={open}>
+          <button onClick={() => setOpen((v) => !v)} className="run-border grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-honey text-onaccent xl:hidden" aria-label="Меню" aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           <ThemeToggle />
@@ -90,13 +90,13 @@ export function Header() {
 
         {/* мобильный: трубка + MSG + бургер */}
         <div className="flex items-center gap-1.5 md:hidden">
-          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header-m' })} className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface max-[379px]:hidden" aria-label="Позвонить">
+          <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header-m' })} className="run-border grid h-10 w-10 place-items-center rounded-full border border-line bg-surface max-[379px]:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
           </a>
-          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header-m' })} className="grid h-10 w-10 place-items-center rounded-full bg-max text-white" aria-label="MAX">
+          <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header-m' })} className="run-border grid h-10 w-10 place-items-center rounded-full bg-max text-white" aria-label="MAX">
             <MaxIcon className="h-5 w-5" />
           </a>
-          <button onClick={() => setOpen((v) => !v)} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-honey text-onaccent" aria-label="Меню" aria-expanded={open}>
+          <button onClick={() => setOpen((v) => !v)} className="run-border grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-honey text-onaccent" aria-label="Меню" aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           <ThemeToggle className="h-10 w-10" />
@@ -139,7 +139,7 @@ export function MobileBar() {
           target="_blank"
           rel="noopener"
           onClick={() => goal('max_click', { from: 'mobile-bar' })}
-          className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-max text-[14px] font-bold text-white active:scale-[0.98]"
+          className="run-border flex h-10 items-center justify-center gap-1.5 rounded-full bg-max text-[14px] font-bold text-white active:scale-[0.98]"
         >
           <MaxIcon className="h-4 w-4" /> MAX
         </a>
@@ -148,7 +148,7 @@ export function MobileBar() {
           target="_blank"
           rel="noopener"
           onClick={() => goal('tg_click', { from: 'mobile-bar' })}
-          className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-tg text-[14px] font-bold text-white active:scale-[0.98]"
+          className="run-border flex h-10 items-center justify-center gap-1.5 rounded-full bg-tg text-[14px] font-bold text-white active:scale-[0.98]"
         >
           <TelegramIcon className="h-4 w-4" /> Telegram
         </a>
@@ -156,7 +156,7 @@ export function MobileBar() {
           href={SITE.phoneHref}
           onClick={() => goal('phone_click', { from: 'mobile-bar' })}
           aria-label="Позвонить"
-          className="grid h-10 w-10 place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
+          className="run-border grid h-10 w-10 place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
         >
           <Phone className="h-4 w-4" />
         </a>

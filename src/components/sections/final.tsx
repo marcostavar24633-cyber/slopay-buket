@@ -62,7 +62,7 @@ export function Footer() {
               { href: tgLink(MSG.header), icon: TelegramIcon, label: 'Telegram', cls: 'bg-tg' },
               ...(SITE.vk ? [{ href: SITE.vk, icon: VkIcon, label: 'ВКонтакте', cls: 'bg-white/10' }] : []),
             ].map((s) => (
-              <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label} className={`grid h-11 w-11 place-items-center rounded-full text-white ${s.cls}`}>
+              <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label} className={`run-border grid h-11 w-11 place-items-center rounded-full text-white ${s.cls}`}>
                 <s.icon className="h-5 w-5" />
               </a>
             ))}
