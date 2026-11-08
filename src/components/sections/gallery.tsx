@@ -62,11 +62,12 @@ export function Lightbox({
     <DialogPrimitive.Root open={index !== null} onOpenChange={(v) => !v && onIndex(null)}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[90] bg-black/90 backdrop-blur-sm data-[state=open]:animate-[fade-in_200ms_ease-out]" />
-        <DialogPrimitive.Content className="fixed inset-0 z-[91] flex flex-col items-center justify-center p-3 outline-none md:p-8">
+        <DialogPrimitive.Content className="fixed inset-0 z-[91] flex flex-col items-center justify-center px-3 pb-3 pt-16 outline-none md:p-8">
           <DialogPrimitive.Title className="sr-only">Просмотр фото</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">Листайте стрелками или свайпом</DialogPrimitive.Description>
           <div
-            className={`relative flex w-full max-w-5xl items-center justify-center ${cta ? "md:max-h-[78dvh] md:flex-1" : "max-h-[78dvh] flex-1"}`}
+            // рамка фото фиксированного размера: фото меняются внутри, остальное не сдвигается
+            className={`relative w-full max-w-5xl shrink-0 overflow-hidden ${cta ? "h-[54dvh] md:h-[66dvh]" : "h-[78dvh]"}`}
             onPointerDown={(e) => (startX.current = e.clientX)}
             onPointerUp={(e) => {
               if (startX.current === null) return
@@ -87,29 +88,30 @@ export function Lightbox({
                   exit={{ opacity: 0, x: dir * -60 }}
                   transition={{ duration: 0.25 }}
                   draggable={false}
-                  className={`max-w-full select-none rounded-2xl object-contain shadow-lift ${cta ? "max-h-[56dvh] md:max-h-[78dvh]" : "max-h-[78dvh]"}`}
+                  className="absolute inset-0 h-full w-full select-none object-contain"
                 />
               )}
             </AnimatePresence>
             {list.length > 1 && (
               <>
-                <button onClick={() => go(-1)} aria-label="Предыдущее фото" className="absolute left-0 top-1/2 grid h-12 w-12 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-black/60 text-white ring-1 ring-white/20 hover:bg-black/80 md:-left-4">
+                <button onClick={() => go(-1)} aria-label="Предыдущее фото" className="absolute left-1 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-black/60 text-white ring-1 ring-white/20 hover:bg-black/80">
                   <ChevronLeft className="h-6 w-6" />
                 </button>
-                <button onClick={() => go(1)} aria-label="Следующее фото" className="absolute right-0 top-1/2 grid h-12 w-12 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-black/60 text-white ring-1 ring-white/20 hover:bg-black/80 md:-right-4">
+                <button onClick={() => go(1)} aria-label="Следующее фото" className="absolute right-1 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-black/60 text-white ring-1 ring-white/20 hover:bg-black/80">
                   <ChevronRight className="h-6 w-6" />
                 </button>
               </>
             )}
           </div>
-          <div className="mt-3 flex w-full max-w-5xl flex-col gap-3 text-white md:mt-4 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0 md:flex-1">
+          <div className="mt-3 flex w-full max-w-5xl shrink-0 flex-col gap-3 text-white md:mt-4 md:flex-row md:items-center md:justify-between">
+            {/* описание фиксированной высоты: длина текста не двигает кнопки */}
+            <div className={`min-w-0 overflow-hidden md:flex-1 ${cta ? "h-[86px] md:h-[72px]" : ""}`}>
               <p className="text-sm text-white/70">
                 {index !== null && `${index + 1} / ${list.length}`}
                 {isPhoto(p) && ` · ${CAT_LABEL[p.cat]}`}
               </p>
               {cta && item && (
-                <p className="mt-1 text-[14px] leading-snug text-white">
+                <p className="mt-1 line-clamp-3 text-[14px] leading-snug text-white">
                   <b className="font-display text-[17px]">«{item.name}»</b> — {item.desc} · <b className="text-[#f3d98a]">от {rub(item.price)}</b>
                 </p>
               )}
