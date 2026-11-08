@@ -29,6 +29,7 @@ jobs:
       - name: Сборка (адрес вида https://<логин>.github.io/<репозиторий>/)
         env:
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          VITE_LEAD_ENDPOINT: ${{ vars.LEAD_ENDPOINT }}
         run: npx vite build --base /${{ github.event.repository.name }}/
       - name: Пререндер (готовая разметка для поисковиков и быстрого первого экрана)
         run: |

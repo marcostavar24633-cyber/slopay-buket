@@ -35,7 +35,9 @@ npm run test:unit      # маска телефона
 
 1. В Telegram откройте **@BotFather** → `/newbot` → придумайте имя → получите **токен** вида `123456:ABC…`.
 2. Напишите своему боту любое сообщение, затем откройте `https://api.telegram.org/bot<ТОКЕН>/getUpdates` — в ответе найдите `"chat":{"id": …}` — это **TG_CHAT_ID**.
-3. На хостинге с серверными функциями (Vercel, Netlify, Yandex Cloud Functions) разместите `api/lead.ts`, задайте переменные `TG_BOT_TOKEN`, `TG_CHAT_ID`, а при сборке — `VITE_LEAD_ENDPOINT=/api/lead`.
+3. Зайдите на **vercel.com** через GitHub → **Add New → Project** → выберите репозиторий `slopay-buket` → в **Environment Variables** добавьте `TG_BOT_TOKEN` и `TG_CHAT_ID` → **Deploy**. Функция `api/lead.ts` заработает по адресу `https://<проект>.vercel.app/api/lead`.
+4. На GitHub: **Settings → Secrets and variables → Actions → Variables → New repository variable**: имя `LEAD_ENDPOINT`, значение — адрес из шага 3. Затем **Actions → GitHub Pages → Run workflow** — сайт пересоберётся и начнёт слать заявки в бот.
+5. По желанию в Vercel добавьте `ALLOWED_ORIGIN=https://<логин>.github.io` — тогда заявки будут приниматься только с вашего сайта.
 
 Все формы вызывают `submitLead()` (`src/lib/leads.ts`) с полем `source` (из какой формы) и названием букета. **Токен бота на сайт не кладите** — только в переменные хостинга.
 
