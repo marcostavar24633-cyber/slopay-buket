@@ -9,7 +9,7 @@ import { Reviews } from '@/components/sections/reviews'
 import { Process } from '@/components/sections/process'
 import { Delivery, HowToOrder } from '@/components/sections/delivery'
 import { Faq, Guarantees } from '@/components/sections/trust'
-import { ExitPopup, FinalOffer, Footer } from '@/components/sections/final'
+import { FinalOffer, Footer } from '@/components/sections/final'
 import { CookieNotice } from '@/components/shared/cookie-notice'
 
 export function BelowMain() {
@@ -35,7 +35,6 @@ export function BelowRest() {
     <>
       <Footer />
       <QuizDialog />
-      <ExitPopup />
       <CookieNotice />
     </>
   )

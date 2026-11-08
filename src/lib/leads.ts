@@ -6,7 +6,6 @@ export type LeadSource =
   | 'delivery-check'
   | 'corporate'
   | 'final'
-  | 'exit-popup'
 
 export interface Lead {
   source: LeadSource

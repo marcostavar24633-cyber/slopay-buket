@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ParallaxImage, Parallax } from '@/components/aceternity/parallax'
 import { CalendarCheck, Loader2, MapPin, Phone } from 'lucide-react'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input, PhoneInput } from '@/components/ui/input'
 import { Consent } from '@/components/shared/consent'
 import { TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
@@ -146,88 +145,5 @@ export function Footer() {
         © 2023–2026 Слопай букет — съедобные букеты с доставкой в Ульяновске. Ягодные, мясные и раковые букеты, сухофрукты, сладкие боксы и корпоративные подарки.
       </p>
     </footer>
-  )
-}
-
-/** Exit-intent: десктоп — уход курсора за верх окна, мобильный — 50 сек или резкий скролл вверх. Раз за сессию, не раньше 20 сек. */
-export function ExitPopup() {
-  const { converted, order, quizOpen, thanks, showThanks } = useUI()
-  const [open, setOpen] = useState(false)
-  const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [err, setErr] = useState('')
-
-  useEffect(() => {
-    let shown = false
-    try {
-      shown = sessionStorage.getItem('exit_shown') === '1'
-    } catch {
-      /* noop */
-    }
-    if (shown) return
-    const start = Date.now()
-    const blocked = () => Date.now() - start < 20_000
-    const fire = () => {
-      if (shown || blocked()) return
-      shown = true
-      try {
-        sessionStorage.setItem('exit_shown', '1')
-      } catch {
-        /* noop */
-      }
-      goal('exit_popup_show')
-      setOpen(true)
-    }
-    const onLeave = (e: MouseEvent) => e.clientY <= 0 && fire()
-    let lastY = window.scrollY
-    let lastT = Date.now()
-    const onScroll = () => {
-      const now = Date.now()
-      const dy = lastY - window.scrollY
-      if (window.innerWidth < 768 && dy > 900 && now - lastT < 400 && window.scrollY > 600) fire()
-      lastY = window.scrollY
-      lastT = now
-    }
-    const timer = window.innerWidth < 768 ? window.setTimeout(fire, 50_000) : undefined
-    document.addEventListener('mouseout', onLeave)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      document.removeEventListener('mouseout', onLeave)
-      window.removeEventListener('scroll', onScroll)
-      clearTimeout(timer)
-    }
-  }, [])
-
-  const busy = converted || !!order || quizOpen || !!thanks
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isPhoneValid(phone)) return setErr('Проверьте номер')
-    setLoading(true)
-    const ok = await submitLead({ source: 'exit-popup', phone, contact: 'max' })
-    setLoading(false)
-    if (ok) {
-      setOpen(false)
-      showThanks()
-    } else setErr('Ошибка отправки')
-  }
-
-  return (
-    <Dialog open={open && !busy} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md overflow-hidden p-0 md:p-0">
-        <img src="/img/real/berry/yag-24.webp" alt="" className="h-40 w-full object-cover" />
-        <div className="p-6">
-          <DialogTitle className="font-display text-[26px] font-semibold leading-tight">Не успели выбрать?</DialogTitle>
-          <DialogDescription className="mt-2 text-[15px] text-ink-soft">Пришлём подборку из 5 хитов с ценами в MAX — выберете спокойно.</DialogDescription>
-          <form onSubmit={submit} noValidate className="mt-4 flex flex-col gap-3">
-            <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
-            {err && <p className="text-sm font-semibold text-berry">{err}</p>}
-            <Button type="submit" size="lg" disabled={loading}>
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Прислать подборку'}
-            </Button>
-            <p className="text-center text-[11.5px] text-muted">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
-          </form>
-        </div>
-      </DialogContent>
-    </Dialog>
   )
 }

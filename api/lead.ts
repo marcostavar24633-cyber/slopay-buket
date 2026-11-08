@@ -12,7 +12,6 @@ const LABELS: Record<string, string> = {
   'delivery-check': '⏱ Вопрос про сроки',
   corporate: '💼 Корпоративный заказ',
   final: '🎯 Заявка внизу страницы',
-  'exit-popup': '🚪 Всплывающее окно',
 }
 
 const FIELDS: Record<string, string> = {
