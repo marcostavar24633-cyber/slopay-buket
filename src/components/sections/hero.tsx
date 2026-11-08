@@ -145,7 +145,7 @@ export function Hero() {
                 </p>
               </div>
               <div className="hidden rounded-2xl bg-scrim/85 px-3.5 py-2.5 text-[12px] font-semibold text-ink backdrop-blur sm:block">
-                «Ежевичный вальс» · от 4 990 ₽
+                «Ежевичный вальс» · от 4 200 ₽
               </div>
             </div>
           </motion.div>

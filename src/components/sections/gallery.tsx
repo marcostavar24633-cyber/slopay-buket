@@ -66,7 +66,7 @@ export function Lightbox({
           <DialogPrimitive.Title className="sr-only">Просмотр фото</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">Листайте стрелками или свайпом</DialogPrimitive.Description>
           <div
-            className="relative flex max-h-[78dvh] w-full max-w-5xl flex-1 items-center justify-center"
+            className={`relative flex w-full max-w-5xl items-center justify-center ${cta ? "md:max-h-[78dvh] md:flex-1" : "max-h-[78dvh] flex-1"}`}
             onPointerDown={(e) => (startX.current = e.clientX)}
             onPointerUp={(e) => {
               if (startX.current === null) return
@@ -87,7 +87,7 @@ export function Lightbox({
                   exit={{ opacity: 0, x: dir * -60 }}
                   transition={{ duration: 0.25 }}
                   draggable={false}
-                  className="max-h-[78dvh] max-w-full select-none rounded-2xl object-contain shadow-lift"
+                  className={`max-w-full select-none rounded-2xl object-contain shadow-lift ${cta ? "max-h-[56dvh] md:max-h-[78dvh]" : "max-h-[78dvh]"}`}
                 />
               )}
             </AnimatePresence>
@@ -102,8 +102,8 @@ export function Lightbox({
               </>
             )}
           </div>
-          <div className="mt-4 flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 text-white">
-            <div className="min-w-0 flex-1">
+          <div className="mt-3 flex w-full max-w-5xl flex-col gap-3 text-white md:mt-4 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0 md:flex-1">
               <p className="text-sm text-white/70">
                 {index !== null && `${index + 1} / ${list.length}`}
                 {isPhoto(p) && ` · ${CAT_LABEL[p.cat]}`}
@@ -115,7 +115,7 @@ export function Lightbox({
               )}
             </div>
             {cta && item && (
-              <div className="flex shrink-0 gap-2">
+              <div className="grid w-full grid-cols-3 gap-2 md:flex md:w-auto md:shrink-0">
                 <Button
                   onClick={() => {
                     onIndex(null)

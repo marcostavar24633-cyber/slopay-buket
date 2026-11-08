@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
-import { ArrowRight, ChevronDown, Flame, Plus } from 'lucide-react'
+import { ArrowRight, ChevronDown, Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SectionTitle } from '@/components/shared/section-title'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { Lightbox } from '@/components/sections/gallery'
 import { GALLERY_CATS, type GalleryCat } from '@/lib/gallery'
-import { HITS, ITEMS, PRICE_TABS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
-import { MSG, maxLink } from '@/lib/config'
+import { HITS, ITEMS, PRICE_TABS, RECIPIENT_CATS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
+import { MSG } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
 import { cn, rub } from '@/lib/utils'
@@ -123,8 +124,12 @@ export function Catalog() {
           sub="Под каждым фото — состав и примерная цена. Соберём такой же или похожий под ваш бюджет."
         />
 
+        <div className="mb-4 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Кому букет">
+          <FilterRow label="Кому" options={RECIPIENT_TABS} value={who} onChange={(v) => { setWho(v); setShowAll(false); if (v !== 'all' && cat && !RECIPIENT_CATS[v].includes(cat)) setCat(null); goal('catalog_filter', { who: v }) }} />
+        </div>
+
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5" role="tablist" aria-label="Категории">
-          {CATS.map((c) => {
+          {CATS.filter((c) => who === 'all' || RECIPIENT_CATS[who].includes(c.key)).map((c) => {
             const active = cat === c.key
             return (
               <button
@@ -154,8 +159,7 @@ export function Catalog() {
           })}
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Фильтры">
-          <FilterRow label="Кому" options={RECIPIENT_TABS} value={who} onChange={(v) => { setWho(v); setShowAll(false); goal('catalog_filter', { who: v }) }} />
+        <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Фильтр по цене">
           <FilterRow label="Цена" options={PRICE_TABS} value={price} onChange={(v) => { setPrice(v); setShowAll(false); goal('catalog_filter', { price: v }) }} />
         </div>
 
@@ -241,15 +245,7 @@ function CustomBanner() {
         <p className="font-display text-[24px] font-semibold leading-tight">Не нашли подходящий?</p>
         <p className="mt-1 text-[15px] text-ink/75">Соберём индивидуальный букет по вашему фото или списку любимых продуктов получателя.</p>
       </div>
-      <a
-        href={maxLink(MSG.custom)}
-        target="_blank"
-        rel="noopener"
-        onClick={() => goal('max_click', { from: 'custom' })}
-        className="relative inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-honey px-6 font-bold text-onaccent transition hover:bg-honey-600 md:w-auto"
-      >
-        <Plus className="h-5 w-5" /> Собрать свой букет
-      </a>
+      <MessengerButtons row text={MSG.custom} from="custom" className="relative w-full shrink-0 md:w-[380px] [&_p]:text-ink/60" />
     </div>
   )
 }
