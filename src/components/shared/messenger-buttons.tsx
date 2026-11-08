@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 
 /**
  * Кнопки «MAX» и «Telegram» вместо отправки заявки: открывают личный чат мастера,
- * а готовый текст сообщения в момент нажатия копируется — клиент вставляет его в чат.
+ * в Telegram готовый текст сразу стоит в поле ввода, для MAX (и старых версий Telegram) он копируется.
  */
 export function MessengerButtons({
   text,
@@ -27,10 +27,11 @@ export function MessengerButtons({
   onBefore?: () => boolean | void
 }) {
   const [copied, setCopied] = useState(false)
+  const msg = typeof text === 'function' ? text() : text
   const go = (to: 'max' | 'tg') => (e: React.MouseEvent) => {
     if (onBefore && onBefore() === false) return e.preventDefault()
     goal(to === 'max' ? 'max_click' : 'tg_click', { from })
-    copyNow(typeof text === 'function' ? text() : text)
+    copyNow(msg)
     setCopied(true)
   }
   return (
@@ -42,13 +43,13 @@ export function MessengerButtons({
           </a>
         </Button>
         <Button variant="tg" size={size} asChild>
-          <a href={tgLink()} target="_blank" rel="noopener" onClick={go('tg')}>
+          <a href={tgLink(msg)} target="_blank" rel="noopener" onClick={go('tg')}>
             <TelegramIcon className="h-5 w-5" /> {row ? 'Telegram' : 'Написать в Telegram'}
           </a>
         </Button>
       </div>
       <p className="mt-2 text-center text-[12.5px] leading-snug text-muted" aria-live="polite">
-        {copied ? '✓ Текст скопирован — вставьте его в чат' : 'Текст сообщения скопируется сам — останется вставить его в чат'}
+        {copied ? '✓ Готово — в Telegram текст уже в поле ввода, в MAX вставьте его' : 'В Telegram текст появится сам, для MAX — скопируется'}
       </p>
     </div>
   )

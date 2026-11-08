@@ -77,7 +77,7 @@ export function Header() {
           <a href={maxLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-max text-white transition hover:bg-max-600" aria-label="Написать в MAX">
             <MaxIcon className="h-5 w-5" />
           </a>
-          <a href={tgLink()} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-tg text-white transition hover:brightness-95" aria-label="Написать в Telegram">
+          <a href={tgLink(MSG.header)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'header' })} className="grid h-11 w-11 place-items-center rounded-full bg-tg text-white transition hover:brightness-95" aria-label="Написать в Telegram">
             <TelegramIcon className="h-[18px] w-[18px]" />
           </a>
           <Button size="md" className="px-5" onClick={() => { goal('cta_header'); scrollToId('catalog') }}>
@@ -145,7 +145,7 @@ export function MobileBar() {
           <MaxIcon className="h-4 w-4" /> MAX
         </a>
         <a
-          href={tgLink()}
+          href={tgLink(MSG.mobileBar)}
           target="_blank"
           rel="noopener"
           onClick={() => goal('tg_click', { from: 'mobile-bar' })}

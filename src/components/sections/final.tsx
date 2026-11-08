@@ -59,7 +59,7 @@ export function Footer() {
           <div className="mt-4 flex gap-2">
             {[
               { href: maxLink(MSG.header), icon: MaxIcon, label: 'MAX', cls: 'bg-max' },
-              { href: tgLink(), icon: TelegramIcon, label: 'Telegram', cls: 'bg-tg' },
+              { href: tgLink(MSG.header), icon: TelegramIcon, label: 'Telegram', cls: 'bg-tg' },
               ...(SITE.vk ? [{ href: SITE.vk, icon: VkIcon, label: 'ВКонтакте', cls: 'bg-white/10' }] : []),
             ].map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label} className={`grid h-11 w-11 place-items-center rounded-full text-white ${s.cls}`}>

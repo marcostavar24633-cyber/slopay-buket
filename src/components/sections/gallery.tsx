@@ -51,10 +51,11 @@ export function Lightbox({
   const { openOrder } = useUI()
   const p = index !== null ? list[index] : null
   const item = isPhoto(p) ? itemBySrc(p.src) : undefined
+  const orderText = item ? `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${SITE.photoBase}${item.id}.jpg` : ''
   const toChat = (to: 'max' | 'tg') => {
     if (!item) return
     goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'lightbox', product: item.id })
-    copyNow(`Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${SITE.photoBase}${item.id}.jpg`)
+    copyNow(orderText)
   }
 
   return (
@@ -129,7 +130,7 @@ export function Lightbox({
                   </a>
                 </Button>
                 <Button variant="tg" asChild>
-                  <a href={tgLink()} target="_blank" rel="noopener" onClick={() => toChat('tg')} aria-label="Написать в Telegram">
+                  <a href={tgLink(orderText)} target="_blank" rel="noopener" onClick={() => toChat('tg')} aria-label="Написать в Telegram">
                     <TelegramIcon className="h-5 w-5" /> Telegram
                   </a>
                 </Button>

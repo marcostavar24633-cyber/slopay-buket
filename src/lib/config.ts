@@ -45,9 +45,11 @@ export const legalLine = () => [SITE.ownerName, SITE.inn && `ИНН ${SITE.inn}`
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const maxLink = (_text?: string) => SITE.maxUrl
 
-/** Telegram по номеру. Лишние параметры в ссылке по номеру ломают открытие на телефонах — текст заказа клиент вставляет из буфера. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const tgLink = (_text?: string) => `https://t.me/+${SITE.tgPhone}`
+/**
+ * Telegram по номеру. Параметр text официально поддерживается (core.telegram.org/api/links → Phone number links):
+ * Telegram вписывает его в поле ввода, клиенту остаётся нажать «Отправить».
+ */
+export const tgLink = (text?: string) => `https://t.me/+${SITE.tgPhone}${text ? `?text=${encodeURIComponent(text.startsWith('@') ? ' ' + text : text)}` : ''}`
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
 export const MSG = {

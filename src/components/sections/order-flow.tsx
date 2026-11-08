@@ -74,7 +74,7 @@ export function OrderSheet() {
           </a>
         </Button>
         <Button variant="tg" size="lg" asChild>
-          <a href={tgLink()} target="_blank" rel="noopener" onClick={copyAnd('tg')}>
+          <a href={tgLink(text)} target="_blank" rel="noopener" onClick={copyAnd('tg')}>
             <TelegramIcon className="h-5 w-5" /> Написать в Telegram
           </a>
         </Button>
@@ -94,9 +94,10 @@ export function OrderSheet() {
         </div>
         <ul className="mt-2.5 flex flex-col gap-1 text-[12.5px] leading-snug text-muted">
           <li>
-            {copied
-              ? '✓ Текст со ссылкой на фото скопирован — вставьте его в чат, фото появится под сообщением.'
-              : 'При нажатии на MAX или Telegram текст со ссылкой на фото скопируется — вставьте его в чат.'}
+            <b className="text-ink-soft">Telegram:</b> текст со ссылкой на фото сам появится в поле сообщения — нажмите «Отправить», фото покажется под сообщением.
+          </li>
+          <li>
+            <b className="text-ink-soft">MAX:</b> {copied ? '✓ текст скопирован — вставьте его в чат.' : 'текст скопируется — вставьте его в чат.'}
           </li>
           {file && (
             <li>

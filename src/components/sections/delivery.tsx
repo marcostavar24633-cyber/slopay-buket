@@ -58,7 +58,7 @@ export function HowToOrder() {
             </a>
           </Button>
           <Button variant="tgOutline" size="lg" asChild>
-            <a href={tgLink()} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'how-order' })}>
+            <a href={tgLink(MSG.howOrder)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'how-order' })}>
               <TelegramIcon className="h-5 w-5" /> Заказать в Telegram
             </a>
           </Button>
