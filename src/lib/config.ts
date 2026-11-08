@@ -2,6 +2,12 @@
  * Все контакты и бизнес-константы — в одном месте.
  * Значения придуманы для макета: замените на реальные перед запуском.
  */
+/** Адрес фото букетов: с того же сайта, где открыта страница (github.io или слопайбукет.рф). */
+function photoBase() {
+  const live = typeof location !== 'undefined' && /(github\.io|xn--80acmogcvipsi\.xn--p1ai)$/.test(location.hostname)
+  return (live ? location.origin + import.meta.env.BASE_URL : 'https://marcostavar24633-cyber.github.io/slopay-buket/') + 'tg/'
+}
+
 export const SITE = {
   brand: 'Слопай букет',
   city: 'Ульяновск',
@@ -26,7 +32,7 @@ export const SITE = {
   inn: '',
   email: '',
   /** Адрес сайта без слеша в конце — для sitemap.xml, robots.txt и превью ссылок */
-  url: 'https://slopay-buket.ru',
+  url: 'https://xn--80acmogcvipsi.xn--p1ai', // слопайбукет.рф
   /** Реальные данные со скриншотов Авито */
   rating: '5,0',
   reviewsCount: 107,
@@ -36,8 +42,8 @@ export const SITE = {
   freeDeliveryFrom: 8000,
   masterName: 'Мария',
   corpDeadline: '5 декабря',
-  /** Публичные JPG-фото букетов (public/tg/): ссылка в сообщении → Telegram показывает фото в чате. Смените при переезде на свой домен. */
-  photoBase: 'https://marcostavar24633-cyber.github.io/slopay-buket/tg/',
+  /** Публичные JPG-фото букетов (public/tg/): ссылка в сообщении → Telegram показывает фото в чате. */
+  photoBase: photoBase(),
 } as const
 
 /** Строка с реквизитами: «ИП …, ИНН …». Пусто, пока не заполнено. */

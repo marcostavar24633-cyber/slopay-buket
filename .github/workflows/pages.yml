@@ -26,15 +26,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Сборка (адрес вида https://<логин>.github.io/<репозиторий>/)
+      # Адрес сайта берётся из настроек Pages: свой домен (слопайбукет.рф) → корень «/»,
+      # без домена → https://<логин>.github.io/<репозиторий>/. Менять здесь ничего не нужно.
+      - id: pages
+        uses: actions/configure-pages@v5
+      - name: Сборка
         env:
-          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
-        run: npx vite build --base /${{ github.event.repository.name }}/
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: npx vite build --base "${{ steps.pages.outputs.base_path }}/"
       - name: Пререндер (готовая разметка для поисковиков и быстрого первого экрана)
         run: |
           npm install --no-save playwright@1.63.0
           npx playwright install --with-deps chromium
-          node scripts/prerender.cjs dist /${{ github.event.repository.name }}/
+          node scripts/prerender.cjs dist "${{ steps.pages.outputs.base_path }}/"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
