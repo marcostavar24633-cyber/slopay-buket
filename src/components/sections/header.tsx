@@ -42,37 +42,6 @@ export function Logo({ light }: { light?: boolean }) {
   )
 }
 
-export function SeasonBar() {
-  const [hidden, setHidden] = useState(false)
-  if (hidden) return null
-  return (
-    <div className="relative z-50 border-b border-honey/20 bg-bar text-bar-fg">
-      <div className="container-x flex h-10 items-center justify-center gap-3 pr-10 text-[13px] font-semibold">
-        <span className="truncate">
-          🎄 <span className="hidden sm:inline">Принимаем новогодние заказы — бронируйте дату заранее</span>
-          <span className="sm:hidden">Новый год: бронируйте дату заранее</span>
-        </span>
-        <button
-          onClick={() => {
-            goal('season_bar_click')
-            scrollToId('catalog')
-          }}
-          className="hidden shrink-0 cursor-pointer text-bar-link underline underline-offset-4 sm:inline"
-        >
-          Забронировать →
-        </button>
-      </div>
-      <button
-        onClick={() => setHidden(true)}
-        aria-label="Скрыть"
-        className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-ink/60 hover:text-ink"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
-  )
-}
-
 export function Header() {
   const scrolled = useScrolled(40)
   const [open, setOpen] = useState(false)

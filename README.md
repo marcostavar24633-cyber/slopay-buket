@@ -65,14 +65,14 @@ Pages на бесплатном тарифе работает только дл�
 
 `cta_header`, `cta_hero_catalog`, `cta_hero_quiz`, `max_click{from}`, `tg_click{from}`, `phone_click{from}`, `order_open`,
 `catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, `lead_<source>`, `upsell_added`, `thanks_screen`,
-`exit_popup_show`, `corp_pdf_download`, `yandex_reviews_click`, `season_bar_click`.
+`exit_popup_show`, `corp_pdf_download`, `yandex_reviews_click`.
 
 У каждой MSG-кнопки свой предзаполненный текст (`MSG` в `config.ts`) — видно, какая кнопка приводит клиентов.
 
 ## A/B и сезонность
 
 - Заголовок: `?h=b` — вариант B («Подарок, который не завянет…»), по умолчанию A (поисковый).
-- Сезонная полоса над шапкой и вкладка «🎄 Новый год» — `SeasonBar` в `header.tsx`, `RECIPIENT_TABS` в `products.ts`.
+- Вкладка «🎄 Новый год» — `RECIPIENT_TABS` в `products.ts`. Отзывы — `src/lib/reviews.ts` (цитаты для карточки на первом экране — `HERO_QUOTES`).
 - В ноябре–декабре `<Corporate/>` можно поднять сразу после `<Catalog/>` в `App.tsx`.
 - Время «до 17:00» считается по Ульяновску (UTC+4), независимо от пояса посетителя.
 

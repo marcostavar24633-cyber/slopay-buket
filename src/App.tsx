@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { UIProvider } from '@/lib/ui-store'
 import { FoodBackground } from '@/components/shared/food-background'
-import { Header, MobileBar, SeasonBar } from '@/components/sections/header'
+import { Header, MobileBar } from '@/components/sections/header'
 import { Hero } from '@/components/sections/hero'
 import { Catalog, Hits } from '@/components/sections/catalog'
 import { OrderSheet, ThanksDialog } from '@/components/sections/order-flow'
@@ -19,7 +19,6 @@ export default function App() {
   return (
     <UIProvider>
       <FoodBackground />
-      <SeasonBar />
       <Header />
       <main>
         <Hero />

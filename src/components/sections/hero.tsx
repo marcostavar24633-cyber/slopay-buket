@@ -1,11 +1,12 @@
-import { useRef } from 'react'
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
 import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, maxLink } from '@/lib/config'
 import { ANCHOR_PRICE } from '@/lib/products'
+import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
@@ -50,7 +51,7 @@ export function Hero() {
   const title =
     variant === 'A' ? (
       <>
-        Съедобные букеты в Ульяновске <span className="italic text-gold">с доставкой до двери</span>
+        Съедобные букеты в Ульяновске — <span className="italic text-gold">подарок, который не завянет</span>
       </>
     ) : (
       <>
@@ -159,19 +160,7 @@ export function Hero() {
             style={{ y: cardY }}
             className="absolute -left-6 bottom-28 hidden w-60 rounded-2xl border border-honey/25 bg-surface/90 p-3.5 shadow-lift backdrop-blur lg:block xl:-left-12"
           >
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#8bc34a] text-lg font-bold text-white">А</span>
-              <div>
-                <p className="text-[13px] font-bold">Андрей · {SITE.reviewsSource}</p>
-                <p className="text-[11px] text-muted">мужской букет на день рождения</p>
-              </div>
-            </div>
-            <p className="mt-2 text-[13px] leading-snug text-ink-soft">«Собрала по высшему классу. Родные были в шоке»</p>
-            <div className="mt-1.5 flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-3.5 w-3.5 fill-honey text-honey" />
-              ))}
-            </div>
+            <RotatingQuote />
           </motion.div>
         </motion.div>
 
@@ -236,6 +225,45 @@ function HeroCtas({ className = 'flex', onQuiz }: { className?: string; onQuiz: 
         <MaxIcon className="h-4 w-4 text-max" />
         Или просто пришлите фото примера в MAX — соберём похожий
       </a>
+    </div>
+  )
+}
+
+/** Карточка отзыва у фото: цитаты сменяются каждые 3 секунды. */
+const AVATAR_COLORS = ['#8bc34a', '#ff8a65', '#4fc3f7', '#ba68c8', '#ffb74d', '#4db6ac']
+function RotatingQuote() {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % HERO_QUOTES.length), 3000)
+    return () => clearInterval(t)
+  }, [])
+  const q = HERO_QUOTES[i]
+  return (
+    <div className="relative min-h-[118px]" aria-live="polite">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
+          <div className="flex items-center gap-2.5">
+            <span
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg font-bold text-white"
+              style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}
+            >
+              {q.name[0]}
+            </span>
+            <div>
+              <p className="text-[13px] font-bold">
+                {q.name} · {SITE.reviewsSource}
+              </p>
+              <p className="text-[11px] text-muted">{q.item}</p>
+            </div>
+          </div>
+          <p className="mt-2 text-[13px] leading-snug text-ink-soft">«{q.text}»</p>
+          <div className="mt-1.5 flex gap-0.5">
+            {Array.from({ length: 5 }).map((_, k) => (
+              <Star key={k} className="h-3.5 w-3.5 fill-honey text-honey" />
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
