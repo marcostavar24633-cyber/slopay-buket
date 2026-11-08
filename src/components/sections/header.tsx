@@ -133,33 +133,33 @@ export function Header() {
 
 export function MobileBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
         <a
           href={maxLink(MSG.mobileBar)}
           target="_blank"
           rel="noopener"
           onClick={() => goal('max_click', { from: 'mobile-bar' })}
-          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-max text-[15px] font-bold text-white active:scale-[0.98]"
+          className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-max text-[14px] font-bold text-white active:scale-[0.98]"
         >
-          <MaxIcon className="h-5 w-5" /> MAX
+          <MaxIcon className="h-4 w-4" /> MAX
         </a>
         <a
           href={tgLink()}
           target="_blank"
           rel="noopener"
           onClick={() => goal('tg_click', { from: 'mobile-bar' })}
-          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-tg text-[15px] font-bold text-white active:scale-[0.98]"
+          className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-tg text-[14px] font-bold text-white active:scale-[0.98]"
         >
-          <TelegramIcon className="h-5 w-5" /> Telegram
+          <TelegramIcon className="h-4 w-4" /> Telegram
         </a>
         <a
           href={SITE.phoneHref}
           onClick={() => goal('phone_click', { from: 'mobile-bar' })}
           aria-label="Позвонить"
-          className="grid h-[52px] w-[52px] place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
+          className="grid h-10 w-10 place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
         >
-          <Phone className="h-5 w-5" />
+          <Phone className="h-4 w-4" />
         </a>
       </div>
     </div>
