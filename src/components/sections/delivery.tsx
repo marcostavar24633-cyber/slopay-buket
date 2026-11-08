@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { CalendarCheck, CreditCard, EyeOff, Store } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
@@ -6,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { TelegramIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
-import { rub } from '@/lib/utils'
+import { cn, rub } from '@/lib/utils'
+import { Chips } from '@/components/ui/chips'
 
 const STEPS = [
   { n: '01', t: 'Выберите букет', d: 'В каталоге — или пришлите любое фото-пример из Pinterest.' },
@@ -15,12 +17,15 @@ const STEPS = [
   { n: '04', t: 'Курьер доставит и вручит', d: 'Пришлём ссылку Яндекс Go — следите за курьером на карте.' },
 ]
 
+/** Районы и ориентир стоимости по тарифам Яндекс Go «Курьер» от мастерской (Карбышева, 37). Поправьте цены здесь. */
 const ZONES = [
-  { zone: 'Новый город (Заволжский)', price: 250, color: '#ebcb6e' },
-  { zone: 'Старый город Заволжья, Верхняя Терраса', price: 350, color: '#d4af37' },
-  { zone: 'Ленинский (центр), Засвияжский, Железнодорожный', price: 450, color: '#e2566c' },
-  { zone: 'Пригород (Чердаклы и др.)', price: null, color: '#948872' },
-]
+  { key: 'new', zone: 'Новый город', hint: 'Заволжский район', price: 250, free: true },
+  { key: 'old', zone: 'Старый город Заволжья', hint: 'и Верхняя Терраса', price: 350, free: false },
+  { key: 'right', zone: 'Правый берег', hint: 'центр, Засвияжье, Железнодорожный', price: 450, free: false },
+  { key: 'suburb', zone: 'Пригород', hint: 'Чердаклы и др.', price: null, free: false },
+  { key: 'pickup', zone: 'Самовывоз', hint: SITE.address.replace(', Новый город', ''), price: 0, free: false },
+] as const
+type ZoneKey = (typeof ZONES)[number]['key']
 
 const DETAILS = [
   { icon: CalendarCheck, t: 'Доставка к удобному времени', d: 'Договоримся о дате и времени вручения. Лучше заказать за 1–2 дня, в отдельных случаях соберём день в день.' },
@@ -85,32 +90,8 @@ export function Delivery() {
           <BlurFade className="overflow-hidden rounded-3xl border border-line bg-surface">
             <CityScheme />
           </BlurFade>
-          <BlurFade delay={0.08} className="overflow-hidden rounded-3xl border border-line bg-surface">
-            <table className="w-full text-left text-[14px]">
-              <thead className="bg-cream-2 text-[12px] font-bold uppercase tracking-wider text-muted">
-                <tr>
-                  <th className="px-4 py-3 md:px-6">Район</th>
-                  <th className="px-4 py-3 text-right md:px-6">Стоимость</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {ZONES.map((z) => (
-                  <tr key={z.zone}>
-                    <td className="px-4 py-4 font-semibold md:px-6">
-                      <span className="flex items-start gap-2.5">
-                        <span className="mt-1 h-3 w-3 shrink-0 rounded-full" style={{ background: z.color }} />
-                        {z.zone}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-right font-bold md:px-6">{z.price ? `от ${rub(z.price)}` : 'по запросу'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="m-4 rounded-2xl bg-honey-100 px-4 py-3 text-[14px] font-bold md:mx-6">
-              🎁 Бесплатная доставка по Новому городу при заказе от {rub(SITE.freeDeliveryFrom)}
-            </div>
-            <p className="px-4 pb-5 text-[12px] text-muted md:px-6">Цены — ориентир по тарифам Яндекс Go, в праздники могут меняться.</p>
+          <BlurFade delay={0.08}>
+            <DeliveryCalc />
           </BlurFade>
         </div>
 
@@ -127,30 +108,84 @@ export function Delivery() {
             </BlurFade>
           ))}
         </div>
-
-        <DeliveryCheck />
       </div>
     </section>
   )
 }
 
-function DeliveryCheck() {
+/** Калькулятор доставки по районам: район → сумма заказа → день → примерная цена и готовое сообщение мастеру. */
+function DeliveryCalc() {
+  const [zone, setZone] = useState<ZoneKey>('new')
+  const [big, setBig] = useState(false)
+  const [holiday, setHoliday] = useState(false)
+  const z = ZONES.find((x) => x.key === zone)!
+  const free = z.free && big
+  const result =
+    z.key === 'pickup' ? { main: 'Бесплатно', sub: 'Самовывоз из мастерской — подготовим к вашему времени' }
+    : z.price === null ? { main: 'По запросу', sub: 'Посчитаем по адресу — напишите нам' }
+    : free ? { main: 'Бесплатно', sub: `Доставка по Новому городу при заказе от ${rub(SITE.freeDeliveryFrom)}` }
+    : { main: `≈ от ${rub(z.price)}`, sub: holiday ? 'В праздники Яндекс Go обычно дороже — точную цену назовём при оформлении' : 'Ориентир по тарифу Яндекс Go «Курьер», точную цену назовём при оформлении' }
+  const text =
+    `Здравствуйте! Нужна доставка букета: ${z.zone.toLowerCase()}${z.key === 'pickup' ? '' : ', адрес: …'}. ` +
+    `Сумма заказа ${big ? `от ${rub(SITE.freeDeliveryFrom)}` : `до ${rub(SITE.freeDeliveryFrom)}`}${holiday ? ', в праздничный день' : ''}. ` +
+    `Расчёт на сайте: ${result.main.toLowerCase()}. Дата: …`
   return (
-    <BlurFade className="mt-8 rounded-3xl bg-panel text-ink border border-honey/25 p-6 md:p-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="font-display text-[24px] font-semibold leading-tight md:text-[28px]">Сколько стоит доставка до вашего адреса?</p>
-          <p className="mt-1 text-[14px] text-ink/65">Напишите нам адрес — подскажем стоимость и свободные даты</p>
+    <div className="flex h-full flex-col gap-5 rounded-3xl border border-line bg-surface p-5 md:p-6">
+      <div>
+        <p className="eyebrow mb-2">Калькулятор доставки</p>
+        <p className="mb-3 text-[15px] font-bold">1. Куда везём?</p>
+        <div role="radiogroup" aria-label="Район" className="grid grid-cols-2 gap-2">
+          {ZONES.map((x) => {
+            const on = x.key === zone
+            return (
+              <button
+                key={x.key}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => { setZone(x.key); goal('delivery_calc', { zone: x.key }) }}
+                className={cn(
+                  'run-border flex min-h-[64px] cursor-pointer flex-col justify-center rounded-2xl border px-3.5 py-2.5 text-left transition',
+                  on ? 'border-honey bg-honey text-onaccent' : 'border-line bg-cream hover:border-honey/50',
+                  x.key === 'pickup' && 'col-span-2',
+                )}
+              >
+                <span className="flex items-baseline justify-between gap-2 text-[14.5px] font-extrabold leading-tight">
+                  {x.zone}
+                  <span className={cn('shrink-0 text-[13px] font-bold', on ? 'text-onaccent/80' : 'text-honey-600')}>
+                    {x.price === null ? '—' : x.price === 0 ? '0 ₽' : `от ${rub(x.price)}`}
+                  </span>
+                </span>
+                <span className={cn('mt-0.5 text-[12px] font-semibold leading-snug', on ? 'text-onaccent/75' : 'text-muted')}>{x.hint}</span>
+              </button>
+            )
+          })}
         </div>
-        <MessengerButtons
-          row
-          size="md"
-          from="delivery-check"
-          text="Здравствуйте! Сколько стоит доставка по адресу: … ? Нужна дата: …"
-          className="w-full lg:w-[360px]"
-        />
+        <p className="mt-2.5 text-[13px] font-semibold text-ink-soft">🎁 Бесплатная доставка по Новому городу при заказе от {rub(SITE.freeDeliveryFrom)}</p>
       </div>
-    </BlurFade>
+
+      {z.key !== 'pickup' && z.price !== null && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="mb-2 text-[15px] font-bold">2. Сумма заказа</p>
+            <Chips ariaLabel="Сумма заказа" value={big ? 'big' : 'small'} onChange={(v) => setBig(v === 'big')}
+              options={[{ key: 'small', label: `до ${rub(SITE.freeDeliveryFrom)}` }, { key: 'big', label: `от ${rub(SITE.freeDeliveryFrom)}` }] as const} />
+          </div>
+          <div>
+            <p className="mb-2 text-[15px] font-bold">3. Когда</p>
+            <Chips ariaLabel="Когда" value={holiday ? 'h' : 'd'} onChange={(v) => setHoliday(v === 'h')}
+              options={[{ key: 'd', label: 'Обычный день' }, { key: 'h', label: 'Праздник' }] as const} />
+          </div>
+        </div>
+      )}
+
+      <div className="mt-auto rounded-2xl bg-honey-100 p-4 md:p-5" aria-live="polite">
+        <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted">Примерная стоимость доставки</p>
+        <p className="mt-1 text-[34px] font-extrabold leading-none tracking-tight">{result.main}</p>
+        <p className="mt-2 text-[13px] leading-snug text-ink-soft">{result.sub}</p>
+      </div>
+      <MessengerButtons row size="md" from="delivery-calc" text={text} />
+    </div>
   )
 }
 

@@ -125,6 +125,23 @@ async function test(name, fn) {
     await ctx.close()
   })
 
+  await test('Калькулятор доставки: район → цена, бесплатно по Новому городу от 8 000 ₽, текст в мессенджер', async () => {
+    const { ctx, page } = await mobile()
+    const calc = page.locator('#delivery')
+    const price = () => calc.locator('[aria-live="polite"] p').nth(1).textContent()
+    assert.match(await price(), /от 250/)
+    await calc.getByRole('radio', { name: /Правый берег/ }).click()
+    assert.match(await price(), /от 450/)
+    await calc.getByRole('radio', { name: /Новый город/ }).click()
+    await calc.getByRole('radio', { name: /от 8 000/ }).click()
+    assert.equal((await price()).trim(), 'Бесплатно')
+    await calc.getByRole('radio', { name: /Пригород/ }).click()
+    assert.equal((await price()).trim(), 'По запросу')
+    const href = decodeURIComponent(await calc.getByRole('link', { name: /Telegram/ }).getAttribute('href'))
+    assert.ok(href.includes('пригород') && href.includes('Расчёт на сайте: по запросу'), href)
+    await ctx.close()
+  })
+
   await test('Нет блока «Удивите близких»', async () => {
     const { ctx, page } = await mobile()
     assert.equal(await page.locator('#order').count(), 0)
