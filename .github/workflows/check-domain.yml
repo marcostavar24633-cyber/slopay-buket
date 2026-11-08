@@ -1,0 +1,18 @@
+# Временная проверка домена: DNS-записи и ответ сайта. Запуск вручную (Actions → Check domain).
+name: Check domain
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          D=xn--80acmogcvipsi.xn--p1ai
+          echo "== NS"; dig +short NS $D
+          echo "== A (Google)"; dig +short A $D @8.8.8.8
+          echo "== A (Yandex)"; dig +short A $D @77.88.8.8
+          echo "== AAAA"; dig +short AAAA $D @8.8.8.8
+          echo "== www"; dig +short www.$D @8.8.8.8
+          echo "== HTTP"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{redirect_url}\n" http://$D/ || true
+          echo "== HTTPS"; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" https://$D/ || true
+          echo "== HTTP headers"; curl -sS -m 20 -I http://$D/ | head -8 || true
+          echo "== whois"; whois $D 2>/dev/null | grep -iE "state|nserver|created|paid-till|registrar" | head -10 || true
