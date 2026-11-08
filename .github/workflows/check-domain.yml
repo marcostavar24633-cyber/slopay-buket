@@ -15,4 +15,5 @@ jobs:
           echo "== HTTP"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{redirect_url}\n" http://$D/ || true
           echo "== HTTPS"; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" https://$D/ || true
           echo "== HTTP headers"; curl -sS -m 20 -I http://$D/ | head -8 || true
-          echo "== whois"; whois $D 2>/dev/null | grep -iE "state|nserver|created|paid-till|registrar" | head -10 || true
+          sudo apt-get install -y -qq whois >/dev/null 2>&1 || true
+          echo "== whois"; whois -h whois.tcinet.ru $D 2>&1 | grep -vE "^%|^$" | head -20 || true
