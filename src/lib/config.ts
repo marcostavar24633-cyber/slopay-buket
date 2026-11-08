@@ -14,7 +14,7 @@ export const SITE = {
   phoneDisplay: '+7 (963) 128-25-56',
   phoneHref: 'tel:+79631282556',
   /** Ссылка на профиль в мессенджере MAX: в приложении MAX → Профиль → «Поделиться». Вставьте сюда. */
-  maxUrl: 'https://max.ru/',
+  maxUrl: 'https://max.ru/u/f9LHodD0cOIE-osl7ttL5eRn4vgUkh_e5h3PmiZSsO1SgIH36TnP4Afv9sI',
   /** Telegram по номеру телефона */
   tgPhone: '79631282556',
   /** Группа ВКонтакте. Пусто — иконка в подвале не показывается. */
