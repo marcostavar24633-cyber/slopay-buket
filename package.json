@@ -14,7 +14,8 @@
     "pdf": "node tests/make-pdf.cjs",
     "test:header": "node tests/header-overlap.cjs",
     "photos": "node scripts/photos.mjs",
-    "gallery": "node scripts/build-gallery.mjs"
+    "gallery": "node scripts/build-gallery.mjs",
+    "bot-catalog": "node scripts/bot-catalog.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.6",
