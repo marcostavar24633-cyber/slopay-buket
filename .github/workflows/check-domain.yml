@@ -7,6 +7,9 @@ jobs:
     steps:
       - run: |
           D=xn--80acmogcvipsi.xn--p1ai
+          echo "== A @ns1.reg.ru"; dig +short A $D @ns1.reg.ru
+          echo "== www @ns1.reg.ru"; dig +short www.$D @ns1.reg.ru
+          echo "== NS (зона рф)"; dig +short NS $D @a.dns.ripn.net
           echo "== NS"; dig +short NS $D
           echo "== A (Google)"; dig +short A $D @8.8.8.8
           echo "== A (Yandex)"; dig +short A $D @77.88.8.8
