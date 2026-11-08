@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { ArrowRight, ChevronDown, Flame, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SectionTitle } from '@/components/shared/section-title'
-import { MaxIcon } from '@/components/shared/icons'
 import { Lightbox } from '@/components/sections/gallery'
 import { GALLERY_CATS, type GalleryCat } from '@/lib/gallery'
 import { HITS, ITEMS, PRICE_TABS, RECIPIENT_TABS, itemsOf, minPriceOf, type Item, type Recipient } from '@/lib/products'
@@ -23,7 +22,7 @@ const COVER: Record<GalleryCat, string> = {
 }
 const PAGE = 12
 
-/** Карточка работы: фото, состав, примерная цена, «Заказать» и MAX. */
+/** Карточка работы: фото, состав, примерная цена, «Заказать». */
 export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void; hit?: boolean }) {
   const { openOrder } = useUI()
   return (
@@ -43,20 +42,10 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
         <div className="mt-auto pt-3">
           <p className="text-[12px] font-semibold text-muted">примерная цена</p>
           <p className="text-[22px] font-extrabold leading-none tracking-tight">от {rub(item.price)}</p>
-          <div className="mt-3 flex gap-2">
-            <Button size="sm" className="h-11 min-w-0 flex-1" onClick={() => openOrder(item)}>
+          <div className="mt-3">
+            <Button size="sm" className="h-11 w-full" onClick={() => openOrder(item)}>
               Заказать
             </Button>
-            <a
-              href={maxLink(MSG.product(`«${item.name}» (${item.title})`))}
-              target="_blank"
-              rel="noopener"
-              onClick={() => goal('max_click', { from: hit ? 'hit' : 'catalog', item: item.id })}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-max/10 text-max transition hover:bg-max hover:text-white"
-              aria-label={`Спросить в MAX: ${item.name}`}
-            >
-              <MaxIcon className="h-5 w-5" />
-            </a>
           </div>
         </div>
       </div>

@@ -134,22 +134,32 @@ export function Header() {
 export function MobileBar() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl md:hidden">
-      <div className="grid grid-cols-[1fr_auto] gap-2">
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
         <a
           href={maxLink(MSG.mobileBar)}
           target="_blank"
           rel="noopener"
           onClick={() => goal('max_click', { from: 'mobile-bar' })}
-          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-max text-[15px] font-bold text-white shadow-[0_8px_24px_-10px_rgb(26_158_82/0.8)] active:scale-[0.98]"
+          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-max text-[15px] font-bold text-white active:scale-[0.98]"
         >
-          <MaxIcon className="h-5 w-5" /> Написать в MAX
+          <MaxIcon className="h-5 w-5" /> MAX
+        </a>
+        <a
+          href={tgLink()}
+          target="_blank"
+          rel="noopener"
+          onClick={() => goal('tg_click', { from: 'mobile-bar' })}
+          className="flex h-[52px] items-center justify-center gap-2 rounded-full bg-tg text-[15px] font-bold text-white active:scale-[0.98]"
+        >
+          <TelegramIcon className="h-5 w-5" /> Telegram
         </a>
         <a
           href={SITE.phoneHref}
           onClick={() => goal('phone_click', { from: 'mobile-bar' })}
-          className="flex h-[52px] items-center justify-center gap-2 rounded-full border-2 border-ink/15 bg-surface px-5 text-[15px] font-bold active:scale-[0.98]"
+          aria-label="Позвонить"
+          className="grid h-[52px] w-[52px] place-items-center rounded-full border-2 border-ink/15 bg-surface active:scale-[0.98]"
         >
-          <Phone className="h-[18px] w-[18px]" /> Позвонить
+          <Phone className="h-5 w-5" />
         </a>
       </div>
     </div>
