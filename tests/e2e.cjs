@@ -125,6 +125,13 @@ async function test(name, fn) {
     await ctx.close()
   })
 
+  await test('Нет блока «Удивите близких»', async () => {
+    const { ctx, page } = await mobile()
+    assert.equal(await page.locator('#order').count(), 0)
+    assert.ok(!(await page.evaluate(() => document.body.textContent)).includes('Удивите близких'))
+    await ctx.close()
+  })
+
   await test('Квиза нет; золотая бегущая рамка появляется только при наведении на кнопку или карточку', async () => {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.textContent)
@@ -159,7 +166,7 @@ async function test(name, fn) {
 
   await test('Финальный блок и блок доставки: кнопки MAX/Telegram вместо форм', async () => {
     const { ctx, page } = await mobile()
-    for (const id of ['#order', '#delivery']) {
+    for (const id of ['#delivery']) {
       const sec = page.locator(id)
       assert.equal(await sec.locator('input[type="tel"]').count(), 0, id + ': нет поля телефона')
       assert.ok((await sec.getByRole('link', { name: /MAX/ }).count()) > 0, id + ': MAX')

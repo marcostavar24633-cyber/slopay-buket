@@ -1,50 +1,8 @@
 import { useState } from 'react'
-import { ParallaxImage, Parallax } from '@/components/aceternity/parallax'
-import { CalendarCheck, MapPin, Phone } from 'lucide-react'
-import { BlurFade } from '@/components/magicui/blur-fade'
+import { MapPin, Phone } from 'lucide-react'
 import { TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
-import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { Logo } from '@/components/sections/header'
 import { SITE, MSG, tgLink, maxLink, legalLine } from '@/lib/config'
-import { goal } from '@/lib/analytics'
-
-export function FinalOffer() {
-  return (
-    <section id="order" className="relative overflow-hidden border-y border-honey/20 bg-panel/85 py-14 md:py-24">
-      <div aria-hidden className="absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-honey/20 blur-[120px]" />
-      <div aria-hidden className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-honey/10 blur-[120px]" />
-      <div className="container-x relative grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
-        <BlurFade className="relative">
-          <ParallaxImage src="/img/real/berry/yag-21.webp" alt="Сердце из клубники и голубики — работа мастерской" className="aspect-[4/5] max-h-[620px] rounded-[32px] shadow-lift ring-1 ring-honey/30" />
-          <Parallax speed={-0.35} className="absolute left-4 top-4">
-          <div className="rounded-2xl border border-honey/40 bg-scrim/80 px-4 py-3 shadow-lift backdrop-blur">
-            <p className="flex items-center gap-1.5 text-[12px] font-bold text-muted">
-              <CalendarCheck className="h-3.5 w-3.5" /> Лучше заказать заранее
-            </p>
-            <p className="text-gold text-[26px] font-extrabold leading-tight tracking-tight">за 1–2 дня</p>
-          </div>
-          </Parallax>
-        </BlurFade>
-        <BlurFade delay={0.1}>
-          <h2 className="h-display text-[32px] md:text-[52px]">
-            Удивите близких — <span className="italic text-gold">подарком, который съедят с удовольствием</span>
-          </h2>
-          <p className="mt-4 text-[16px] font-medium text-ink/75 md:text-lg">Напишите нам — подберём букет под повод и бюджет.</p>
-          <div className="mt-6 rounded-3xl border border-honey/25 bg-surface/90 p-5 shadow-lift backdrop-blur md:p-6">
-            <MessengerButtons text={MSG.final} from="final" />
-            <p className="mt-4 text-center text-[13px] text-muted">
-              Или позвоните:{' '}
-              <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'final' })} className="font-extrabold text-ink underline decoration-2 underline-offset-4">
-                {SITE.phoneDisplay}
-              </a>
-            </p>
-            <p className="mt-1 text-center text-[13px] text-muted">Оплата только после согласования</p>
-          </div>
-        </BlurFade>
-      </div>
-    </section>
-  )
-}
 
 export function Footer() {
   const [map, setMap] = useState(false)

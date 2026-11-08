@@ -9,7 +9,7 @@ import { Reviews } from '@/components/sections/reviews'
 import { Process } from '@/components/sections/process'
 import { Delivery, HowToOrder } from '@/components/sections/delivery'
 import { Faq } from '@/components/sections/trust'
-import { FinalOffer, Footer } from '@/components/sections/final'
+import { Footer } from '@/components/sections/final'
 import { CookieNotice } from '@/components/shared/cookie-notice'
 
 export function BelowMain() {
@@ -24,7 +24,6 @@ export function BelowMain() {
       <HowToOrder />
       <Delivery />
       <Faq />
-      <FinalOffer />
     </>
   )
 }
