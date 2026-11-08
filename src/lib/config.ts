@@ -35,8 +35,6 @@ export const SITE = {
   masterName: 'Мария',
   corpDeadline: '5 декабря',
   /** Публичные JPG-фото букетов (public/tg/): ссылка в сообщении → Telegram показывает фото в чате. Смените при переезде на свой домен. */
-  /** Telegram-бот (заявки и каталог). Кнопка «Написать в Telegram» в заказе ведёт в него: бот сам присылает фото и текст заказа. */
-  tgBot: 'Slopai_buket_zayavki_bot',
   photoBase: 'https://marcostavar24633-cyber.github.io/slopay-buket/tg/',
 } as const
 
@@ -48,9 +46,6 @@ export const maxLink = (_text?: string) => SITE.maxUrl
 
 /** Telegram по номеру. Лишние параметры в ссылке по номеру ломают открытие на телефонах — текст заказа клиент вставляет из буфера. */
 export const tgLink = (_text?: string) => `https://t.me/+${SITE.tgPhone}`
-
-/** Ссылка на бота с выбранным букетом: бот пришлёт клиенту фото с текстом заказа и передаст заказ мастеру. */
-export const tgOrderLink = (id: string) => `https://t.me/${SITE.tgBot}?start=o_${id}`
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
 export const MSG = {
