@@ -131,6 +131,42 @@ async function notifyOwner(text: string) {
   await tg('sendMessage', { chat_id: OWNER(), text, parse_mode: 'HTML', disable_web_page_preview: true })
 }
 
+/** Заказ букета: клиенту — фото с описанием и просьба оставить контакты, мастеру — фото с заявкой. */
+async function order(chat: number | string, from: any, id: string, origin: string, fromSite: boolean) {
+  const it = C.items[id]
+  if (!it) return tg('sendMessage', { chat_id: chat, ...menu() })
+  const photo = `${origin}/tg/${id}.jpg`
+  if (fromSite) {
+    await tg('sendPhoto', {
+      chat_id: chat,
+      photo,
+      parse_mode: 'HTML',
+      caption: `Здравствуйте! Хочу заказать букет <b>«${esc(it.name)}»</b> (${esc(listLabel(it.cat))})\n\n${esc(it.desc)}\n💰 от ${rub(it.price)}`,
+    })
+  }
+  if (OWNER()) {
+    await tg('sendPhoto', {
+      chat_id: OWNER(),
+      photo,
+      parse_mode: 'HTML',
+      caption:
+        `<b>🛒 Заказ ${fromSite ? 'с сайта (Telegram)' : 'из бота'}</b>\n\n<b>Букет:</b> «${esc(it.name)}» — от ${rub(it.price)}\n${esc(it.desc)}\n\n` +
+        `<b>Клиент:</b> ${who(from)}` +
+        tag(from),
+    })
+  }
+  await tg('sendMessage', {
+    chat_id: chat,
+    parse_mode: 'HTML',
+    text:
+      (fromSite ? 'Мастер уже получил ваш заказ 🎉\n\n' : `Отлично, вы выбрали <b>«${esc(it.name)}»</b> — от ${rub(it.price)} 🎉\n\nМастер уже получил заявку. `) +
+      'Напишите сюда <b>дату, время и адрес доставки</b> и пожелания к составу — или нажмите кнопку ниже, чтобы отправить номер телефона, и мы перезвоним.',
+    reply_markup: ASK_PHONE,
+  })
+}
+
+const listLabel = (cat: string) => C.cats.find((c) => c.key === cat)?.label.toLowerCase() ?? ''
+
 async function onCallback(q: any, origin: string) {
   const data: string = q.data || ''
   const chat = q.message?.chat?.id
@@ -166,23 +202,7 @@ async function onCallback(q: any, origin: string) {
   }
 
   if (data.startsWith('o:')) {
-    const id = data.slice(2)
-    const it = C.items[id]
-    if (!it) return
-    await notifyOwner(
-      `<b>🛒 Заказ из бота</b>\n\n<b>Букет:</b> «${esc(it.name)}» — от ${rub(it.price)}\n${esc(it.desc)}\n` +
-        `<a href="${origin}/tg/${id}.jpg">Фото букета</a>\n\n<b>Клиент:</b> ${who(q.from)}` +
-        tag(q.from),
-    )
-    await tg('sendMessage', {
-      chat_id: chat,
-      parse_mode: 'HTML',
-      text:
-        `Отлично, вы выбрали <b>«${esc(it.name)}»</b> — от ${rub(it.price)} 🎉\n\n` +
-        'Мастер уже получил заявку. Чтобы мы могли перезвонить, нажмите кнопку ниже — отправьте номер телефона.\n\n' +
-        'Или сразу напишите сюда <b>дату, время и адрес доставки</b> и пожелания к составу.',
-      reply_markup: ASK_PHONE,
-    })
+    await order(chat, q.from, data.slice(2), origin, false)
     return
   }
 
@@ -200,7 +220,7 @@ async function onCallback(q: any, origin: string) {
   }
 }
 
-async function onMessage(m: any) {
+async function onMessage(m: any, origin: string) {
   const chat = String(m.chat?.id)
   const text: string = m.text || ''
 
@@ -218,6 +238,9 @@ async function onMessage(m: any) {
     return
   }
 
+  // Переход с сайта: t.me/<бот>?start=o_<id букета>
+  const start = text.match(/^\/start o_([A-Za-z0-9-]+)$/)
+  if (start) return order(chat, m.from, start[1], origin, true)
   if (text.startsWith('/start') || text === '/catalog') return tg('sendMessage', { chat_id: chat, ...menu() })
   if (text === '/hits') return tg('sendMessage', { chat_id: chat, text: 'Открываю хиты 🔥', reply_markup: { inline_keyboard: [[{ text: '🔥 Смотреть хиты', callback_data: 'c:h:0' }]] } })
   if (text === '/delivery') return tg('sendMessage', { chat_id: chat, text: INFO_TEXT(), parse_mode: 'HTML', reply_markup: BACK })
@@ -249,6 +272,10 @@ export default async function handler(req: Request): Promise<Response> {
 
   // Подключение бота: открыть /api/bot?setup=1 один раз после деплоя
   if (req.method === 'GET') {
+    if (url.searchParams.has('me')) {
+      const me = await tg('getMe', {})
+      return new Response(JSON.stringify({ username: me.result?.username ?? null }), { headers: { 'Content-Type': 'application/json' } })
+    }
     if (!url.searchParams.has('setup')) return new Response('Слопай букет: бот работает. Подключение — /api/bot?setup=1')
     const results = {
       webhook: await tg('setWebhook', {
@@ -279,7 +306,7 @@ export default async function handler(req: Request): Promise<Response> {
   const upd = (await req.json().catch(() => ({}))) as any
   try {
     if (upd.callback_query) await onCallback(upd.callback_query, origin)
-    else if (upd.message) await onMessage(upd.message)
+    else if (upd.message) await onMessage(upd.message, origin)
   } catch (e) {
     console.error(e)
   }
