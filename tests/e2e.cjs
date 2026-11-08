@@ -176,13 +176,14 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Открытое фото: «Заказать», MAX и Telegram', async () => {
+  await test('Открытое фото: только кнопка «Заказать» → окно заказа', async () => {
     const { ctx, page } = await mobile()
     await page.locator('#hits article').first().locator('button').first().click()
     const dlg = page.getByRole('dialog')
     await dlg.getByRole('button', { name: 'Заказать' }).waitFor()
-    assert.equal(await dlg.getByRole('link', { name: 'Написать в MAX' }).count(), 1)
-    assert.match(decodeURIComponent(await dlg.getByRole('link', { name: 'Написать в Telegram' }).getAttribute('href')), /^https:\/\/t\.me\/\+79631282556\?text=Здравствуйте! Хочу заказать букет «/)
+    assert.equal(await dlg.getByRole('link').count(), 0, 'без ссылок MAX/Telegram')
+    await dlg.getByRole('button', { name: 'Заказать' }).click()
+    await page.getByRole('dialog').getByRole('link', { name: 'Написать в Telegram' }).waitFor()
     await ctx.close()
   })
 
