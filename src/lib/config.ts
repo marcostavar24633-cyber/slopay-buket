@@ -13,8 +13,8 @@ export const SITE = {
   tgPhone: '79631282556',
   /** Группа ВКонтакте. Пусто — иконка в подвале не показывается. */
   vk: '',
-  /** Профиль с отзывами на Авито — вставьте реальную ссылку */
-  reviewsUrl: 'https://www.avito.ru/',
+  /** Профиль с отзывами на Авито */
+  reviewsUrl: 'https://www.avito.ru/brands/9a13b8c170cfd15b30f9f3b09a58c35d/all/produkty_pitaniya?sellerId=d499c4c42b1c18a0256224de534bf28a',
   reviewsSource: 'Авито',
   address: 'ул. Карбышева, 37, Новый город',
   hours: 'Ежедневно 8:00–21:00',
