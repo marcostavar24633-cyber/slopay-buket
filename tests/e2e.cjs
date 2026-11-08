@@ -102,7 +102,7 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Окно заказа: Telegram ведёт в бота с букетом, MAX копирует текст', async () => {
+  await test('Окно заказа: MAX и Telegram — личный чат, текст со ссылкой на фото копируется', async () => {
     const { ctx, page } = await mobile()
     await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {})
     await page.locator('#hits article').first().getByRole('button', { name: 'Заказать' }).click()
@@ -111,13 +111,13 @@ async function test(name, fn) {
     assert.equal(await sheet.getByRole('textbox').count(), 0, 'в окне не должно быть полей формы')
     const max = sheet.getByRole('link', { name: 'Написать в MAX' })
     const tg = sheet.getByRole('link', { name: 'Написать в Telegram' })
-    assert.equal(await tg.getAttribute('href'), 'https://t.me/Slopai_buket_zayavki_bot?start=o_yag-1')
+    assert.equal(await tg.getAttribute('href'), 'https://t.me/+79631282556')
     assert.ok(await max.getAttribute('href'))
     await sheet.getByText('Хочу заказать букет «Клубничное сердце»').waitFor()
     await page.context().route('https://max.ru/**', (r) => r.fulfill({ status: 200, body: 'max' }))
     const [popup] = await Promise.all([page.waitForEvent('popup'), max.click()])
     await popup.close()
-    await sheet.getByText('текст скопирован').waitFor()
+    await sheet.getByText('Текст со ссылкой на фото скопирован').waitFor()
     const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''))
     if (clip) assert.ok(clip.includes('«Клубничное сердце»') && clip.includes('/slopay-buket/tg/yag-1.jpg'), 'в буфере текст и ссылка на фото: ' + clip)
     await ctx.close()

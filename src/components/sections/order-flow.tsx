@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { ImageIcon } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { VkIcon, MaxIcon, TelegramIcon } from '@/components/shared/icons'
-import { SITE, MSG, maxLink, tgOrderLink } from '@/lib/config'
+import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
@@ -18,9 +19,24 @@ export const CONTACTS = [
 export function OrderSheet() {
   const { order, closeOrder } = useUI()
   const [copied, setCopied] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
 
+  // Фото букета заранее загружаем в память: на телефоне «Поделиться» должно открыться сразу по нажатию
   useEffect(() => {
-    if (order) setCopied(false)
+    setCopied(false)
+    setFile(null)
+    if (!order || typeof navigator.canShare !== 'function') return
+    let alive = true
+    fetch(`${SITE.photoBase}${order.id}.jpg`)
+      .then((r) => (r.ok ? r.blob() : Promise.reject()))
+      .then((b) => {
+        const f = new File([b], `${order.name}.jpg`, { type: 'image/jpeg' })
+        if (alive && navigator.canShare({ files: [f] })) setFile(f)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
   }, [order])
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
@@ -29,10 +45,16 @@ export function OrderSheet() {
   // ссылка на фото — отдельной строкой: Telegram покажет под сообщением саму картинку
   const text = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${photo}`
 
-  const toMax = () => {
-    goal('max_click', { from: 'order', product: item.id })
+  const plain = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})`
+  const copyAnd = (to: 'max' | 'tg') => () => {
+    goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'order', product: item.id })
     copyNow(text)
     setCopied(true)
+  }
+  const share = () => {
+    if (!file) return
+    goal('share_click', { from: 'order', product: item.id })
+    navigator.share({ files: [file], text: plain }).catch(() => {})
   }
 
   return (
@@ -53,15 +75,20 @@ export function OrderSheet() {
 
       <div className="mt-5 flex flex-col gap-3">
         <Button variant="max" size="lg" asChild>
-          <a href={maxLink(text)} target="_blank" rel="noopener" onClick={toMax}>
+          <a href={maxLink(text)} target="_blank" rel="noopener" onClick={copyAnd('max')}>
             <MaxIcon className="h-5 w-5" /> Написать в MAX
           </a>
         </Button>
         <Button variant="tg" size="lg" asChild>
-          <a href={tgOrderLink(item.id)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'order', product: item.id })}>
+          <a href={tgLink()} target="_blank" rel="noopener" onClick={copyAnd('tg')}>
             <TelegramIcon className="h-5 w-5" /> Написать в Telegram
           </a>
         </Button>
+        {file && (
+          <Button variant="outline" size="lg" onClick={share}>
+            <ImageIcon className="h-5 w-5 text-honey-600" /> Отправить фото и текст
+          </Button>
+        )}
       </div>
 
       <div className="mt-4 rounded-2xl border border-dashed border-line bg-surface/60 p-3.5">
@@ -73,11 +100,15 @@ export function OrderSheet() {
         </div>
         <ul className="mt-2.5 flex flex-col gap-1 text-[12.5px] leading-snug text-muted">
           <li>
-            <b className="text-ink-soft">Telegram:</b> фото и текст заказа придут в чат сами — останется написать дату и адрес.
+            {copied
+              ? '✓ Текст со ссылкой на фото скопирован — вставьте его в чат, фото появится под сообщением.'
+              : 'При нажатии на MAX или Telegram текст со ссылкой на фото скопируется — вставьте его в чат.'}
           </li>
-          <li>
-            <b className="text-ink-soft">MAX:</b> {copied ? '✓ текст скопирован — вставьте его в чат.' : 'текст скопируется — вставьте его в чат.'}
-          </li>
+          {file && (
+            <li>
+              «Отправить фото и текст» — выберите Telegram или MAX и наш чат ({SITE.phoneDisplay}): уйдёт само фото с подписью.
+            </li>
+          )}
         </ul>
       </div>
 
