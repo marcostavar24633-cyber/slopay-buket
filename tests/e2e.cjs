@@ -290,11 +290,11 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Реальные данные: Мария, 5,0 и 107 отзывов на Авито, с 2014, без выдуманных цифр', async () => {
+  await test('Реальные данные: Мария, 5,0 и 107 отзывов на Авито, с 2020, без выдуманных цифр', async () => {
     const { ctx, page } = await mobile()
     const text = await page.evaluate(() => document.body.textContent)
     for (const bad of ['Анна', 'Савельев', '300+', '4,9', '186', 'отзывов на Яндекс', 'Клубничный поцелуй', 'ВолгаТехСтрой']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
-    for (const good of ['Мария', '5,0', 'Авито', '107 отзывов', 'декабря 2014', 'Надёжный продавец', 'Иван', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
+    for (const good of ['Мария', '5,0', 'Авито', '107 отзывов', 'На Авито с 2020', 'Надёжный продавец', 'Иван', 'Ягодный букет', 'Букет из раков']) assert.ok(text.includes(good), 'нет: ' + good)
     const imgs = await page.$$eval('img', (a) => a.map((i) => i.getAttribute('src')))
     const ai = imgs.filter((s) => s && /^\/img\/[a-z]+\.webp$/.test(s) && s !== '/img/wilted.webp')
     assert.deepEqual(ai, [], 'сгенерированные фото: ' + ai.join(','))
