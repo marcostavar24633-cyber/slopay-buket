@@ -1,9 +1,7 @@
-import { useRef, useState } from 'react'
-import { useInView } from 'motion/react'
+import { useState } from 'react'
 import { ArrowRight, ExternalLink, Star } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { NumberTicker } from '@/components/magicui/number-ticker'
-import { Marquee } from '@/components/magicui/marquee'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { REVIEWS } from '@/lib/reviews'
@@ -23,36 +21,6 @@ const STATS = [
 ]
 
 /** Реальные отзывы с Авито — дословно (сокращено «…»), фамилии до инициала. Скриншоты — в AvitoShots. */
-
-/** Фото-стена — реальные работы (миниатюры), два встречных ряда. */
-const WALL = ITEMS.slice(0, 14).map((p) => p.thumb)
-const WALL2 = ITEMS.slice(14, 28).map((p) => p.thumb)
-
-function PhotoWall() {
-  const ref = useRef<HTMLDivElement>(null)
-  const near = useInView(ref, { once: true, margin: '900px 0px' })
-  return (
-    <div ref={ref} className="mt-12 md:mt-16">
-      <p className="container-x mb-4 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-muted">Наши букеты</p>
-      {near ? (
-        <>
-          <Marquee duration="60s">
-            {WALL.map((src, i) => (
-              <img key={i} src={src} alt="" decoding="async" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-honey/20 md:h-52 md:w-52" />
-            ))}
-          </Marquee>
-          <Marquee duration="70s" reverse className="mt-4">
-            {WALL2.map((src, i) => (
-              <img key={i} src={src} alt="" decoding="async" className="h-32 w-32 rounded-2xl object-cover opacity-80 ring-1 ring-honey/20 md:h-40 md:w-40" />
-            ))}
-          </Marquee>
-        </>
-      ) : (
-        <div className="h-[304px] md:h-[384px]" />
-      )}
-    </div>
-  )
-}
 
 export function Reviews() {
   return (
@@ -91,9 +59,9 @@ export function Reviews() {
 
         {/* Реальные отзывы + карточка Авито */}
         <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-[1fr_340px]">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0">
             {REVIEWS.map((r, i) => (
-              <BlurFade key={r.name} delay={(i % 2) * 0.05} className="flex flex-col rounded-3xl border border-line bg-cream p-5">
+              <BlurFade key={r.name} delay={(i % 2) * 0.05} className="flex w-[85%] shrink-0 snap-center flex-col rounded-3xl border border-line bg-cream p-5 sm:w-auto">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, k) => (
@@ -145,8 +113,6 @@ export function Reviews() {
         </div>
       </div>
 
-      {/* Фото-стена: картинки подключаются, только когда до ленты осталось ~1 экран */}
-      <PhotoWall />
 
       <div className="container-x mt-10 flex flex-col items-center gap-3 text-center">
         <Button size="lg" onClick={() => { goal('cta_reviews_catalog'); scrollToId('catalog') }}>

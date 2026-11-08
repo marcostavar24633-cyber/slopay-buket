@@ -3,8 +3,8 @@ import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, u
 import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
-import { MaxIcon } from '@/components/shared/icons'
-import { SITE, MSG, maxLink } from '@/lib/config'
+import { MaxIcon, TelegramIcon } from '@/components/shared/icons'
+import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { ANCHOR_PRICE } from '@/lib/products'
 import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
@@ -124,7 +124,7 @@ export function Hero() {
             onPointerMove={onMove}
             onPointerLeave={onLeave}
             style={{ rotateX: rx, rotateY: ry }}
-            className="relative mx-auto aspect-square h-[44svh] max-w-full max-h-[640px] min-h-[300px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]"
+            className="relative mx-auto aspect-square h-[38svh] max-w-full max-h-[640px] min-h-[260px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]"
           >
             <img
               src="/img/real/berry/hero-heart.webp"
@@ -215,16 +215,16 @@ function HeroCtas({ className = 'flex', onQuiz }: { className?: string; onQuiz: 
           <Sparkles className="h-5 w-5 text-honey-600" /> Подобрать за 1 минуту
         </Button>
       </div>
-      <a
-        href={maxLink(MSG.heroPhoto)}
-        target="_blank"
-        rel="noopener"
-        onClick={() => goal('max_click', { from: 'hero-photo' })}
-        className="inline-flex items-center justify-center gap-2 text-[14px] font-semibold text-ink-soft underline decoration-max/50 decoration-2 underline-offset-4 hover:text-ink sm:justify-start"
-      >
-        <MaxIcon className="h-4 w-4 text-max" />
-        Или просто пришлите фото примера в MAX — соберём похожий
-      </a>
+      <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[14px] font-semibold text-ink-soft sm:justify-start">
+        Или пришлите фото примера — соберём похожий:
+        <a href={maxLink(MSG.heroPhoto)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'hero-photo' })} className="inline-flex items-center gap-1 text-ink underline decoration-max/60 decoration-2 underline-offset-4">
+          <MaxIcon className="h-4 w-4 text-max" /> MAX
+        </a>
+        ·
+        <a href={tgLink(MSG.heroPhoto)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'hero-photo' })} className="inline-flex items-center gap-1 text-ink underline decoration-tg/60 decoration-2 underline-offset-4">
+          <TelegramIcon className="h-4 w-4 text-tg" /> Telegram
+        </a>
+      </p>
     </div>
   )
 }

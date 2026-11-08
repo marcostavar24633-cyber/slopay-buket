@@ -131,14 +131,14 @@ async function test(name, fn) {
     await ctx.route('https://t.me/**', (r) => r.fulfill({ status: 200, body: 'tg' }))
     await page.locator('button:visible', { hasText: 'Подобрать за 1 минуту' }).first().click()
     const dlg = page.getByRole('dialog')
-    for (const a of ['Мужчине', 'День рождения', 'Мясо и сыр', '3 000 – 5 000 ₽']) await dlg.getByRole('button', { name: a }).click()
+    for (const a of ['Для него', 'День рождения', 'Мясо и сыр', '3 000 – 5 000 ₽']) await dlg.getByRole('button', { name: a }).click()
     await dlg.getByText('Готово! Куда прислать подборку?').waitFor()
     assert.equal(await dlg.getByRole('textbox').count(), 0, 'без полей ввода')
     const [popup] = await Promise.all([page.waitForEvent('popup'), dlg.getByRole('link', { name: 'Написать в Telegram' }).click()])
     await popup.close()
     await dlg.getByText('✓ Готово').waitFor()
     const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''))
-    if (clip) assert.ok(clip.includes('Кому: Мужчине') && clip.includes('Бюджет: 3 000 – 5 000 ₽'), clip)
+    if (clip) assert.ok(clip.includes('Кому: Для него') && clip.includes('Бюджет: 3 000 – 5 000 ₽'), clip)
     await ctx.close()
   })
 
@@ -184,6 +184,25 @@ async function test(name, fn) {
     assert.equal(await dlg.getByRole('link').count(), 0, 'без ссылок MAX/Telegram')
     await dlg.getByRole('button', { name: 'Заказать' }).click()
     await page.getByRole('dialog').getByRole('link', { name: 'Написать в Telegram' }).waitFor()
+    await ctx.close()
+  })
+
+  await test('По поводам: «23 Февраля» открывает мясные букеты, «День рождения» — квиз', async () => {
+    const { ctx, page } = await mobile()
+    const sec = page.locator('#occasions')
+    await sec.getByRole('button', { name: /23 Февраля/ }).click()
+    await page.locator('#catalog-list h3', { hasText: 'Мясные букеты' }).first().waitFor()
+    assert.ok((await page.locator('#catalog-list article').count()) > 0)
+    await sec.getByRole('button', { name: /День рождения/ }).click()
+    await page.getByRole('dialog').getByText('Кому дарим?').waitFor()
+    await ctx.close()
+  })
+
+  await test('Нет дублей: отдельного блока «Гарантии», шагов «От закупки до двери», ленты «Наши букеты», «Работаем официально»', async () => {
+    const { ctx, page } = await mobile()
+    const text = await page.evaluate(() => document.body.textContent)
+    for (const bad of ['От закупки до вашей двери', 'Работаем официально', 'Наши букеты', 'Детские и аллерген-free', 'текст открытки', 'Коллеге / руководителю']) assert.ok(!text.includes(bad), 'найдено: ' + bad)
+    for (const good of ['Гарантия свежести', 'Фото до отправки', 'Доставим вовремя', 'Каждый букет собирает']) assert.ok(text.includes(good), 'нет: ' + good)
     await ctx.close()
   })
 

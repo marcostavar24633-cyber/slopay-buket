@@ -3,10 +3,8 @@ import { ParallaxImage } from '@/components/aceternity/parallax'
 import { SectionTitle } from '@/components/shared/section-title'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { CardSpotlight } from '@/components/aceternity/card-spotlight'
-import { Button } from '@/components/ui/button'
-import { MaxIcon } from '@/components/shared/icons'
-import { SITE, MSG, maxLink } from '@/lib/config'
-import { goal } from '@/lib/analytics'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
+import { MSG } from '@/lib/config'
 
 const ROWS = [
   ['Вянут через 3–5 дней и отправляются в мусор', 'Съедается в тот же вечер — ничего не пропадает'],
@@ -16,13 +14,14 @@ const ROWS = [
   ['25 роз в Ульяновске — от 4 500 ₽', 'От 2 000 ₽ — и подарок, и угощение для всей компании'],
 ]
 
+/** Преимущества и гарантии — одним блоком (раньше дублировались в «Гарантиях» и «Процессе»). */
 const ADVANTAGES = [
-  { icon: '🌱', title: 'Свежее, как с грядки', text: 'Клубнику, раков, сыр и мясо закупаем в день сборки. Запасов и «вчерашних» продуктов нет.' },
-  { icon: '🎨', title: 'Выглядит на все деньги', text: 'Собираем по законам колористики, как флористы. Не пакет из супермаркета на палочках, а композиция, которую хочется сфотографировать.' },
-  { icon: '📦', title: 'Доедет идеальным', text: 'Упаковываем всё в прозрачную защитную плёнку. Курьер Яндекс Go везёт напрямую, без заездов — ничего не сместится.' },
-  { icon: '🧤', title: 'Собрано чистыми руками — буквально', text: 'Мастер работает в перчатках и маске, на пищевых шпажках. Сыр и мясо в защитной пищевой плёнке — можно сразу на стол.' },
-  { icon: '✏️', title: 'Под вас, а не по шаблону', text: 'Уберём орехи при аллергии, заменим дорблю на маасдам, добавим открытку с вашими словами.' },
-  { icon: '💳', title: 'На любой бюджет', text: 'От компактного букета-комплимента за 1 700 ₽ до корзины на целый корпоратив. Назовите сумму — соберём лучшее в неё.' },
+  { icon: '🌱', title: 'Свежее, как с грядки', text: 'Клубнику, раков, сыр и мясо закупаем утром в день сборки. Моем и нарезаем прямо перед сборкой — ничего не лежит «с вечера».' },
+  { icon: '📸', title: 'Фото до отправки', text: 'Пришлём фото готового букета в мессенджер — вы видите именно то, что получит человек.' },
+  { icon: '🛡️', title: 'Гарантия свежести', text: 'Заметили, что продукт несвежий? Пришлите фото в течение 2 часов после вручения — после проверки сделаем скидку на заказ.' },
+  { icon: '⏰', title: 'Доставим вовремя', text: 'Курьер Яндекс Go везёт напрямую, без заездов. Если задержались по нашей вине — доставку оплатим сами.' },
+  { icon: '✏️', title: 'Под вас, а не по шаблону', text: 'Уберём орехи при аллергии, заменим дорблю на маасдам, добавим больше клубники. Собираем в перчатках на отдельной чистой поверхности.' },
+  { icon: '💳', title: 'На любой бюджет', text: 'От компактного букета-комплимента за 1 700 ₽ до сундука на компанию. Назовите сумму — соберём лучшее в неё.' },
 ]
 
 export function Why() {
@@ -75,10 +74,10 @@ export function Why() {
 
         <SectionTitle
           className="mt-16 md:mt-24"
-          eyebrow="Почему «Слопай букет»"
+          eyebrow="Почему «Слопай букет» · гарантии"
           title={
             <>
-              Все оценки на {SITE.reviewsSource} — 5 звёзд. <span className="italic text-gold">Вот почему</span>
+              Мы отвечаем <span className="italic text-gold">за каждый букет</span>
             </>
           }
         />
@@ -100,11 +99,7 @@ export function Why() {
             <p className="font-display text-[22px] font-semibold leading-tight md:text-[26px]">Назовите бюджет и повод — пришлём 3 варианта с фото</p>
             <p className="mt-1 text-[14px] text-ink-soft">Без обязательств: просто посмотрите, что можно собрать.</p>
           </div>
-          <Button variant="max" size="lg" className="w-full shrink-0 md:w-auto" asChild>
-            <a href={maxLink(MSG.selection)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'why-selection' })}>
-              <MaxIcon className="h-5 w-5" /> Получить подборку в MAX
-            </a>
-          </Button>
+          <MessengerButtons row text={MSG.selection} from="why-selection" className="w-full shrink-0 md:w-[380px]" />
         </BlurFade>
       </div>
     </section>

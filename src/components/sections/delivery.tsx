@@ -1,4 +1,4 @@
-import { Baby, CalendarCheck, CreditCard, EyeOff, Store } from 'lucide-react'
+import { CalendarCheck, CreditCard, EyeOff, Store } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { BlurFade } from '@/components/magicui/blur-fade'
@@ -10,7 +10,7 @@ import { rub } from '@/lib/utils'
 
 const STEPS = [
   { n: '01', t: 'Выберите букет', d: 'В каталоге — или пришлите любое фото-пример из Pinterest.' },
-  { n: '02', t: 'Согласуем детали', d: 'Состав, текст открытки, дату и время доставки.' },
+  { n: '02', t: 'Согласуем детали', d: 'Состав, дату, время и адрес доставки.' },
   { n: '03', t: 'Пришлём фото готового букета', d: 'Перед отправкой — вы видите, что получит человек.' },
   { n: '04', t: 'Курьер доставит и вручит', d: 'Пришлём ссылку Яндекс Go — следите за курьером на карте.' },
 ]
@@ -27,7 +27,6 @@ const DETAILS = [
   { icon: EyeOff, t: 'Анонимно, сюрпризом', d: 'Не скажем, от кого, пока не разрешите. Курьер вручит молча или с вашей фразой.' },
   { icon: Store, t: 'Самовывоз из Нового города — бесплатно', d: SITE.address + '. Подготовим к вашему времени.' },
   { icon: CreditCard, t: 'Оплата удобным способом', d: 'Перевод по СБП, карта онлайн, для юрлиц — по счёту. Оплата после согласования букета.' },
-  { icon: Baby, t: 'Детские и аллерген-free букеты', d: 'Без орехов, без глютена, без лактозы — соберём на отдельной чистой поверхности.' },
 ]
 
 export function HowToOrder() {

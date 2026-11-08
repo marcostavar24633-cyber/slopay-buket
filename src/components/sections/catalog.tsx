@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, ChevronDown, Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SectionTitle } from '@/components/shared/section-title'
@@ -70,11 +70,15 @@ export function Hits() {
           }
           sub="По две самые популярные работы из каждой категории. Цены примерные — точную назовём после согласования состава."
         />
-        <div className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
+        {/* на телефоне — лента, листается вбок; на компьютере — сетка */}
+        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-4">
           {HITS.map((it, i) => (
-            <ItemCard key={it.id} item={it} hit onOpen={() => setOpen(i)} />
+            <div key={it.id} className="w-[46%] shrink-0 snap-start md:w-auto">
+              <ItemCard item={it} hit onOpen={() => setOpen(i)} />
+            </div>
           ))}
         </div>
+        <p className="mt-2 text-center text-[12.5px] font-semibold text-muted md:hidden">← листайте →</p>
       </div>
       <Lightbox list={HITS} index={open} onIndex={setOpen} />
     </section>
@@ -89,6 +93,19 @@ export function Catalog() {
   const [showAll, setShowAll] = useState(false)
   const [open, setOpen] = useState<number | null>(null)
   const filtered = who !== 'all' || price !== 'all'
+  // блок «По поводам» открывает нужную категорию
+  useEffect(() => {
+    const on = (e: Event) => {
+      const c = (e as CustomEvent<GalleryCat>).detail
+      setWho('all')
+      setPrice('all')
+      setShowAll(false)
+      setCat(c)
+      setTimeout(() => scrollToId('catalog-list'), 60)
+    }
+    window.addEventListener('open-category', on)
+    return () => window.removeEventListener('open-category', on)
+  }, [])
   const list = useMemo(() => {
     if (!cat && !filtered) return []
     const r = PRICE_TABS.find((t) => t.key === price)!
