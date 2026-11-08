@@ -29,7 +29,9 @@ export const SITE = {
   url: 'https://slopay-buket.ru',
   /** Реальные данные со скриншотов Авито */
   rating: '5,0',
-  reviewsCount: 55,
+  reviewsCount: 107,
+  /** со страницы продавца на Авито */
+  avitoSince: 'декабря 2014',
   sinceYear: 2020,
   freeDeliveryFrom: 8000,
   masterName: 'Мария',

@@ -78,7 +78,7 @@ export function Hero() {
               <span className="flex items-center gap-1 rounded-full bg-honey px-2 py-0.5 text-onaccent">
                 <Star className="h-3 w-3 fill-onaccent text-onaccent" /> {SITE.rating}
               </span>
-              на {SITE.reviewsSource} — все оценки пятёрки
+              · {SITE.reviewsCount} отзывов на {SITE.reviewsSource}
             </a>
             <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
               {title}

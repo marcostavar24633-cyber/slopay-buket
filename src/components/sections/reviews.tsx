@@ -14,12 +14,12 @@ import { REVIEW_SHOTS } from '@/lib/gallery'
 import { ITEMS } from '@/lib/products'
 import { Lightbox } from '@/components/sections/gallery'
 
-/** Только проверяемые цифры: Авито (скриншот рейтинга) и галерея работ. */
+/** Только проверяемые цифры: страница продавца на Авито и галерея работ. */
 const STATS = [
   { v: 5, dec: 1, suffix: '', label: `средняя оценка на ${SITE.reviewsSource}`, star: true },
-  { v: 100, suffix: '%', label: 'оценок покупателей — пятёрки' },
+  { v: SITE.reviewsCount, suffix: '', label: 'отзывов на Авито — все на 5 ★' },
   { v: Math.floor(ITEMS.length / 10) * 10, suffix: '+', label: 'работ в каталоге на сайте' },
-  { text: `с ${SITE.sinceYear}`, label: 'собираем букеты в Ульяновске' },
+  { text: `с ${SITE.avitoSince.split(' ').pop()}`, label: 'на Авито · «Надёжный продавец»' },
 ]
 
 /** Реальные отзывы с Авито — дословно (сокращено «…»), фамилии до инициала. Скриншоты — в AvitoShots. */
@@ -129,7 +129,14 @@ export function Reviews() {
                   ))}
                 </span>
               </p>
-              <p className="mt-2 text-[14px] text-ink/70">все оценки — пятёрки · «Сделка состоялась»</p>
+              <p className="mt-2 text-[14px] text-ink/70">
+                {SITE.reviewsCount} отзывов · все оценки — пятёрки
+              </p>
+              <ul className="mt-4 flex flex-col gap-1.5 text-[13px] font-semibold text-ink/80">
+                <li>🛡️ Надёжный продавец</li>
+                <li>✅ Данные подтверждены</li>
+                <li>📅 На Авито с {SITE.avitoSince}</li>
+              </ul>
               <p className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-bold text-honey">
                 Все отзывы на {SITE.reviewsSource} <ExternalLink className="h-4 w-4" />
               </p>
