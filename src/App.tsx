@@ -4,7 +4,7 @@ import { FoodBackground } from '@/components/shared/food-background'
 import { Header, MobileBar } from '@/components/sections/header'
 import { Hero } from '@/components/sections/hero'
 import { Catalog, Hits } from '@/components/sections/catalog'
-import { OrderSheet, ThanksDialog } from '@/components/sections/order-flow'
+import { OrderSheet } from '@/components/sections/order-flow'
 
 const below = () => import('@/below')
 const BelowMain = lazy(() => below().then((m) => ({ default: m.BelowMain })))
@@ -33,7 +33,6 @@ export default function App() {
       </Suspense>
       <MobileBar />
       <OrderSheet />
-      <ThanksDialog />
     </UIProvider>
   )
 }

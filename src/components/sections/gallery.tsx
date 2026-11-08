@@ -3,9 +3,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
-import { MaxIcon } from '@/components/shared/icons'
+import { MaxIcon, TelegramIcon } from '@/components/shared/icons'
 import { CAT_LABEL, type GalleryPhoto } from '@/lib/gallery'
-import { maxLink } from '@/lib/config'
+import { SITE, maxLink, tgLink } from '@/lib/config'
+import { copyNow } from '@/lib/copy'
 import { itemBySrc } from '@/lib/products'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
@@ -14,7 +15,7 @@ import { goal } from '@/lib/analytics'
 type Shot = GalleryPhoto | { src: string; w: number; h: number }
 const isPhoto = (p: Shot | null): p is GalleryPhoto => !!p && 'cat' in p
 
-/** Просмотр фото на весь экран: стрелки, клавиатура, свайп, CTA в MAX. */
+/** Просмотр фото на весь экран: стрелки, клавиатура, свайп, «Заказать», MAX и Telegram (текст заказа со ссылкой на фото копируется). */
 export function Lightbox({
   list,
   index,
@@ -50,6 +51,11 @@ export function Lightbox({
   const { openOrder } = useUI()
   const p = index !== null ? list[index] : null
   const item = isPhoto(p) ? itemBySrc(p.src) : undefined
+  const toChat = (to: 'max' | 'tg') => {
+    if (!item) return
+    goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'lightbox', product: item.id })
+    copyNow(`Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${SITE.photoBase}${item.id}.jpg`)
+  }
 
   return (
     <DialogPrimitive.Root open={index !== null} onOpenChange={(v) => !v && onIndex(null)}>
@@ -118,8 +124,13 @@ export function Lightbox({
                   Заказать
                 </Button>
                 <Button variant="max" asChild>
-                  <a href={maxLink()} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'lightbox', src: item.src })} aria-label="Спросить в MAX">
+                  <a href={maxLink()} target="_blank" rel="noopener" onClick={() => toChat('max')} aria-label="Написать в MAX">
                     <MaxIcon className="h-5 w-5" /> MAX
+                  </a>
+                </Button>
+                <Button variant="tg" asChild>
+                  <a href={tgLink()} target="_blank" rel="noopener" onClick={() => toChat('tg')} aria-label="Написать в Telegram">
+                    <TelegramIcon className="h-5 w-5" /> Telegram
                   </a>
                 </Button>
               </div>

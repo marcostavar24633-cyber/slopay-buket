@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react'
 import { ParallaxImage } from '@/components/aceternity/parallax'
-import { CalendarClock, Download, Gift, Loader2, Megaphone, Truck } from 'lucide-react'
+import { CalendarClock, Download, Gift, Megaphone, Truck } from 'lucide-react'
 import { Spotlight } from '@/components/aceternity/spotlight'
 import { BlurFade } from '@/components/magicui/blur-fade'
-import { Button } from '@/components/ui/button'
 import { Chips } from '@/components/ui/chips'
-import { Input, PhoneInput } from '@/components/ui/input'
-import { Consent } from '@/components/shared/consent'
+import { Input } from '@/components/ui/input'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { SITE } from '@/lib/config'
-import { isPhoneValid } from '@/lib/phone'
-import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
-import { useUI } from '@/lib/ui-store'
 
 const PAINS = [
   { icon: Megaphone, t: 'Надоели ежедневники и кружки', d: 'Съедобный подарок запоминают, фотографируют и с удовольствием съедают всей командой.' },
@@ -34,15 +30,9 @@ const QTY = [
 ] as const
 
 export function Corporate() {
-  const { showThanks } = useUI()
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
   const [company, setCompany] = useState('')
   const [qty, setQty] = useState<(typeof QTY)[number]['key'] | null>(null)
   const [date, setDate] = useState('')
-  const [consent, setConsent] = useState(true)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [highlight, setHighlight] = useState(false)
 
   useEffect(() => {
@@ -54,17 +44,10 @@ export function Corporate() {
     return () => window.removeEventListener('prefill-corporate', on)
   }, [])
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return setError('Как к вам обращаться?')
-    if (!isPhoneValid(phone)) return setError('Проверьте номер телефона')
-    if (!consent) return setError('Нужно согласие на обработку данных')
-    setError('')
-    setLoading(true)
-    const ok = await submitLead({ source: 'corporate', name, phone, company, qty, date })
-    setLoading(false)
-    if (!ok) return setError('Не получилось отправить — позвоните нам')
-    showThanks(name)
+  // текст сообщения собирается из выбранного в форме — клиент вставляет его в чат
+  const text = () => {
+    const parts = [company.trim() && `компания «${company.trim()}»`, qty && `количество: ${QTY.find((q) => q.key === qty)?.label} шт.`, date && `дата: ${new Date(date).toLocaleDateString('ru-RU')}`]
+    return `Здравствуйте! Интересует корпоративный заказ${parts.some(Boolean) ? ': ' + parts.filter(Boolean).join(', ') : ''}. Пришлите, пожалуйста, предложение с фото и ценами.`
   }
 
   return (
@@ -129,16 +112,12 @@ export function Corporate() {
           </div>
 
           <BlurFade delay={0.1}>
-            <form
-              onSubmit={submit}
-              noValidate
+            <div
               className={`sticky top-24 rounded-3xl border bg-graphite-2 p-5 shadow-2xl transition md:p-7 ${highlight ? 'border-honey ring-4 ring-honey/30' : 'border-white/10'}`}
             >
               <h3 className="font-display text-[26px] font-semibold leading-tight">Рассчитать корпоративный заказ</h3>
-              <p className="mt-1 text-[14px] text-white/55">Пришлём КП с фото и ценами</p>
+              <p className="mt-1 text-[14px] text-white/55">Выберите количество и дату — пришлём КП с фото и ценами</p>
               <div className="mt-5 flex flex-col gap-3">
-                <Input dark placeholder="Имя" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Имя" />
-                <PhoneInput dark value={phone} onChange={setPhone} aria-label="Телефон" />
                 <Input dark placeholder="Компания (необязательно)" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} aria-label="Компания" />
                 <div>
                   <p className="mb-1.5 text-sm font-semibold text-white/60">Количество подарков</p>
@@ -148,11 +127,8 @@ export function Corporate() {
                   <p className="mb-1.5 text-sm font-semibold text-white/60">Дата мероприятия</p>
                   <Input dark type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Дата мероприятия" className="[color-scheme:dark]" />
                 </div>
-                <Consent dark checked={consent} onChange={setConsent} />
-                {error && <p className="rounded-xl bg-berry/20 px-3 py-2 text-sm font-semibold text-white" role="alert">{error}</p>}
-                <Button type="submit" size="lg" disabled={loading}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Получить коммерческое предложение'}
-                </Button>
+                <p className="mt-1 text-[14px] font-bold text-white">Получить коммерческое предложение:</p>
+                <MessengerButtons text={text} from="corporate" className="[&_p]:text-white/50" />
                 <p className="text-center text-[12.5px] text-white/50">Предоплата 50% — фиксирует дату</p>
                 <a
                   href="/corporate-catalog.pdf"
@@ -163,7 +139,7 @@ export function Corporate() {
                   <Download className="h-4 w-4" /> Скачать каталог корпоративных подарков (PDF)
                 </a>
               </div>
-            </form>
+            </div>
           </BlurFade>
         </div>
       </div>

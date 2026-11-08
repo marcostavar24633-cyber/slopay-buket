@@ -1,42 +1,14 @@
 import { useState } from 'react'
 import { ParallaxImage, Parallax } from '@/components/aceternity/parallax'
-import { CalendarCheck, Loader2, MapPin, Phone } from 'lucide-react'
+import { CalendarCheck, MapPin, Phone } from 'lucide-react'
 import { BlurFade } from '@/components/magicui/blur-fade'
-import { Button } from '@/components/ui/button'
-import { Chips } from '@/components/ui/chips'
-import { Input, PhoneInput } from '@/components/ui/input'
-import { Consent } from '@/components/shared/consent'
 import { TelegramIcon, VkIcon, MaxIcon } from '@/components/shared/icons'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { Logo } from '@/components/sections/header'
-import { CONTACTS } from '@/components/sections/order-flow'
 import { SITE, MSG, tgLink, maxLink, legalLine } from '@/lib/config'
-import { isPhoneValid } from '@/lib/phone'
-import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
-import { useUI } from '@/lib/ui-store'
 
 export function FinalOffer() {
-  const { showThanks } = useUI()
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [contact, setContact] = useState<(typeof CONTACTS)[number]['key']>('max')
-  const [consent, setConsent] = useState(true)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return setError('Как к вам обращаться?')
-    if (!isPhoneValid(phone)) return setError('Проверьте номер телефона')
-    if (!consent) return setError('Нужно согласие на обработку данных')
-    setError('')
-    setLoading(true)
-    const ok = await submitLead({ source: 'final', name, phone, contact })
-    setLoading(false)
-    if (!ok) return setError('Не получилось отправить — напишите нам в MAX')
-    showThanks(name)
-  }
-
   return (
     <section id="order" className="relative overflow-hidden border-y border-honey/20 bg-panel/85 py-14 md:py-24">
       <div aria-hidden className="absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-honey/20 blur-[120px]" />
@@ -57,32 +29,16 @@ export function FinalOffer() {
           <h2 className="h-display text-[32px] md:text-[52px]">
             Удивите близких — <span className="italic text-gold">подарком, который съедят с удовольствием</span>
           </h2>
-          <p className="mt-4 text-[16px] font-medium text-ink/75 md:text-lg">Оставьте номер — подберём букет под повод и бюджет.</p>
-          <form onSubmit={submit} noValidate className="mt-6 flex flex-col gap-3 rounded-3xl border border-honey/25 bg-surface/90 p-5 shadow-lift backdrop-blur md:p-6">
-            <Input placeholder="Имя" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Имя" />
-            <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
-            <div>
-              <p className="mb-1.5 text-sm font-semibold text-ink-soft">Как удобнее</p>
-              <Chips ariaLabel="Способ связи" options={CONTACTS} value={contact} onChange={setContact} />
-            </div>
-            {error && <p className="rounded-xl bg-berry/10 px-3 py-2 text-sm font-semibold text-berry" role="alert">{error}</p>}
-            <Button type="submit" size="lg" disabled={loading}>
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Подобрать букет'}
-            </Button>
-            <p className="text-center text-[13px] text-muted">Никакого спама. Оплата только после согласования</p>
-            <Consent checked={consent} onChange={setConsent} />
-          </form>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <span className="text-[14px] font-semibold text-ink/70">Не любите формы?</span>
-            <a href={maxLink(MSG.final)} target="_blank" rel="noopener" onClick={() => goal('max_click', { from: 'final' })} className="grid h-12 w-12 place-items-center rounded-full bg-max text-white" aria-label="MAX">
-              <MaxIcon className="h-6 w-6" />
-            </a>
-            <a href={tgLink()} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'final' })} className="grid h-12 w-12 place-items-center rounded-full bg-tg text-white" aria-label="Telegram">
-              <TelegramIcon className="h-5 w-5" />
-            </a>
-            <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'final' })} className="text-lg font-extrabold underline decoration-2 underline-offset-4">
-              {SITE.phoneDisplay}
-            </a>
+          <p className="mt-4 text-[16px] font-medium text-ink/75 md:text-lg">Напишите нам — подберём букет под повод и бюджет.</p>
+          <div className="mt-6 rounded-3xl border border-honey/25 bg-surface/90 p-5 shadow-lift backdrop-blur md:p-6">
+            <MessengerButtons text={MSG.final} from="final" />
+            <p className="mt-4 text-center text-[13px] text-muted">
+              Или позвоните:{' '}
+              <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'final' })} className="font-extrabold text-ink underline decoration-2 underline-offset-4">
+                {SITE.phoneDisplay}
+              </a>
+            </p>
+            <p className="mt-1 text-center text-[13px] text-muted">Оплата только после согласования</p>
           </div>
         </BlurFade>
       </div>

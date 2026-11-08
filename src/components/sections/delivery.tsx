@@ -1,15 +1,11 @@
-import { useState } from 'react'
-import { Baby, CalendarCheck, CreditCard, EyeOff, Loader2, Store } from 'lucide-react'
+import { Baby, CalendarCheck, CreditCard, EyeOff, Store } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
-import { PhoneInput } from '@/components/ui/input'
 import { TelegramIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
-import { isPhoneValid } from '@/lib/phone'
-import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
-import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
 const STEPS = [
@@ -140,38 +136,21 @@ export function Delivery() {
 }
 
 function DeliveryCheck() {
-  const { showThanks } = useUI()
-  const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [err, setErr] = useState('')
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isPhoneValid(phone)) return setErr('Проверьте номер')
-    setErr('')
-    setLoading(true)
-    const ok = await submitLead({ source: 'delivery-check', phone })
-    setLoading(false)
-    if (ok) {
-      setPhone('')
-      showThanks()
-    } else setErr('Ошибка отправки — позвоните нам')
-  }
   return (
     <BlurFade className="mt-8 rounded-3xl bg-panel text-ink border border-honey/25 p-6 md:p-8">
-      <form onSubmit={submit} noValidate className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="font-display text-[24px] font-semibold leading-tight md:text-[28px]">Сколько стоит доставка до вашего адреса?</p>
-          <p className="mt-1 text-[14px] text-ink/65">Оставьте номер — перезвоним и подскажем стоимость и свободные даты</p>
+          <p className="mt-1 text-[14px] text-ink/65">Напишите нам адрес — подскажем стоимость и свободные даты</p>
         </div>
-        <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-          <PhoneInput dark value={phone} onChange={setPhone} aria-label="Телефон" className="sm:w-64" />
-          <Button type="submit" size="md" disabled={loading} className="h-12 shrink-0">
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Узнать'}
-          </Button>
-        </div>
-      </form>
-      {err && <p className="mt-2 text-sm font-semibold text-honey" role="alert">{err}</p>}
-      <p className="mt-3 text-[11.5px] text-ink/45">Нажимая «Узнать», вы соглашаетесь с политикой обработки персональных данных (152-ФЗ).</p>
+        <MessengerButtons
+          row
+          size="md"
+          from="delivery-check"
+          text="Здравствуйте! Сколько стоит доставка по адресу: … ? Нужна дата: …"
+          className="w-full lg:w-[360px]"
+        />
+      </div>
     </BlurFade>
   )
 }

@@ -1,17 +1,13 @@
 import { useState } from 'react'
 import { ParallaxImage } from '@/components/aceternity/parallax'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
 import { Chips } from '@/components/ui/chips'
-import { PhoneInput } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { Consent } from '@/components/shared/consent'
+import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { SectionTitle } from '@/components/shared/section-title'
 import { BorderBeam } from '@/components/magicui/border-beam'
 import { SITE } from '@/lib/config'
-import { isPhoneValid } from '@/lib/phone'
-import { submitLead } from '@/lib/leads'
 import { goal } from '@/lib/analytics'
 import { scrollToId, useUI } from '@/lib/ui-store'
 import { cn } from '@/lib/utils'
@@ -63,11 +59,6 @@ const STEPS = [
   },
 ] as const
 
-const CHANNELS = [
-  { key: 'max', label: 'MAX' },
-  { key: 'tg', label: 'Telegram' },
-  { key: 'sms', label: 'SMS' },
-] as const
 const WHEN = [
   { key: 'today', label: 'Сегодня' },
   { key: 'tomorrow', label: 'Завтра' },
@@ -75,15 +66,10 @@ const WHEN = [
 ] as const
 
 export function QuizBody({ inDialog }: { inDialog?: boolean }) {
-  const { setQuizOpen, showThanks } = useUI()
+  const { setQuizOpen } = useUI()
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [phone, setPhone] = useState('')
-  const [channel, setChannel] = useState<(typeof CHANNELS)[number]['key']>('max')
-  const [when, setWhen] = useState<(typeof WHEN)[number]['key']>('today')
-  const [consent, setConsent] = useState(true)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [when, setWhen] = useState<(typeof WHEN)[number]['key']>('tomorrow')
 
   const total = STEPS.length + 1
   const pick = (key: string, v: string) => {
@@ -99,21 +85,11 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
     setStep((s) => s + 1)
   }
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isPhoneValid(phone)) return setError('Проверьте номер телефона')
-    if (!consent) return setError('Нужно согласие на обработку данных')
-    setError('')
-    setLoading(true)
-    const ok = await submitLead({ source: 'quiz', phone, contact: channel, when, ...answers })
-    setLoading(false)
-    if (!ok) return setError('Не получилось отправить — попробуйте ещё раз или напишите в MAX')
-    goal('quiz_complete')
-    setQuizOpen(false)
-    showThanks()
-    setStep(0)
-    setAnswers({})
-  }
+  // ответы квиза превращаются в готовое сообщение мастеру
+  const text = () =>
+    `Здравствуйте! Подберите, пожалуйста, 3 варианта букета.\n` +
+    `Кому: ${answers.to ?? '—'}\nПовод: ${answers.occasion ?? '—'}\nЛюбит: ${answers.taste ?? '—'}\nБюджет: ${answers.budget ?? '—'}\n` +
+    `Когда нужен: ${WHEN.find((w) => w.key === when)?.label.toLowerCase()}`
 
   const current = STEPS[step]
 
@@ -155,25 +131,17 @@ export function QuizBody({ inDialog }: { inDialog?: boolean }) {
               </div>
             </>
           ) : (
-            <form onSubmit={submit} noValidate>
+            <div>
               <h3 className="font-display text-[26px] font-semibold leading-tight">Готово! Куда прислать подборку?</h3>
               <div className="mt-4 flex flex-col gap-4">
-                <PhoneInput value={phone} onChange={setPhone} aria-label="Телефон" />
-                <div>
-                  <p className="mb-1.5 text-sm font-semibold text-ink-soft">Куда написать</p>
-                  <Chips ariaLabel="Канал" options={CHANNELS} value={channel} onChange={setChannel} />
-                </div>
                 <div>
                   <p className="mb-1.5 text-sm font-semibold text-ink-soft">Когда нужен букет</p>
                   <Chips ariaLabel="Когда" options={WHEN} value={when} onChange={setWhen} />
                 </div>
-                <Consent checked={consent} onChange={setConsent} />
-                {error && <p className="rounded-xl bg-berry/10 px-3 py-2 text-sm font-semibold text-berry" role="alert">{error}</p>}
-                <Button type="submit" size="lg" disabled={loading}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Получить 3 варианта'}
-                </Button>
+                <p className="text-[14px] text-ink-soft">Напишите нам — пришлём 3 варианта с фото и ценами. Ваши ответы уже в тексте сообщения.</p>
+                <MessengerButtons text={text} from="quiz" onBefore={() => goal('quiz_complete')} />
               </div>
-            </form>
+            </div>
           )}
         </motion.div>
       </AnimatePresence>

@@ -123,16 +123,20 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Квиз в поп-апе с первого экрана: 4 вопроса → телефон → «Спасибо»', async () => {
+  await test('Квиз в поп-апе: 4 вопроса → кнопки MAX/Telegram, ответы копируются в текст', async () => {
     const { ctx, page } = await mobile()
+    await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {})
+    await ctx.route('https://t.me/**', (r) => r.fulfill({ status: 200, body: 'tg' }))
     await page.locator('button:visible', { hasText: 'Подобрать за 1 минуту' }).first().click()
     const dlg = page.getByRole('dialog')
     for (const a of ['Мужчине', 'День рождения', 'Мясо и сыр', '3 000 – 5 000 ₽']) await dlg.getByRole('button', { name: a }).click()
     await dlg.getByText('Готово! Куда прислать подборку?').waitFor()
-    assert.equal(await dlg.getByText('открытка').count(), 0)
-    await dlg.getByLabel('Телефон').fill('9271112233')
-    await dlg.getByRole('button', { name: 'Получить 3 варианта' }).click()
-    await page.getByText('Мастер Мария уже смотрит вашу заявку').waitFor()
+    assert.equal(await dlg.getByRole('textbox').count(), 0, 'без полей ввода')
+    const [popup] = await Promise.all([page.waitForEvent('popup'), dlg.getByRole('link', { name: 'Написать в Telegram' }).click()])
+    await popup.close()
+    await dlg.getByText('Текст скопирован').waitFor()
+    const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''))
+    if (clip) assert.ok(clip.includes('Кому: Мужчине') && clip.includes('Бюджет: 3 000 – 5 000 ₽'), clip)
     await ctx.close()
   })
 
@@ -145,24 +149,38 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Корпоративная форма отправляется', async () => {
+  await test('Корпоративный блок: количество → кнопки MAX/Telegram с текстом заказа', async () => {
     const { ctx, page } = await mobile()
-    const f = page.locator('#corporate form')
-    await f.getByLabel('Имя').fill('Ирина')
-    await f.getByLabel('Телефон').fill('9270000000')
+    await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {})
+    await ctx.route('https://max.ru/**', (r) => r.fulfill({ status: 200, body: 'max' }))
+    const f = page.locator('#corporate')
     await f.getByRole('radio', { name: '10–20' }).click()
-    await f.getByRole('button', { name: 'Получить коммерческое предложение' }).click()
-    await page.getByText('Спасибо, Ирина!').waitFor()
+    const [popup] = await Promise.all([page.waitForEvent('popup'), f.getByRole('link', { name: 'Написать в MAX' }).click()])
+    await popup.close()
+    await f.getByText('Текст скопирован').waitFor()
+    const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ''))
+    if (clip) assert.ok(clip.includes('корпоративный заказ') && clip.includes('10–20'), clip)
     await ctx.close()
   })
 
-  await test('Финальная форма + мини-форма доставки', async () => {
+  await test('Финальный блок и блок доставки: кнопки MAX/Telegram вместо форм', async () => {
     const { ctx, page } = await mobile()
-    const f = page.locator('#order form')
-    await f.getByLabel('Имя').fill('Пётр')
-    await f.getByLabel('Телефон').fill('9275554433')
-    await f.getByRole('button', { name: 'Подобрать букет' }).click()
-    await page.getByText('Спасибо, Пётр!').waitFor()
+    for (const id of ['#order', '#delivery']) {
+      const sec = page.locator(id)
+      assert.equal(await sec.locator('input[type="tel"]').count(), 0, id + ': нет поля телефона')
+      assert.ok((await sec.getByRole('link', { name: /MAX/ }).count()) > 0, id + ': MAX')
+      assert.equal(await sec.locator('a[href="https://t.me/+79631282556"]').count() > 0, true, id + ': Telegram')
+    }
+    await ctx.close()
+  })
+
+  await test('Открытое фото: «Заказать», MAX и Telegram', async () => {
+    const { ctx, page } = await mobile()
+    await page.locator('#hits article').first().locator('button').first().click()
+    const dlg = page.getByRole('dialog')
+    await dlg.getByRole('button', { name: 'Заказать' }).waitFor()
+    assert.equal(await dlg.getByRole('link', { name: 'Написать в MAX' }).count(), 1)
+    assert.equal(await dlg.getByRole('link', { name: 'Написать в Telegram' }).getAttribute('href'), 'https://t.me/+79631282556')
     await ctx.close()
   })
 
@@ -244,7 +262,7 @@ async function test(name, fn) {
     await shots.nth(2).click()
     const dlg = page.getByRole('dialog')
     await dlg.getByText('3 / 16').waitFor()
-    assert.equal(await dlg.getByRole('link', { name: 'Спросить в MAX' }).count(), 0)
+    assert.equal(await dlg.getByRole('link', { name: 'Написать в MAX' }).count(), 0)
     await ctx.close()
   })
 

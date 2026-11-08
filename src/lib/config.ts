@@ -42,9 +42,11 @@ export const SITE = {
 export const legalLine = () => [SITE.ownerName, SITE.inn && `ИНН ${SITE.inn}`].filter(Boolean).join(', ')
 
 /** MAX не поддерживает предзаполненный текст — ведём в профиль. Аргумент оставлен для аналитики и будущего API. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const maxLink = (_text?: string) => SITE.maxUrl
 
 /** Telegram по номеру. Лишние параметры в ссылке по номеру ломают открытие на телефонах — текст заказа клиент вставляет из буфера. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const tgLink = (_text?: string) => `https://t.me/+${SITE.tgPhone}`
 
 /** Предзаполненные тексты: разные для каждой кнопки, чтобы видеть, какая продаёт. */
@@ -58,7 +60,6 @@ export const MSG = {
   faq: 'Здравствуйте! У меня вопрос:',
   corporate: 'Здравствуйте! Интересует корпоративный заказ: … шт., дата …',
   final: 'Здравствуйте! Помогите подобрать букет.',
-  thanks: 'Здравствуйте! Только что оставил(а) заявку на сайте — не хочу ждать 🙂',
   product: (name: string) =>
     `Здравствуйте! Хочу заказать: ${name}. На какую дату свободно?`,
 }

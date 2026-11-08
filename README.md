@@ -23,7 +23,6 @@ npm run test:unit      # маска телефона
 | **Ссылка на профиль Авито** | `config.ts` → `reviewsUrl` | кнопка «Все отзывы на Авито» |
 | **ФИО и ИНН продавца, e-mail** | `config.ts` → `ownerName`, `inn`, `email` | закон о защите прав потребителей; подставятся в подвал, политику и оферту |
 | **Адрес сайта** | `config.ts` → `url` | sitemap.xml, robots.txt, превью ссылок |
-| **Заявки в Telegram** | см. ниже | без этого формы показывают «Спасибо», но заявка никуда не уходит |
 | **Яндекс Метрика** | `src/lib/analytics.ts` → `YM_ID` + код счётчика в `index.html` | статистика и цели |
 | Цены, составы, названия | `src/lib/products.ts` | сейчас черновик по фото |
 | Часы работы, зоны и цены доставки | `config.ts`, `src/components/sections/delivery.tsx` | сейчас примерные |
@@ -31,15 +30,12 @@ npm run test:unit      # маска телефона
 
 Юридические тексты (`src/legal.tsx` → страницы `/privacy/` и `/oferta/`) — шаблоны. Незаполненные реквизиты подсвечены на страницах; перед запуском покажите тексты юристу.
 
-## Заявки → Telegram-бот
+## Заказы и заявки
 
-1. В Telegram откройте **@BotFather** → `/newbot` → придумайте имя → получите **токен** вида `123456:ABC…`.
-2. Напишите своему боту любое сообщение, затем откройте `https://api.telegram.org/bot<ТОКЕН>/getUpdates` — в ответе найдите `"chat":{"id": …}` — это **TG_CHAT_ID**.
-3. Зайдите на **vercel.com** через GitHub → **Add New → Project** → выберите репозиторий `slopay-buket` → в **Environment Variables** добавьте `TG_BOT_TOKEN` и `TG_CHAT_ID` → **Deploy**. Функция `api/lead.ts` заработает по адресу `https://<проект>.vercel.app/api/lead`.
-4. На GitHub: **Settings → Secrets and variables → Actions → Variables → New repository variable**: имя `LEAD_ENDPOINT`, значение — адрес из шага 3. Затем **Actions → GitHub Pages → Run workflow** — сайт пересоберётся и начнёт слать заявки в бот.
-5. По желанию в Vercel добавьте `ALLOWED_ORIGIN=https://<логин>.github.io` — тогда заявки будут приниматься только с вашего сайта.
-
-Все формы вызывают `submitLead()` (`src/lib/leads.ts`) с полем `source` (из какой формы) и названием букета. **Токен бота на сайт не кладите** — только в переменные хостинга.
+Сайт не отправляет заявки: все формы (заказ букета, квиз, корпоративный заказ, вопрос о доставке, форма внизу страницы)
+показывают кнопки **MAX** и **Telegram**. По нажатию открывается личный чат мастера, а готовый текст сообщения
+(название букета и ссылка на фото, ответы квиза, количество и дата корпоративного заказа) копируется — клиент вставляет его в чат.
+Общий блок кнопок — `src/components/shared/messenger-buttons.tsx`. На телефонах в окне заказа есть ещё «Отправить фото и текст» (меню «Поделиться»).
 
 ## Сборка и размещение
 
@@ -66,7 +62,7 @@ Pages на бесплатном тарифе работает только дл�
 ## Цели Метрики (уже расставлены)
 
 `cta_header`, `cta_hero_catalog`, `cta_hero_quiz`, `max_click{from}`, `tg_click{from}`, `phone_click{from}`, `order_open`,
-`catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, `lead_<source>`, `thanks_screen`,
+`catalog_filter`, `quiz_step{step}`, `quiz_complete`, `quiz_to_corporate`, 
 `corp_pdf_download`, `yandex_reviews_click`.
 
 У каждой MSG-кнопки свой предзаполненный текст (`MSG` в `config.ts`) — видно, какая кнопка приводит клиентов.
