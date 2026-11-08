@@ -107,6 +107,7 @@ async function test(name, fn) {
     const max = sheet.getByRole('link', { name: 'Написать в MAX' })
     const tg = sheet.getByRole('link', { name: 'Написать в Telegram' })
     assert.match(await tg.getAttribute('href'), /^https:\/\/t\.me\/\+79631282556\?text=.*%C2%AB/)
+    assert.ok(decodeURIComponent(await tg.getAttribute('href')).includes('/slopay-buket/tg/yag-1.jpg'), 'в тексте должна быть ссылка на фото')
     assert.ok(await max.getAttribute('href'))
     await sheet.getByText('Хочу заказать букет «Клубничное сердце»').waitFor()
     await page.context().route('https://t.me/**', (r) => r.fulfill({ status: 200, body: 'tg' }))

@@ -34,6 +34,8 @@ export const SITE = {
   freeDeliveryFrom: 8000,
   masterName: 'Мария',
   corpDeadline: '5 декабря',
+  /** Публичные JPG-фото букетов (public/tg/): ссылка в сообщении → Telegram показывает фото в чате. Смените при переезде на свой домен. */
+  photoBase: 'https://marcostavar24633-cyber.github.io/slopay-buket/tg/',
 } as const
 
 /** Строка с реквизитами: «ИП …, ИНН …». Пусто, пока не заполнено. */

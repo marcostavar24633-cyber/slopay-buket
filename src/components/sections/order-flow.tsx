@@ -25,7 +25,9 @@ export function OrderSheet() {
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
   const item = order
-  const text = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()}, от ${rub(item.price)}). На какую дату свободно?`
+  const photo = `${SITE.photoBase}${item.id}.jpg`
+  // ссылка на фото — отдельной строкой: Telegram покажет под сообщением саму картинку
+  const text = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${photo}`
 
   const go = (to: 'max' | 'tg') => {
     goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'order', product: item.id })
@@ -66,7 +68,13 @@ export function OrderSheet() {
         <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
           {copied ? '✓ Текст скопирован — вставьте его в чат' : 'Текст сообщения скопируется сам'}
         </p>
-        <p className="mt-1.5 text-[14px] leading-snug text-ink">{text}</p>
+        <div className="mt-2 flex items-start gap-3">
+          <img src={item.thumb} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+          <p className="text-[14px] leading-snug text-ink">
+            Здравствуйте! Хочу заказать букет «{item.name}» ({item.title.toLowerCase()})
+            <span className="mt-1 block text-[12px] text-muted">+ ссылка на фото — в Telegram оно появится прямо в чате</span>
+          </p>
+        </div>
       </div>
 
       <p className="mt-4 text-center text-[13px] text-muted">
