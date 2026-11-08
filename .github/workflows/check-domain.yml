@@ -19,6 +19,8 @@ jobs:
           echo "== HTTPS"; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" https://$D/ || true
           echo "== BODY"; curl -sS -m 20 http://$D/ | grep -oE "<title>[^<]*|There isn.t a GitHub Pages site here|Site not found|DNS check" | head -3 || true
           echo "== www"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{redirect_url}\n" http://www.$D/ || true
+          echo "== ASSET"; for P in http https; do J=$(curl -sSk -m 20 -L $P://$D/ | grep -oE "src=\"/assets/main-[^\"]+\.js" | head -1 | cut -d'"' -f2); echo "$P main=$J"; [ -n "$J" ] && curl -sSk -m 20 -o /dev/null -w "$P js %{http_code}\n" $P://$D$J; done || true
+          echo "== CERT"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -subject -enddate 2>/dev/null || true
           echo "== HTTP headers"; curl -sS -m 20 -I http://$D/ | head -8 || true
           sudo apt-get install -y -qq whois >/dev/null 2>&1 || true
           echo "== whois"; whois -h whois.tcinet.ru $D 2>&1 | grep -vE "^%|^$" | head -20 || true
