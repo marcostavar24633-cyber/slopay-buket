@@ -15,6 +15,13 @@ async function test(name, fn) {
 
 ;(async () => {
   const browser = await chromium.launch()
+  // заявки в тестах не уходят в настоящий Telegram-бот
+  const newContext = browser.newContext.bind(browser)
+  browser.newContext = async (o) => {
+    const c = await newContext(o)
+    await c.route('**/api/lead', (r) => r.fulfill({ status: 200, body: 'ok' }))
+    return c
+  }
   const mobile = async (time) => {
     const ctx = await browser.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 1 })
     await ctx.addInitScript(() => { try { sessionStorage.setItem('exit_shown', '1'); localStorage.setItem('slopay-cookie-ok', '1') } catch {} })
