@@ -3,7 +3,7 @@ import { Sheet } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { VkIcon, MaxIcon, TelegramIcon } from '@/components/shared/icons'
-import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
+import { SITE, MSG, maxLink, tgOrderLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
@@ -17,10 +17,10 @@ export const CONTACTS = [
 /** Окно заказа: без формы — клиент сразу пишет в MAX или Telegram, текст заказа копируется сам. */
 export function OrderSheet() {
   const { order, closeOrder } = useUI()
-  const [copied, setCopied] = useState<'' | 'max' | 'tg'>('')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (order) setCopied('')
+    if (order) setCopied(false)
   }, [order])
 
   if (!order) return <Sheet open={false} onOpenChange={() => {}} title="Заказ">{null}</Sheet>
@@ -29,10 +29,10 @@ export function OrderSheet() {
   // ссылка на фото — отдельной строкой: Telegram покажет под сообщением саму картинку
   const text = `Здравствуйте! Хочу заказать букет «${item.name}» (${item.title.toLowerCase()})\n${photo}`
 
-  const go = (to: 'max' | 'tg') => {
-    goal(to === 'max' ? 'max_click' : 'tg_click', { from: 'order', product: item.id })
-    navigator.clipboard?.writeText(text).catch(() => {})
-    setCopied(to)
+  const toMax = () => {
+    goal('max_click', { from: 'order', product: item.id })
+    copyNow(text)
+    setCopied(true)
   }
 
   return (
@@ -53,28 +53,32 @@ export function OrderSheet() {
 
       <div className="mt-5 flex flex-col gap-3">
         <Button variant="max" size="lg" asChild>
-          <a href={maxLink(text)} target="_blank" rel="noopener" onClick={() => go('max')}>
+          <a href={maxLink(text)} target="_blank" rel="noopener" onClick={toMax}>
             <MaxIcon className="h-5 w-5" /> Написать в MAX
           </a>
         </Button>
         <Button variant="tg" size="lg" asChild>
-          <a href={tgLink(text)} target="_blank" rel="noopener" onClick={() => go('tg')}>
+          <a href={tgOrderLink(item.id)} target="_blank" rel="noopener" onClick={() => goal('tg_click', { from: 'order', product: item.id })}>
             <TelegramIcon className="h-5 w-5" /> Написать в Telegram
           </a>
         </Button>
       </div>
 
       <div className="mt-4 rounded-2xl border border-dashed border-line bg-surface/60 p-3.5">
-        <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
-          {copied ? '✓ Текст скопирован — вставьте его в чат' : 'Текст сообщения скопируется сам'}
-        </p>
-        <div className="mt-2 flex items-start gap-3">
+        <div className="flex items-start gap-3">
           <img src={item.thumb} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
           <p className="text-[14px] leading-snug text-ink">
             Здравствуйте! Хочу заказать букет «{item.name}» ({item.title.toLowerCase()})
-            <span className="mt-1 block text-[12px] text-muted">+ ссылка на фото — в Telegram оно появится прямо в чате</span>
           </p>
         </div>
+        <ul className="mt-2.5 flex flex-col gap-1 text-[12.5px] leading-snug text-muted">
+          <li>
+            <b className="text-ink-soft">Telegram:</b> фото и текст заказа придут в чат сами — останется написать дату и адрес.
+          </li>
+          <li>
+            <b className="text-ink-soft">MAX:</b> {copied ? '✓ текст скопирован — вставьте его в чат.' : 'текст скопируется — вставьте его в чат.'}
+          </li>
+        </ul>
       </div>
 
       <p className="mt-4 text-center text-[13px] text-muted">
@@ -117,4 +121,22 @@ export function ThanksDialog() {
       </DialogContent>
     </Dialog>
   )
+}
+
+/** Копирование сразу в момент нажатия — на телефонах асинхронное копирование не успевает до перехода в мессенджер. */
+function copyNow(text: string) {
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.setAttribute('readonly', '')
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0'
+    document.body.appendChild(ta)
+    ta.select()
+    ta.setSelectionRange(0, text.length)
+    document.execCommand('copy')
+    ta.remove()
+  } catch {
+    /* ниже — запасной способ */
+  }
+  navigator.clipboard?.writeText(text).catch(() => {})
 }
