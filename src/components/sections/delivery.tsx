@@ -1,14 +1,11 @@
-import { useState } from 'react'
-import { CalendarCheck, CreditCard, EyeOff, Store } from 'lucide-react'
+import { CalendarCheck, CreditCard, EyeOff } from 'lucide-react'
 import { SectionTitle } from '@/components/shared/section-title'
-import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { TelegramIcon, MaxIcon } from '@/components/shared/icons'
 import { SITE, MSG, tgLink, maxLink } from '@/lib/config'
 import { goal } from '@/lib/analytics'
-import { cn, rub } from '@/lib/utils'
-import { Chips } from '@/components/ui/chips'
+import { rub } from '@/lib/utils'
 
 const STEPS = [
   { n: '01', t: 'Выберите букет', d: 'В каталоге — или пришлите любое фото-пример из Pinterest.' },
@@ -17,20 +14,9 @@ const STEPS = [
   { n: '04', t: 'Курьер доставит и вручит', d: 'Пришлём ссылку Яндекс Go — следите за курьером на карте.' },
 ]
 
-/** Районы и ориентир стоимости по тарифам Яндекс Go «Курьер» от мастерской (Карбышева, 37). Поправьте цены здесь. */
-const ZONES = [
-  { key: 'new', zone: 'Новый город', hint: 'Заволжский район', price: 250, free: true },
-  { key: 'old', zone: 'Старый город Заволжья', hint: 'и Верхняя Терраса', price: 350, free: false },
-  { key: 'right', zone: 'Правый берег', hint: 'центр, Засвияжье, Железнодорожный', price: 450, free: false },
-  { key: 'suburb', zone: 'Пригород', hint: 'Чердаклы и др.', price: null, free: false },
-  { key: 'pickup', zone: 'Самовывоз', hint: SITE.address.replace(', Новый город', ''), price: 0, free: false },
-] as const
-type ZoneKey = (typeof ZONES)[number]['key']
-
 const DETAILS = [
   { icon: CalendarCheck, t: 'Доставка к удобному времени', d: 'Договоримся о дате и времени вручения. Лучше заказать за 1–2 дня, в отдельных случаях соберём день в день.' },
   { icon: EyeOff, t: 'Анонимно, сюрпризом', d: 'Не скажем, от кого, пока не разрешите. Курьер вручит молча или с вашей фразой.' },
-  { icon: Store, t: 'Самовывоз из Нового города — бесплатно', d: SITE.address + '. Подготовим к вашему времени.' },
   { icon: CreditCard, t: 'Оплата удобным способом', d: 'Перевод по СБП, карта онлайн, для юрлиц — по счёту. Оплата после согласования букета.' },
 ]
 
@@ -83,7 +69,7 @@ export function Delivery() {
               Доставляем <span className="italic text-gold">по всему Ульяновску</span> — к удобному вам времени
             </>
           }
-          sub="Мастерская в Новом городе. Привезём и в Заволжье, и на правый берег — стоимость зависит от района."
+          sub="Мастерская в Новом городе. Привезём и в Заволжье, и на правый берег — доставка курьером по тарифам Яндекс Go."
         />
 
         <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
@@ -91,7 +77,7 @@ export function Delivery() {
             <CityScheme />
           </BlurFade>
           <BlurFade delay={0.08}>
-            <DeliveryCalc />
+            <DeliveryPrice />
           </BlurFade>
         </div>
 
@@ -113,78 +99,34 @@ export function Delivery() {
   )
 }
 
-/** Калькулятор доставки по районам: район → сумма заказа → день → примерная цена и готовое сообщение мастеру. */
-function DeliveryCalc() {
-  const [zone, setZone] = useState<ZoneKey>('new')
-  const [big, setBig] = useState(false)
-  const [holiday, setHoliday] = useState(false)
-  const z = ZONES.find((x) => x.key === zone)!
-  const free = z.free && big
-  const result =
-    z.key === 'pickup' ? { main: 'Бесплатно', sub: 'Самовывоз из мастерской — подготовим к вашему времени' }
-    : z.price === null ? { main: 'По запросу', sub: 'Посчитаем по адресу — напишите нам' }
-    : free ? { main: 'Бесплатно', sub: `Доставка по Новому городу при заказе от ${rub(SITE.freeDeliveryFrom)}` }
-    : { main: `≈ от ${rub(z.price)}`, sub: holiday ? 'В праздники Яндекс Go обычно дороже — точную цену назовём при оформлении' : 'Ориентир по тарифу Яндекс Go «Курьер», точную цену назовём при оформлении' }
-  const text =
-    `Здравствуйте! Нужна доставка букета: ${z.zone.toLowerCase()}${z.key === 'pickup' ? '' : ', адрес: …'}. ` +
-    `Сумма заказа ${big ? `от ${rub(SITE.freeDeliveryFrom)}` : `до ${rub(SITE.freeDeliveryFrom)}`}${holiday ? ', в праздничный день' : ''}. ` +
-    `Расчёт на сайте: ${result.main.toLowerCase()}. Дата: …`
+/** Стоимость доставки: по тарифам Яндекс Go, без фиксированных цен на сайте. */
+const DELIVERY_POINTS = [
+  { icon: '📍', t: 'Считает Яндекс Go по вашему адресу', d: 'Стоимость зависит от расстояния и загруженности дорог в момент отправки — назовём точную сумму при оформлении.' },
+  { icon: '🎁', t: 'Бесплатно по Новому городу', d: `При заказе от ${rub(SITE.freeDeliveryFrom)}.` },
+  { icon: '🏠', t: 'Самовывоз — бесплатно', d: `Из мастерской: ${SITE.address}.` },
+  { icon: '🛵', t: 'Следите за курьером', d: 'Пришлём ссылку Яндекс Go — видно, где букет и когда приедет.' },
+]
+
+function DeliveryPrice() {
   return (
     <div className="flex h-full flex-col gap-5 rounded-3xl border border-line bg-surface p-5 md:p-6">
       <div>
-        <p className="eyebrow mb-2">Калькулятор доставки</p>
-        <p className="mb-3 text-[15px] font-bold">1. Куда везём?</p>
-        <div role="radiogroup" aria-label="Район" className="grid grid-cols-2 gap-2">
-          {ZONES.map((x) => {
-            const on = x.key === zone
-            return (
-              <button
-                key={x.key}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => { setZone(x.key); goal('delivery_calc', { zone: x.key }) }}
-                className={cn(
-                  'run-border flex min-h-[64px] cursor-pointer flex-col justify-center rounded-2xl border px-3.5 py-2.5 text-left transition',
-                  on ? 'border-honey bg-honey text-onaccent' : 'border-line bg-cream hover:border-honey/50',
-                  x.key === 'pickup' && 'col-span-2',
-                )}
-              >
-                <span className="flex items-baseline justify-between gap-2 text-[14.5px] font-extrabold leading-tight">
-                  {x.zone}
-                  <span className={cn('shrink-0 text-[13px] font-bold', on ? 'text-onaccent/80' : 'text-honey-600')}>
-                    {x.price === null ? '—' : x.price === 0 ? '0 ₽' : `от ${rub(x.price)}`}
-                  </span>
-                </span>
-                <span className={cn('mt-0.5 text-[12px] font-semibold leading-snug', on ? 'text-onaccent/75' : 'text-muted')}>{x.hint}</span>
-              </button>
-            )
-          })}
-        </div>
-        <p className="mt-2.5 text-[13px] font-semibold text-ink-soft">🎁 Бесплатная доставка по Новому городу при заказе от {rub(SITE.freeDeliveryFrom)}</p>
+        <p className="eyebrow mb-2">Стоимость доставки</p>
+        <p className="font-display text-[28px] font-semibold leading-tight md:text-[34px]">
+          По тарифам <span className="italic text-gold">Яндекс Go</span>
+        </p>
       </div>
-
-      {z.key !== 'pickup' && z.price !== null && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="mb-2 text-[15px] font-bold">2. Сумма заказа</p>
-            <Chips ariaLabel="Сумма заказа" value={big ? 'big' : 'small'} onChange={(v) => setBig(v === 'big')}
-              options={[{ key: 'small', label: `до ${rub(SITE.freeDeliveryFrom)}` }, { key: 'big', label: `от ${rub(SITE.freeDeliveryFrom)}` }] as const} />
-          </div>
-          <div>
-            <p className="mb-2 text-[15px] font-bold">3. Когда</p>
-            <Chips ariaLabel="Когда" value={holiday ? 'h' : 'd'} onChange={(v) => setHoliday(v === 'h')}
-              options={[{ key: 'd', label: 'Обычный день' }, { key: 'h', label: 'Праздник' }] as const} />
-          </div>
-        </div>
-      )}
-
-      <div className="mt-auto rounded-2xl bg-honey-100 p-4 md:p-5" aria-live="polite">
-        <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted">Примерная стоимость доставки</p>
-        <p className="mt-1 text-[34px] font-extrabold leading-none tracking-tight">{result.main}</p>
-        <p className="mt-2 text-[13px] leading-snug text-ink-soft">{result.sub}</p>
-      </div>
-      <MessengerButtons row size="md" from="delivery-calc" text={text} />
+      <ul className="flex flex-col gap-3">
+        {DELIVERY_POINTS.map((p) => (
+          <li key={p.t} className="flex gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cream-2 text-lg">{p.icon}</span>
+            <span>
+              <span className="block text-[15px] font-extrabold leading-snug">{p.t}</span>
+              <span className="mt-0.5 block text-[13.5px] leading-relaxed text-ink-soft">{p.d}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

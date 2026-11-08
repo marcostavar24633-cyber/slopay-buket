@@ -125,20 +125,13 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Калькулятор доставки: район → цена, бесплатно по Новому городу от 8 000 ₽, текст в мессенджер', async () => {
+  await test('Доставка по тарифам Яндекс Go, без цен на доставку', async () => {
     const { ctx, page } = await mobile()
-    const calc = page.locator('#delivery')
-    const price = () => calc.locator('[aria-live="polite"] p').nth(1).textContent()
-    assert.match(await price(), /от 250/)
-    await calc.getByRole('radio', { name: /Правый берег/ }).click()
-    assert.match(await price(), /от 450/)
-    await calc.getByRole('radio', { name: /Новый город/ }).click()
-    await calc.getByRole('radio', { name: /от 8 000/ }).click()
-    assert.equal((await price()).trim(), 'Бесплатно')
-    await calc.getByRole('radio', { name: /Пригород/ }).click()
-    assert.equal((await price()).trim(), 'По запросу')
-    const href = decodeURIComponent(await calc.getByRole('link', { name: /Telegram/ }).getAttribute('href'))
-    assert.ok(href.includes('пригород') && href.includes('Расчёт на сайте: по запросу'), href)
+    const sec = page.locator('#delivery')
+    const t = await sec.textContent()
+    assert.ok(t.includes('По тарифам') && t.includes('Яндекс Go') && t.includes('Бесплатно по Новому городу'), 'нет текста про Яндекс Go')
+    for (const bad of ['от 250', 'от 350', 'от 450', 'зависит от района', 'Калькулятор']) assert.ok(!t.includes(bad), 'найдено: ' + bad)
+    assert.equal(await sec.getByRole('link').count() + await sec.getByRole('button').count(), 0, 'в блоке доставки нет кнопок')
     await ctx.close()
   })
 
@@ -181,14 +174,9 @@ async function test(name, fn) {
     await ctx.close()
   })
 
-  await test('Финальный блок и блок доставки: кнопки MAX/Telegram вместо форм', async () => {
+  await test('На сайте нет форм с телефоном', async () => {
     const { ctx, page } = await mobile()
-    for (const id of ['#delivery']) {
-      const sec = page.locator(id)
-      assert.equal(await sec.locator('input[type="tel"]').count(), 0, id + ': нет поля телефона')
-      assert.ok((await sec.getByRole('link', { name: /MAX/ }).count()) > 0, id + ': MAX')
-      assert.ok((await sec.locator('a[href^="https://t.me/+79631282556?text="]').count()) > 0, id + ': Telegram с текстом')
-    }
+    assert.equal(await page.locator('input[type="tel"]').count(), 0, 'нет полей телефона')
     await ctx.close()
   })
 
