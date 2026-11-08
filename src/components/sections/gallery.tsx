@@ -67,7 +67,7 @@ export function Lightbox({
           <DialogPrimitive.Description className="sr-only">Листайте стрелками или свайпом</DialogPrimitive.Description>
           <div
             // рамка фото фиксированного размера: фото меняются внутри, остальное не сдвигается
-            className={`relative w-full max-w-5xl shrink-0 overflow-hidden ${cta ? "h-[54dvh] md:h-[66dvh]" : "h-[78dvh]"}`}
+            className={`relative w-full max-w-5xl shrink-0 overflow-hidden ${cta ? "h-[54dvh] rounded-2xl md:h-[66dvh] md:rounded-none" : "h-[78dvh]"}`}
             onPointerDown={(e) => (startX.current = e.clientX)}
             onPointerUp={(e) => {
               if (startX.current === null) return
@@ -88,7 +88,8 @@ export function Lightbox({
                   exit={{ opacity: 0, x: dir * -60 }}
                   transition={{ duration: 0.25 }}
                   draggable={false}
-                  className="absolute inset-0 h-full w-full select-none object-contain"
+                  // на телефоне все фото каталога одного размера — заполняют рамку целиком
+                  className={`absolute inset-0 h-full w-full select-none ${cta ? "object-cover md:object-contain" : "object-contain"}`}
                 />
               )}
             </AnimatePresence>
