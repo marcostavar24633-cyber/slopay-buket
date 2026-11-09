@@ -13,7 +13,7 @@ const PAINS = [
   { icon: Megaphone, t: 'Надоели ежедневники и кружки', d: 'Съедобный подарок запоминают, фотографируют и с удовольствием съедают всей командой.' },
   { icon: Gift, t: 'Нужно много одинаковых подарков', d: 'Аккуратные коробочки одного стиля — удобно вручать каждому сотруднику или партнёру.' },
   { icon: Truck, t: 'Нет времени заниматься', d: 'Берём всё на себя: соберём, упакуем и привезём в офис к нужной дате.' },
-  { icon: CalendarClock, t: 'Боюсь, что в праздник не успеют', d: 'Фиксируем дату по предоплате 50% и заранее бронируем её под вас.' },
+  { icon: CalendarClock, t: 'Боюсь, что в праздник не успеют', d: 'Фиксируем дату по предоплате 30% и заранее бронируем её под вас.' },
 ]
 
 const FORMATS = [
@@ -129,7 +129,7 @@ export function Corporate() {
                 </div>
                 <p className="mt-1 text-[14px] font-bold text-white">Получить коммерческое предложение:</p>
                 <MessengerButtons text={text} from="corporate" className="[&_p]:text-white/50" />
-                <p className="text-center text-[12.5px] text-white/50">Предоплата 50% — фиксирует дату</p>
+                <p className="text-center text-[12.5px] text-white/50">Предоплата 30% — фиксирует дату</p>
                 <a
                   href="/corporate-catalog.pdf"
                   download

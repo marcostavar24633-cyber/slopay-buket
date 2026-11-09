@@ -16,7 +16,7 @@ h1{font-size:34px;margin:0}.s{font-family:Arial;color:#7d6c61;font-size:13px}
 .f{margin-top:24px;font-family:Arial;font-size:13px;background:#2a1a14;color:#fbf6ef;padding:16px;border-radius:14px}</style></head><body>
 <h1>🍓 Слопай букет — корпоративные подарки</h1><p class="s">Ульяновск · небольшие подарки в коробочках · доставка в офис</p>
 <div class="g">${items.map(([t, p, i, d]) => `<div class="c"><img src="${img(i)}"><div><b>${t}</b><div class="p">${p}</div>${d}</div></div>`).join('')}</div>
-<div class="f">Скидка за объём: от 10 шт. — −10%, от 20 шт. — −15%. Предоплата 50%. Новогодние заказы — до 5 декабря.<br>+7 (963) 128-25-56 · MAX / Telegram</div></body></html>`
+<div class="f">Скидка за объём: от 10 шт. — −10%, от 20 шт. — −15%. Предоплата 30%. Новогодние заказы — до 5 декабря.<br>+7 (963) 128-25-56 · MAX / Telegram</div></body></html>`
 ;(async () => {
   const b = await chromium.launch()
   const p = await b.newPage()

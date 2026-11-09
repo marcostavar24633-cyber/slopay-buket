@@ -17,7 +17,7 @@ const STEPS = [
 const GUARANTEES = [
   { icon: '📸', t: 'Фото до отправки', d: 'Пришлём фото готового букета — вы видите именно то, что получит человек.' },
   { icon: '🛡️', t: 'Гарантия свежести', d: 'Продукт несвежий? Пришлите фото в течение 2 часов после вручения — после проверки сделаем скидку на заказ.' },
-  { icon: '⏰', t: 'Доставим вовремя', d: 'Курьер Яндекс Go везёт напрямую. Задержались по нашей вине — доставку оплатим сами.' },
+  { icon: '⏰', t: 'Доставим вовремя', d: 'Курьер Яндекс Go везёт напрямую, без пересадок на складах. Время вручения согласуем заранее.' },
 ]
 
 const DETAILS = [
@@ -92,7 +92,7 @@ export function Delivery() {
 
         <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
           <BlurFade className="overflow-hidden rounded-3xl border border-line bg-surface">
-            <CityScheme />
+            <DeliveryMap />
           </BlurFade>
           <BlurFade delay={0.08}>
             <DeliveryPrice />
@@ -149,34 +149,21 @@ function DeliveryPrice() {
   )
 }
 
-/** Упрощённая схема города: Волга делит Заволжье и правый берег. */
-function CityScheme() {
+/** Настоящая Яндекс Карта с мастерской; грузится, только когда блок близко к экрану. */
+function DeliveryMap() {
+  const q = encodeURIComponent(`Ульяновск, ${SITE.address.replace(', Новый город', '')}`)
   return (
-    <svg viewBox="0 0 520 400" className="h-full min-h-[300px] w-full" role="img" aria-label="Схема зон доставки по Ульяновску">
-      <rect width="520" height="400" className="fill-surface" />
-      {/* правый берег */}
-      <path d="M0 0h250c-10 70-50 120-40 200s50 130 40 200H0z" className="fill-berry" fillOpacity=".08" />
-      {/* Волга */}
-      <path d="M250 0c-10 70-50 120-40 200s50 130 40 200h70c10-70-30-130-20-200s40-130 40-200z" className="fill-river" />
-      <text x="282" y="210" className="fill-river-fg" fontSize="13" fontWeight="700" transform="rotate(80 282 210)" textAnchor="middle">Волга</text>
-      {/* мосты */}
-      <rect x="205" y="118" width="120" height="7" rx="3" className="fill-honey" fillOpacity=".75" />
-      <rect x="215" y="268" width="110" height="7" rx="3" className="fill-honey" fillOpacity=".75" />
-      <text x="265" y="112" fontSize="10" className="fill-ink-soft" textAnchor="middle">Президентский мост</text>
-      <text x="270" y="292" fontSize="10" className="fill-ink-soft" textAnchor="middle">Императорский мост</text>
-      {/* Заволжье */}
-      <path d="M320 0h200v400H320c10-70-30-130-20-200S340 70 320 0z" className="fill-honey" fillOpacity=".07" />
-      <circle cx="430" cy="150" r="72" className="fill-honey stroke-honey" fillOpacity=".16" strokeOpacity=".5" strokeDasharray="4 6" />
-      <image href="/logo-256.webp" x="408" y="118" width="44" height="44" />
-      <text x="430" y="182" fontSize="12" fontWeight="800" className="fill-ink" textAnchor="middle">Мастерская</text>
-      <text x="430" y="242" fontSize="13" fontWeight="700" className="fill-honey-600" textAnchor="middle">Новый город</text>
-      <text x="425" y="300" fontSize="12" fontWeight="700" className="fill-honey-600" textAnchor="middle">Верхняя Терраса</text>
-      <text x="415" y="350" fontSize="11.5" fontWeight="700" className="fill-honey-600" textAnchor="middle">Старый город Заволжья</text>
-      {/* правый берег подписи */}
-      <text x="110" y="70" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Правый берег</text>
-      <text x="110" y="190" fontSize="13" fontWeight="800" className="fill-berry" textAnchor="middle">Ленинский (центр)</text>
-      <text x="110" y="292" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Засвияжье,</text>
-      <text x="110" y="308" fontSize="12" fontWeight="700" className="fill-berry" textAnchor="middle">Железнодорожный</text>
-    </svg>
+    <div className="relative h-full min-h-[320px] w-full">
+      <iframe
+        title="Мастерская «Слопай букет» и зона доставки на Яндекс Картах"
+        src={`https://yandex.ru/map-widget/v1/?text=${q}&z=11`}
+        className="absolute inset-0 h-full w-full border-0"
+        loading="lazy"
+        allowFullScreen
+      />
+      <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-surface/95 px-3 py-1.5 text-[12.5px] font-bold text-ink shadow-soft">
+        📍 Мастерская: {SITE.address}
+      </span>
+    </div>
   )
 }
