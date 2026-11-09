@@ -26,6 +26,19 @@
       }
     </script>
     <!-- /Yandex.Metrika counter -->
+    <!-- Цели Метрики: один обработчик на все ссылки MAX, Telegram, телефон, Авито и PDF -->
+    <script>
+      document.addEventListener('click', function (e) {
+        var el = e.target.closest && e.target.closest('a[href]');
+        if (!el || typeof ym !== 'function') return;
+        var ID = 114134059, href = el.getAttribute('href') || '';
+        if (href.indexOf('tel:') === 0) ym(ID, 'reachGoal', 'click_phone');
+        else if (href.indexOf('t.me') > -1) ym(ID, 'reachGoal', 'click_telegram');
+        else if (href.indexOf('max.ru') > -1) ym(ID, 'reachGoal', 'click_max');
+        else if (href.indexOf('avito.ru') > -1) ym(ID, 'reachGoal', 'click_avito');
+        else if (/\.pdf($|\?)/.test(href)) ym(ID, 'reachGoal', 'corp_pdf');
+      }, true);
+    </script>
   </head>
   <body data-doc="privacy">
     <noscript><div><img src="https://mc.yandex.ru/watch/114134059" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
