@@ -10,6 +10,7 @@ import type { Block, BlockStyle, Theme } from '@/lib/content'
 import type { ToAdmin, ToSite } from '@/lib/live'
 import { cn } from '@/lib/utils'
 import { useStore, type Content } from '../store'
+import { msgTarget, siteUrl } from '../github'
 import { Btn, IconBtn, Modal, Select } from '../ui'
 import { BlockForm, blank, nameOf, TYPES, type CustomType } from './blocks'
 import { HeroSettings } from './settings'
@@ -36,7 +37,7 @@ export function Editor() {
   dataRef.current = data
   const theme = ((data.site as { theme?: Theme }).theme ?? {}) as Theme
 
-  const post = useCallback((m: ToSite) => frame.current?.contentWindow?.postMessage(m, location.origin), [])
+  const post = useCallback((m: ToSite) => frame.current?.contentWindow?.postMessage(m, msgTarget()), [])
   const writeDraft = () => {
     try {
       sessionStorage.setItem('slopay-draft', JSON.stringify(dataRef.current))
@@ -52,7 +53,7 @@ export function Editor() {
   // первый запуск: черновик в sessionStorage, потом фрейм
   const [src] = useState(() => {
     writeDraft()
-    return '/?edit=1'
+    return siteUrl('?edit=1')
   })
 
   // живые правки: блоки, первый экран, цвета, выбор, режим
@@ -73,7 +74,7 @@ export function Editor() {
   // сообщения со страницы
   useEffect(() => {
     const h = (e: MessageEvent<ToAdmin>) => {
-      if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return
+      if (e.source !== frame.current?.contentWindow) return
       const m = e.data
       if (!m?.type?.startsWith('slopay:')) return
       if (m.type === 'slopay:ready') {

@@ -166,3 +166,15 @@ export const TOKEN_URL =
     contents: 'write',
     actions: 'read',
   }).toString()
+
+/**
+ * Адрес сайта относительно админки: /admin/ → /, а в копии для галереи (admin.html рядом с index.html) → ./index.html.
+ * Нужен для «Открыть сайт» и для фрейма визуального редактора.
+ */
+export function siteUrl(query = '') {
+  const path = location.pathname
+  if (/admin\.html$/.test(path)) return path.replace(/admin\.html$/, 'index.html') + query
+  return path.replace(/admin\/(index\.html)?$/, '') + query
+}
+/** Цель для postMessage: в песочнице с «пустым» адресом (origin = 'null') — '*', проверяем источник сообщения. */
+export const msgTarget = () => (location.origin === 'null' ? '*' : location.origin)

@@ -30,12 +30,12 @@ export type ToAdmin =
   | { type: 'slopay:text'; index: number | 'hero'; field: string; value: string }
   | { type: 'slopay:scrollpos'; y: number }
 
-export const toAdmin = (m: ToAdmin) => EDIT_MODE && window.parent.postMessage(m, location.origin)
+export const toAdmin = (m: ToAdmin) => EDIT_MODE && window.parent.postMessage(m, location.origin === 'null' ? '*' : location.origin)
 
 if (EDIT_MODE) {
   queueMicrotask(() => toAdmin({ type: 'slopay:ready' }))
   addEventListener('message', (e: MessageEvent<ToSite>) => {
-    if (e.origin !== location.origin || !e.data?.type) return
+    if (e.source !== window.parent || !e.data?.type) return
     if (e.data.type === 'slopay:live') {
       const { type: _t, ...rest } = e.data
       state = { ...state, ...Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)) }

@@ -23,7 +23,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { auth, checkRepo, getUser, REPO, TOKEN_URL } from './github'
+import { auth, checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
 import { FILES, useStore } from './store'
 import { Btn } from './ui'
 
@@ -100,7 +100,7 @@ export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; o
     <main className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center gap-3">
-          <img src="/logo-256.webp" alt="" width={48} height={48} className="h-12 w-12 rounded-full ring-1 ring-honey/30" />
+          <img src={siteUrl().replace(/[^/]*$/, '') + 'logo-256.webp'} alt="" width={48} height={48} className="h-12 w-12 rounded-full ring-1 ring-honey/30" />
           <div>
             <h1 className="font-display text-[24px] font-bold italic leading-none">Слопай букет</h1>
             <p className="mt-1 text-[13px] text-muted">Панель управления сайтом</p>
@@ -171,7 +171,7 @@ function Sidebar({ route, go, open, onClose }: { route: Route; go: (r: Route) =>
         )}
       >
         <div className="flex h-16 items-center gap-2.5 border-b border-line px-4">
-          <img src="/logo-256.webp" alt="" width={36} height={36} className="h-9 w-9 rounded-full ring-1 ring-honey/30" />
+          <img src={siteUrl().replace(/[^/]*$/, '') + 'logo-256.webp'} alt="" width={36} height={36} className="h-9 w-9 rounded-full ring-1 ring-honey/30" />
           <span className="leading-none">
             <span className="block font-display text-[17px] font-bold italic">Слопай букет</span>
             <span className="mt-0.5 block text-[11px] font-semibold text-muted">Админ-панель</span>
@@ -204,7 +204,7 @@ function Sidebar({ route, go, open, onClose }: { route: Route; go: (r: Route) =>
           </ul>
         </nav>
         <div className="space-y-1 border-t border-line p-3">
-          <a href="/" target="_blank" rel="noopener" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[14.5px] font-semibold text-ink-soft hover:bg-ink/5 hover:text-ink">
+          <a href={siteUrl()} target="_blank" rel="noopener" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[14.5px] font-semibold text-ink-soft hover:bg-ink/5 hover:text-ink">
             <ExternalLink className="h-[18px] w-[18px]" /> Открыть сайт
           </a>
           <button onClick={logout} className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-[14.5px] font-semibold text-ink-soft hover:bg-berry/10 hover:text-berry">
