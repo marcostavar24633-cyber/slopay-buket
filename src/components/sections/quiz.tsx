@@ -113,7 +113,7 @@ export function QuizDialog() {
                     </a>
                   </Button>
                 </div>
-                <p className="mt-3 text-center text-[12.5px] font-semibold text-muted">Ответим в течение 15 минут, с 8:00 до 21:00</p>
+                <p className="mt-3 text-center text-[12.5px] font-semibold text-muted">{SITE.responseNote}</p>
               </div>
             )}
           </motion.div>

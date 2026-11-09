@@ -83,7 +83,7 @@ export function OrderSheet() {
         )}
       </div>
 
-      <p className="mt-3 text-center text-[12.5px] font-semibold text-muted">Ответим в течение 15 минут, с 8:00 до 21:00</p>
+      <p className="mt-3 text-center text-[12.5px] font-semibold text-muted">{SITE.responseNote}</p>
 
       <details className="mt-3 rounded-2xl border border-line bg-surface/60 px-4 py-1 text-[13px] leading-snug text-ink-soft">
         <summary className="flex min-h-11 cursor-pointer items-center font-bold text-ink">Как это работает?</summary>

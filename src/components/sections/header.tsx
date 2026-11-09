@@ -21,20 +21,20 @@ const NAV: { id: string; label: string; href?: string }[] = [
 
 export function Logo({ light }: { light?: boolean }) {
   return (
-    <a href="#top" className="group flex min-h-11 min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label="Слопай букет — на главную">
+    <a href="#top" className="group flex min-h-11 min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label={`${SITE.brand} — на главную`}>
       <img
         src="/logo-256.webp"
-        alt="Логотип «Слопай букет»"
+        alt={`Логотип «${SITE.brand}»`}
         width={48}
         height={48}
         className="h-10 w-10 shrink-0 rounded-full shadow-soft ring-1 ring-honey/30 transition duration-500 group-hover:rotate-[-10deg] md:h-12 md:w-12"
       />
       <span className="leading-none">
         <span className={cn('block font-display text-[17px] font-bold italic tracking-tight md:text-[19px]', light ? 'text-white' : 'text-ink')}>
-          Слопай букет
+          {SITE.brand}
         </span>
         <span className={cn('mt-1 block whitespace-nowrap text-[10px] font-semibold md:text-[11px]', light ? 'text-white/60' : 'text-muted')}>
-          <span className="max-sm:hidden">Фудфлористика</span><span className="sm:hidden">Букеты</span> · <span className={light ? 'text-white' : 'text-ink'}>Ульяновск</span>
+          <span className="max-sm:hidden">{SITE.tagline}</span><span className="sm:hidden">Букеты</span> · <span className={light ? 'text-white' : 'text-ink'}>{SITE.city}</span>
         </span>
       </span>
     </a>

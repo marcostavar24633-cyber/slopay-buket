@@ -7,6 +7,7 @@ import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { ANCHOR_PRICE, ITEMS } from '@/lib/products'
 import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
+import { HERO_DATA } from '@/lib/content'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
@@ -21,13 +22,13 @@ const PROOFS = [
 ]
 
 /** Букет на фото первого экрана — его честная цена. */
-const HERO_ITEM = ITEMS.find((i) => i.id === 'yag-24')
+const HERO_ITEM = ITEMS.find((i) => i.id === HERO_DATA.photoProduct)
 
 export function Hero() {
   const title =
     variant === 'A' ? (
       <>
-        Съедобные букеты в Ульяновске — <span className="italic text-gold">подарок, который не завянет</span>
+        {HERO_DATA.title} <span className="italic text-gold">{HERO_DATA.titleAccent}</span>
       </>
     ) : (
       <>
@@ -58,7 +59,7 @@ export function Hero() {
             {title}
           </h1>
           <p className="mt-3 max-w-xl text-[16px] font-semibold leading-relaxed text-ink-soft md:mt-5 md:text-lg">
-            Закупаем ягоды, мясо и раков утром в день сборки — и присылаем фото готового букета до отправки.
+            {HERO_DATA.subtitle}
           </p>
           <ul className="mt-5 hidden grid-cols-3 gap-3 md:grid">
             {PROOFS.map((p) => (
@@ -127,7 +128,7 @@ function HeroCtas({ className = 'flex' }: { className?: string }) {
           setQuizOpen(true)
         }}
       >
-        <Sparkles className="h-5 w-5" /> Подобрать букет за 2 минуты
+        <Sparkles className="h-5 w-5" /> {HERO_DATA.quizButton}
       </Button>
       <div className="grid grid-cols-2 gap-2 sm:flex sm:self-start">
         <Button variant="tg" size="md" asChild>
@@ -141,7 +142,7 @@ function HeroCtas({ className = 'flex' }: { className?: string }) {
           </a>
         </Button>
       </div>
-      <p className="text-center text-[12.5px] font-semibold text-muted sm:text-left">Ответим в течение 15 минут, с 8:00 до 21:00</p>
+      <p className="text-center text-[12.5px] font-semibold text-muted sm:text-left">{SITE.responseNote}</p>
     </div>
   )
 }

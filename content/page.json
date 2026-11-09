@@ -1,0 +1,54 @@
+{
+  "blocks": [
+    {
+      "type": "builtin",
+      "section": "hits",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "reviews",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "howto",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "catalog",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "why",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "occasions",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "delivery",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "process",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "faq",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "corporate",
+      "show": true
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "title": "8 Марта",
+      "text": "ягодные сердца и корзины",
+      "image": "/img/real/berry/thumbs/yag-20.webp",
+      "target": "berry"
+    },
+    {
+      "title": "14 Февраля",
+      "text": "клубника и розы",
+      "image": "/img/real/berry/thumbs/yag-24.webp",
+      "target": "berry"
+    },
+    {
+      "title": "День рождения",
+      "text": "сердца, корзины, мясные",
+      "image": "/img/real/berry/thumbs/yag-22.webp",
+      "target": "berry"
+    },
+    {
+      "title": "23 Февраля и мужчине",
+      "text": "мясные и раковые букеты",
+      "image": "/img/real/meat/thumbs/k-36.webp",
+      "target": "meat"
+    },
+    {
+      "title": "Маме",
+      "text": "сухофрукты и орехи",
+      "image": "/img/real/dried/thumbs/suh-10.webp",
+      "target": "dried"
+    },
+    {
+      "title": "Новый год",
+      "text": "праздничные наборы",
+      "image": "/img/real/dried/thumbs/suh-1.webp",
+      "target": "dried"
+    },
+    {
+      "title": "1 сентября и учителю",
+      "text": "сладкие боксы",
+      "image": "/img/real/sweet/thumbs/sl-1.webp",
+      "target": "sweet"
+    },
+    {
+      "title": "Коллегам",
+      "text": "корпоративные подарки",
+      "image": "/img/real/sweet/thumbs/sl-22.webp",
+      "target": "corporate"
+    }
+  ]
+}

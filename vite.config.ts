@@ -40,6 +40,14 @@ function seo(): Plugin {
     name: 'slopay-seo',
     transformIndexHtml: (html, ctx) => {
       let out = html.replaceAll('%SITE_URL%', SITE_URL)
+      // название и описание главной — из админки (content/site.json)
+      if (ctx.path === '/index.html') {
+        const site = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'content/site.json'), 'utf8'))
+        const esc = (t: string) => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+        if (site.seoTitle) out = out.replace(/<title>[^<]*<\/title>/, `<title>${esc(site.seoTitle)}</title>`)
+        if (site.seoDescription) out = out.replace(/(<meta name="description" content=")[^"]*(")/, `$1${esc(site.seoDescription)}$2`)
+        if (site.brand) out = out.replace(/(<meta property="og:site_name" content=")[^"]*(")/, `$1${esc(site.brand)}$2`)
+      }
       // ранняя загрузка шрифтов (PRELOAD_FONTS=1). По замерам на мобильном 4G она отнимает канал у главного фото, поэтому выключена
       const fonts = Object.keys(ctx.bundle ?? {}).filter((f) => /(manrope-cyrillic-wght-normal|playfair-display-cyrillic-wght-(normal|italic))-.*\.woff2$/.test(f))
       if (fonts.length && process.env.PRELOAD_FONTS) out = out.replace('</head>', fonts.map((f) => `  <link rel="preload" as="font" type="font/woff2" crossorigin href="${base}${f}" />\n`).join('') + '  </head>')

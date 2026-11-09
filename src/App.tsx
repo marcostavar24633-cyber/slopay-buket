@@ -6,16 +6,19 @@ import { SeasonBar } from '@/components/shared/season-bar'
 import { Hero } from '@/components/sections/hero'
 import { Hits } from '@/components/sections/catalog'
 import { OrderSheet } from '@/components/sections/order-flow'
+import { TitleOverride } from '@/components/shared/section-title'
+import { PAGE_BLOCKS } from '@/lib/content'
 
 const below = () => import('@/below')
-const BelowMain = lazy(() => below().then((m) => ({ default: m.BelowMain })))
+const BlockView = lazy(() => below().then((m) => ({ default: m.BlockView })))
 const BelowRest = lazy(() => below().then((m) => ({ default: m.BelowRest })))
 
 /**
- * Порядок блоков — по ТЗ: товар с ценой не позже второго экрана,
- * ценности и доверие — после каталога, чтобы «дожать» сомневающихся.
- * Блоки ниже каталога — в src/below.tsx (подгружаются отдельным файлом).
+ * Порядок блоков и их видимость — из админки (content/page.json). Первый экран всегда сверху.
+ * «Хит продаж» рисуется сразу (он близко к первому экрану), остальное — из отдельного файла src/below.tsx.
  */
+const BLOCKS = PAGE_BLOCKS.map((b, i) => ({ b, i })).filter(({ b }) => b.show !== false)
+
 export default function App() {
   return (
     <UIProvider>
@@ -24,10 +27,17 @@ export default function App() {
       <SeasonBar />
       <main>
         <Hero />
-        <Hits />
-        <Suspense fallback={<div className="min-h-[100vh]" />}>
-          <BelowMain />
-        </Suspense>
+        {BLOCKS.map(({ b, i }) =>
+          b.type === 'builtin' && b.section === 'hits' ? (
+            <TitleOverride.Provider key={i} value={b.eyebrow || b.title || b.sub ? { eyebrow: b.eyebrow, title: b.title, sub: b.sub } : null}>
+              <Hits />
+            </TitleOverride.Provider>
+          ) : (
+            <Suspense key={i} fallback={<div className="min-h-[60vh]" />}>
+              <BlockView b={b} i={i} />
+            </Suspense>
+          ),
+        )}
       </main>
       <Suspense fallback={null}>
         <BelowRest />
