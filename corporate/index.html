@@ -20,7 +20,7 @@
     </script>
     <!-- Yandex.Metrika counter (не грузится у роботов сборки и тестов: navigator.webdriver) -->
     <script type="text/javascript">
-      if (!navigator.webdriver) {
+      if (!navigator.webdriver && !/[?&]edit=1/.test(location.search)) {
         (function(m,e,t,r,i,k,a){
           m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
           m[i].l=1*new Date();

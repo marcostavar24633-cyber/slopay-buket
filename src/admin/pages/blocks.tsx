@@ -25,14 +25,14 @@ export const BUILTIN_NAMES: Record<BuiltinKey, string> = {
 /** У этих готовых блоков заголовок свёрстан особым образом — меняется только в коде. */
 const FIXED_TITLE = new Set<BuiltinKey>(['process', 'corporate'])
 
-const TYPES = {
+export const TYPES = {
   text: { label: 'Текст', desc: 'Заголовок и абзацы текста, можно кнопку', icon: Type },
   imageText: { label: 'Фото + текст', desc: 'Фото слева или справа, рядом текст', icon: Image },
   banner: { label: 'Баннер с кнопкой', desc: 'Яркая плашка: акция, сезон, призыв', icon: Megaphone },
   gallery: { label: 'Галерея фото', desc: 'Сетка фото с подписями', icon: GalleryHorizontal },
   cards: { label: 'Карточки', desc: 'Преимущества, условия, шаги — 3–6 карточек', icon: LayoutGrid },
 } as const
-type CustomType = keyof typeof TYPES
+export type CustomType = keyof typeof TYPES
 
 const CTA_OPTIONS: { value: Cta; label: string }[] = [
   { value: 'none', label: 'Без кнопки' },
@@ -41,7 +41,7 @@ const CTA_OPTIONS: { value: Cta; label: string }[] = [
   { value: 'catalog', label: 'Смотреть каталог' },
 ]
 
-const blank = (t: CustomType): Block =>
+export const blank = (t: CustomType): Block =>
   t === 'gallery'
     ? { type: 'gallery', show: true, title: 'Наши работы', images: [] }
     : t === 'cards'
@@ -52,7 +52,7 @@ const blank = (t: CustomType): Block =>
           ? { type: 'imageText', show: true, title: '', body: '', image: '', cta: 'none' }
           : { type: 'text', show: true, title: '', body: '', cta: 'none' }
 
-const nameOf = (b: Block) => (b.type === 'builtin' ? BUILTIN_NAMES[b.section] : b.title || '(без заголовка)')
+export const nameOf = (b: Block) => (b.type === 'builtin' ? BUILTIN_NAMES[b.section] : b.title || '(без заголовка)')
 
 export function Blocks({ params, go }: { params: URLSearchParams; go: (r: Route) => void }) {
   const { data, set } = useStore()
@@ -190,7 +190,7 @@ export function Blocks({ params, go }: { params: URLSearchParams; go: (r: Route)
 
 const MD_HINT = 'Пустая строка — новый абзац, «- » в начале строки — список, **жирный**, [текст ссылки](https://…)'
 
-function BlockForm({ b, onChange }: { b: Block; onChange: (b: Block) => void }) {
+export function BlockForm({ b, onChange }: { b: Block; onChange: (b: Block) => void }) {
   const p = (patch: Partial<Block>) => onChange({ ...b, ...patch } as Block)
   const show = <Toggle checked={b.show !== false} onChange={(v) => p({ show: v })} label="Показывать на сайте" />
 

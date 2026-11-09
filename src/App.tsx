@@ -7,37 +7,53 @@ import { Hero } from '@/components/sections/hero'
 import { Hits } from '@/components/sections/catalog'
 import { OrderSheet } from '@/components/sections/order-flow'
 import { TitleOverride } from '@/components/shared/section-title'
-import { PAGE_BLOCKS } from '@/lib/content'
+import { EDIT_MODE } from '@/lib/content'
+import { blockCss, themeCss, useLive } from '@/lib/live'
+import { BlockFrame, EditStyles } from '@/components/edit/edit-frame'
 
 const below = () => import('@/below')
 const BlockView = lazy(() => below().then((m) => ({ default: m.BlockView })))
 const BelowRest = lazy(() => below().then((m) => ({ default: m.BelowRest })))
 
 /**
- * Порядок блоков и их видимость — из админки (content/page.json). Первый экран всегда сверху.
- * «Хит продаж» рисуется сразу (он близко к первому экрану), остальное — из отдельного файла src/below.tsx.
+ * Порядок блоков, видимость и оформление — из админки (content/page.json); в визуальном редакторе — живой черновик.
+ * Первый экран всегда сверху. «Хит продаж» рисуется сразу, остальное — из отдельного файла src/below.tsx.
  */
-const BLOCKS = PAGE_BLOCKS.map((b, i) => ({ b, i })).filter(({ b }) => b.show !== false)
+function Blocks() {
+  const { page, theme } = useLive()
+  // в редакторе скрытые блоки видны как плашки — чтобы их можно было выбрать и вернуть
+  const blocks = page.map((b, i) => ({ b, i })).filter(({ b }) => EDIT_MODE || b.show !== false)
+  const css = themeCss(theme) + blocks.map(({ b, i }) => blockCss(i, b.style)).join('')
+  return (
+    <>
+      {css && <style data-slopay-styles>{css}</style>}
+      {blocks.map(({ b, i }) => (
+        <BlockFrame key={i + ':' + (b.type === 'builtin' ? b.section : b.type)} index={i} block={b}>
+          {b.type === 'builtin' && b.section === 'hits' ? (
+            <TitleOverride.Provider value={b.eyebrow || b.title || b.sub ? { eyebrow: b.eyebrow, title: b.title, sub: b.sub } : null}>
+              <Hits />
+            </TitleOverride.Provider>
+          ) : (
+            <Suspense fallback={<div className="min-h-[60vh]" />}>
+              <BlockView b={b} i={i} />
+            </Suspense>
+          )}
+        </BlockFrame>
+      ))}
+    </>
+  )
+}
 
 export default function App() {
   return (
     <UIProvider>
+      <EditStyles />
       <FoodBackground />
       <Header />
       <SeasonBar />
       <main>
         <Hero />
-        {BLOCKS.map(({ b, i }) =>
-          b.type === 'builtin' && b.section === 'hits' ? (
-            <TitleOverride.Provider key={i} value={b.eyebrow || b.title || b.sub ? { eyebrow: b.eyebrow, title: b.title, sub: b.sub } : null}>
-              <Hits />
-            </TitleOverride.Provider>
-          ) : (
-            <Suspense key={i} fallback={<div className="min-h-[60vh]" />}>
-              <BlockView b={b} i={i} />
-            </Suspense>
-          ),
-        )}
+        <Blocks />
       </main>
       <Suspense fallback={null}>
         <BelowRest />

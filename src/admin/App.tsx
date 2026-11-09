@@ -9,6 +9,7 @@ import { Reviews } from './pages/reviews'
 import { Blocks } from './pages/blocks'
 import { Faq } from './pages/faq'
 import { Settings } from './pages/settings'
+import { Editor } from './pages/editor'
 
 export default function AdminApp() {
   const [token, setToken] = useState<string | null>(auth.get)
@@ -28,6 +29,7 @@ export default function AdminApp() {
     >
       <Shell route={route} go={go}>
         {route === 'dashboard' && <Dashboard go={go} />}
+        {route === 'editor' && <Editor />}
         {route === 'products' && <Products params={params} />}
         {route === 'reviews' && <Reviews params={params} />}
         {route === 'blocks' && <Blocks params={params} go={go} />}

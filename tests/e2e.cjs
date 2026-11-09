@@ -448,6 +448,48 @@ async function test(name, fn) {
     await ctx.close()
   })
 
+  await test('Визуальный редактор: выбор блока, цвет фона, перетаскивание, правка заголовка на странице', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    const page = await ctx.newPage()
+    const errs = []
+    page.on('pageerror', (e) => errs.push(e.message))
+    await page.goto(URL + 'admin/')
+    await page.getByText('Посмотреть без входа').click()
+    await page.getByRole('button', { name: 'Визуальный редактор', exact: true }).click()
+    const f = page.frameLocator('iframe')
+    await f.locator('[data-bi="1"] figure').first().waitFor()
+    await page.waitForTimeout(2500)
+    await f.locator('[data-bi="1"] figure').first().click()
+    await page.getByRole('heading', { name: 'Отзывы' }).waitFor()
+    await page.getByLabel('#1d1913').first().click()
+    await page.waitForFunction(() => getComputedStyle(document.querySelector('iframe').contentDocument.querySelector('[data-bi="1"]')).backgroundColor === 'rgb(29, 25, 19)')
+    const h2 = f.locator('[data-bi="1"] h2')
+    await h2.click()
+    await page.keyboard.press('Control+A')
+    await page.keyboard.type('Нам доверяют')
+    await page.keyboard.press('Enter')
+    await f.locator('[data-bi="1"] h2', { hasText: 'Нам доверяют' }).waitFor()
+    // перетаскивание за ярлык: «Отзывы» под «4 шага»
+    await f.locator('[data-bi="1"] figure').first().scrollIntoViewIfNeeded()
+    const hd = await f.locator('[data-bi="1"] .slopay-ui button').boundingBox()
+    const tgt = await f.locator('[data-bi="2"]').boundingBox()
+    await page.mouse.move(hd.x + 20, hd.y + 10)
+    await page.mouse.down()
+    await page.mouse.move(hd.x + 20, tgt.y + tgt.height - 20, { steps: 15 })
+    await page.waitForTimeout(200)
+    await page.mouse.up()
+    await f.locator('[data-bi="2"] h2', { hasText: 'Нам доверяют' }).waitFor()
+    await page.getByText('Есть неопубликованные правки').waitFor()
+    assert.deepEqual(errs, [])
+    await ctx.close()
+  })
+
+  await test('На сайте нет следов редактора', async () => {
+    const { ctx, page } = await mobile()
+    assert.equal(await page.locator('.slopay-edit, .slopay-handle, [contenteditable="true"]').count(), 0)
+    await ctx.close()
+  })
+
   await browser.close()
   for (const r of results) console.log(r.join('  '))
   const failed = results.filter((r) => r[0] === '✗').length

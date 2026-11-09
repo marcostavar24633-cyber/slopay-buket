@@ -16,7 +16,7 @@ import { QuizDialog } from '@/components/sections/quiz'
 import { CookieNotice } from '@/components/shared/cookie-notice'
 import { BannerBlock, CardsBlock, GalleryBlock, ImageTextBlock, TextBlock } from '@/components/blocks/custom-blocks'
 import { TitleOverride } from '@/components/shared/section-title'
-import type { Block, BuiltinKey } from '@/lib/content'
+import { EDIT_MODE, type Block, type BuiltinKey } from '@/lib/content'
 
 /** Готовые блоки сайта: ключ в админке → компонент. */
 export const BUILTIN: Record<BuiltinKey, ComponentType> = {
@@ -64,7 +64,7 @@ export function BelowRest() {
     <>
       <Footer />
       <QuizDialog />
-      <CookieNotice />
+      {!EDIT_MODE && <CookieNotice />}
     </>
   )
 }

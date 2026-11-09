@@ -3,7 +3,9 @@
  * текст, фото + текст, баннер с кнопкой, галерея фото, карточки-преимущества.
  * Оформление — в стиле сайта: те же заголовки, отступы, цвета и золотые кнопки.
  */
+import { useContext } from 'react'
 import { ArrowRight, Sparkles } from 'lucide-react'
+import { EditIndex, editableProps } from '@/components/edit/edit-frame'
 import { SectionTitle } from '@/components/shared/section-title'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { Button } from '@/components/ui/button'
@@ -73,6 +75,7 @@ export function ImageTextBlock({ b, i }: { b: Of<'imageText'>; i: number }) {
 }
 
 export function BannerBlock({ b, i }: { b: Of<'banner'>; i: number }) {
+  const ei = useContext(EditIndex)
   return (
     <section id={sectionId(i)} className="py-10 md:py-14">
       <div className="container-x">
@@ -84,7 +87,11 @@ export function BannerBlock({ b, i }: { b: Of<'banner'>; i: number }) {
             </>
           )}
           <div className={cn('relative max-w-2xl', b.image && 'text-white')}>
-            {b.title && <h2 className="h-display text-[28px] leading-tight md:text-[44px]">{b.title}</h2>}
+            {b.title && (
+              <h2 key={b.title} className="h-display text-[28px] leading-tight md:text-[44px]" {...editableProps(ei, 'title')}>
+                {b.title}
+              </h2>
+            )}
             <Markdown text={b.body} className={cn('mt-3 text-[16px] leading-relaxed md:text-[18px]', b.image ? 'text-white/80' : 'text-ink-soft')} />
             <BlockCta cta={b.cta ?? 'messengers'} from={sectionId(i)} />
           </div>

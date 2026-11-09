@@ -7,7 +7,8 @@ import { SITE, MSG, maxLink, tgLink } from '@/lib/config'
 import { ANCHOR_PRICE, ITEMS } from '@/lib/products'
 import { HERO_QUOTES } from '@/lib/reviews'
 import { goal } from '@/lib/analytics'
-import { HERO_DATA } from '@/lib/content'
+import { useLive } from '@/lib/live'
+import { HeroFrame, editableProps } from '@/components/edit/edit-frame'
 import { useUI } from '@/lib/ui-store'
 import { rub } from '@/lib/utils'
 
@@ -22,13 +23,19 @@ const PROOFS = [
 ]
 
 /** Букет на фото первого экрана — его честная цена. */
-const HERO_ITEM = ITEMS.find((i) => i.id === HERO_DATA.photoProduct)
 
 export function Hero() {
+  const { hero: HERO_DATA } = useLive()
+  const HERO_ITEM = ITEMS.find((i) => i.id === HERO_DATA.photoProduct)
   const title =
     variant === 'A' ? (
       <>
-        {HERO_DATA.title} <span className="italic text-gold">{HERO_DATA.titleAccent}</span>
+        <span key={HERO_DATA.title} {...editableProps('hero', 'title')}>
+          {HERO_DATA.title}
+        </span>{' '}
+        <span key={HERO_DATA.titleAccent} className="italic text-gold" {...editableProps('hero', 'titleAccent')}>
+          {HERO_DATA.titleAccent}
+        </span>
       </>
     ) : (
       <>
@@ -37,6 +44,7 @@ export function Hero() {
     )
 
   return (
+    <HeroFrame>
     <section id="top" className="relative overflow-hidden pb-10 pt-4 md:pb-20 md:pt-10">
       <div aria-hidden className="grain pointer-events-none absolute inset-0" />
       <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-honey/20 blur-[120px]" />
@@ -58,7 +66,7 @@ export function Hero() {
           <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
             {title}
           </h1>
-          <p className="mt-3 max-w-xl text-[16px] font-semibold leading-relaxed text-ink-soft md:mt-5 md:text-lg">
+          <p key={HERO_DATA.subtitle} className="mt-3 max-w-xl text-[16px] font-semibold leading-relaxed text-ink-soft md:mt-5 md:text-lg" {...editableProps('hero', 'subtitle')}>
             {HERO_DATA.subtitle}
           </p>
           <ul className="mt-5 hidden grid-cols-3 gap-3 md:grid">
@@ -113,11 +121,13 @@ export function Hero() {
         </div>
       </div>
     </section>
+    </HeroFrame>
   )
 }
 
 function HeroCtas({ className = 'flex' }: { className?: string }) {
   const { setQuizOpen } = useUI()
+  const { hero: HERO_DATA } = useLive()
   return (
     <div className={`${className} flex-col gap-3`}>
       <Button

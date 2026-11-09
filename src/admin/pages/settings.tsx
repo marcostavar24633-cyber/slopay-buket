@@ -34,7 +34,7 @@ export function Settings() {
         ))}
       </div>
       {tab === 'main' && <Main />}
-      {tab === 'hero' && <Hero />}
+      {tab === 'hero' && <HeroSettings />}
       {tab === 'occasions' && <Occasions />}
       {tab === 'seasons' && <Seasons />}
       {tab === 'messages' && <Messages />}
@@ -93,7 +93,7 @@ function Main() {
   )
 }
 
-function Hero() {
+export function HeroSettings() {
   const { data, set } = useStore()
   const h = data.hero
   const f = (k: keyof typeof h) => (v: string) => set('hero', (d) => void (d[k] = v))

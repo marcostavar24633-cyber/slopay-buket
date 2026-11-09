@@ -90,6 +90,9 @@ export function Dashboard({ go }: { go: (r: Route, q?: Record<string, string>) =
         <div className="flex flex-col gap-4">
           <Card title="Быстрые действия">
             <div className="grid gap-2">
+              <Btn variant="primary" onClick={() => go('editor')} className="justify-start">
+                Открыть визуальный редактор
+              </Btn>
               <Btn onClick={() => go('products', { new: '1' })} icon={<Plus />} className="justify-start">
                 Добавить товар
               </Btn>

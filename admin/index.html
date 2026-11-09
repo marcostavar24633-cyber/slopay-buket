@@ -14,6 +14,9 @@
     <style>
       /* у сайта снизу отступ под мобильную панель — в админке он не нужен */
       body { padding-bottom: 0 !important }
+      /* узкая панель свойств в визуальном редакторе: поля в одну колонку */
+      .inspector .grid:not([role="tablist"]) { grid-template-columns: minmax(0, 1fr) !important }
+      .inspector .grid > * { grid-column: auto !important; min-width: 0 }
     </style>
   </head>
   <body>

@@ -12,6 +12,7 @@ import {
   Loader2,
   LogOut,
   Menu,
+  MousePointerClick,
   MessageSquareQuote,
   Moon,
   Package,
@@ -26,9 +27,10 @@ import { auth, checkRepo, getUser, REPO, TOKEN_URL } from './github'
 import { FILES, useStore } from './store'
 import { Btn } from './ui'
 
-export type Route = 'dashboard' | 'products' | 'reviews' | 'blocks' | 'faq' | 'settings'
+export type Route = 'dashboard' | 'editor' | 'products' | 'reviews' | 'blocks' | 'faq' | 'settings'
 export const NAV: { key: Route; label: string; icon: typeof Home }[] = [
   { key: 'dashboard', label: 'Дашборд', icon: LayoutDashboard },
+  { key: 'editor', label: 'Визуальный редактор', icon: MousePointerClick },
   { key: 'products', label: 'Товары', icon: Package },
   { key: 'reviews', label: 'Отзывы', icon: MessageSquareQuote },
   { key: 'blocks', label: 'Блоки страницы', icon: LayoutList },
@@ -157,7 +159,7 @@ export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; o
 function Sidebar({ route, go, open, onClose }: { route: Route; go: (r: Route) => void; open: boolean; onClose: () => void }) {
   const { logout, dirty } = useStore()
   const dirtyRoutes = new Set(
-    dirty.map((k) => ({ site: 'settings', hero: 'settings', seasons: 'settings', messages: 'settings', occasions: 'settings', products: 'products', reviews: 'reviews', faq: 'faq', page: 'blocks' })[k]),
+    dirty.map((k) => ({ site: 'settings', hero: 'settings', seasons: 'settings', messages: 'settings', occasions: 'settings', products: 'products', reviews: 'reviews', faq: 'faq', page: 'blocks' } as Record<string, string>)[k]),
   )
   return (
     <>
@@ -450,7 +452,7 @@ export function Shell({ route, go, children }: { route: Route; go: (r: Route, q?
       <Sidebar route={route} go={go} open={menu} onClose={() => setMenu(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header onMenu={() => setMenu(true)} go={go} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-5 md:px-6 md:py-8">
+        <main className={route === 'editor' ? 'min-w-0 flex-1' : 'mx-auto w-full max-w-6xl flex-1 px-3 py-5 md:px-6 md:py-8'}>
           {loading ? (
             <p className="flex items-center gap-2 text-ink-soft">
               <Loader2 className="h-5 w-5 animate-spin text-honey" /> Загружаем данные сайта…
