@@ -79,6 +79,7 @@ export default defineConfig({
         privacy: path.resolve(__dirname, 'privacy/index.html'),
         oferta: path.resolve(__dirname, 'oferta/index.html'),
         corporate: path.resolve(__dirname, 'corporate/index.html'),
+        admin: path.resolve(__dirname, 'admin/index.html'),
       },
       output: {
         // библиотеки отдельно: кэшируются браузером между обновлениями сайта

@@ -425,6 +425,29 @@ async function test(name, fn) {
     await ctx.close()
   })
 
+  await test('Админка: вход в демо, товары, блоки, без ошибок; закрыта от поисковиков', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 } })
+    const page = await ctx.newPage()
+    const errs = []
+    page.on('pageerror', (e) => errs.push(e.message))
+    await page.goto(URL + 'admin/')
+    assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, nofollow')
+    assert.equal(await page.locator('script[src*="mc.yandex"]').count(), 0, 'Метрика в админке не нужна')
+    await page.getByText('Посмотреть без входа').click()
+    await page.getByText('Товаров на сайте').waitFor()
+    await page.getByRole('button', { name: 'Товары' }).click()
+    await page.locator('tbody tr').first().waitFor()
+    assert.ok((await page.locator('tbody tr').count()) >= 10, 'таблица товаров')
+    await page.getByRole('button', { name: 'Блоки страницы' }).click()
+    await page.getByText('Каталог с ценами').waitFor()
+    await page.getByLabel('Скрыть').first().click()
+    await page.getByText('Есть неопубликованные правки').waitFor()
+    await page.getByRole('button', { name: 'Отменить правки' }).click()
+    assert.equal(await page.getByText('Есть неопубликованные правки').count(), 0)
+    assert.deepEqual(errs, [])
+    await ctx.close()
+  })
+
   await browser.close()
   for (const r of results) console.log(r.join('  '))
   const failed = results.filter((r) => r[0] === '✗').length
