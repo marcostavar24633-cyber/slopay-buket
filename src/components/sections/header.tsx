@@ -16,6 +16,11 @@ const NAV: { id: string; label: string; href?: string }[] = [
   { id: 'catalog', label: 'Каталог' },
   { id: 'reviews', label: 'Отзывы' },
   { id: 'delivery', label: 'Доставка' },
+  { id: 'berry', label: 'Ягодные букеты', href: 'yagodnye-bukety/' },
+  { id: 'meat', label: 'Мясные букеты', href: 'myasnye-bukety/' },
+  { id: 'sea', label: 'Букеты из раков', href: 'bukety-iz-rakov/' },
+  { id: 'dried', label: 'Сухофрукты', href: 'suhofrukty/' },
+  { id: 'sweet', label: 'Сладкие боксы', href: 'sladkie-boksy/' },
   { id: 'corporate', label: 'Компаниям', href: 'corporate/' },
 ]
 
