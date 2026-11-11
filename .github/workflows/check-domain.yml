@@ -1,4 +1,5 @@
-# Временная проверка домена: DNS-записи и ответ сайта. Запуск вручную (Actions → Check domain).
+# Проверка живого сайта: DNS, HTTPS, редиректы, заголовки, служебные файлы, скорость (PageSpeed).
+# Запуск вручную: Actions → Check domain → Run workflow.
 name: Check domain
 on: workflow_dispatch
 jobs:
@@ -7,20 +8,42 @@ jobs:
     steps:
       - run: |
           D=xn--80acmogcvipsi.xn--p1ai
-          echo "== A @ns1.reg.ru"; dig +short A $D @ns1.reg.ru
-          echo "== www @ns1.reg.ru"; dig +short www.$D @ns1.reg.ru
-          echo "== NS (зона рф)"; dig +short NS $D @a.dns.ripn.net
-          echo "== NS"; dig +short NS $D
-          echo "== A (Google)"; dig +short A $D @8.8.8.8
-          echo "== A (Yandex)"; dig +short A $D @77.88.8.8
-          echo "== AAAA"; dig +short AAAA $D @8.8.8.8
-          echo "== www"; dig +short www.$D @8.8.8.8
-          echo "== HTTP"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{redirect_url}\n" http://$D/ || true
-          echo "== HTTPS"; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" https://$D/ || true
-          echo "== BODY"; curl -sS -m 20 http://$D/ | grep -oE "<title>[^<]*|There isn.t a GitHub Pages site here|Site not found|DNS check" | head -3 || true
-          echo "== www"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{redirect_url}\n" http://www.$D/ || true
-          echo "== ASSET"; for P in http https; do J=$(curl -sSk -m 20 -L $P://$D/ | grep -oE "src=\"/assets/main-[^\"]+\.js" | head -1 | cut -d'"' -f2); echo "$P main=$J"; [ -n "$J" ] && curl -sSk -m 20 -o /dev/null -w "$P js %{http_code}\n" $P://$D$J; done || true
-          echo "== CERT"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -subject -enddate 2>/dev/null || true
-          echo "== HTTP headers"; curl -sS -m 20 -I http://$D/ | head -8 || true
-          sudo apt-get install -y -qq whois >/dev/null 2>&1 || true
-          echo "== whois"; whois -h whois.tcinet.ru $D 2>&1 | grep -vE "^%|^$" | head -20 || true
+          code() { curl -sS -m 25 -o /dev/null -w "%{http_code} -> %{redirect_url}\n" "$1" || true; }
+          echo "== A"; dig +short A $D @8.8.8.8; echo "== AAAA"; dig +short AAAA $D @8.8.8.8; echo "== www"; dig +short www.$D @8.8.8.8
+          echo "== http://"; code http://$D/
+          echo "== https://"; code https://$D/
+          echo "== http://www"; code http://www.$D/
+          echo "== https://www"; code https://www.$D/
+          echo "== 404"; code https://$D/net-takoy-stranicy-xyz
+          echo "== 404 body"; curl -sS -m 25 https://$D/net-takoy-stranicy-xyz | grep -oE "<title>[^<]*" | head -1
+          for P in robots.txt sitemap.xml corporate/ oferta/ privacy/ admin/ og-image.jpg corporate-catalog.pdf favicon-64.png; do echo "== /$P"; code https://$D/$P; done
+          echo "== robots.txt"; curl -sS -m 25 https://$D/robots.txt
+          echo "== headers https /"; curl -sS -m 25 -I https://$D/ | grep -iE "^(HTTP|server|cache-control|content-encoding|content-type|strict-transport|x-frame|x-content-type|content-security|referrer-policy|permissions-policy|age|x-cache|vary|last-modified)" || true
+          echo "== compression html"; curl -sS -m 25 -H "Accept-Encoding: br, gzip" -o /dev/null -w "size %{size_download} B\n" https://$D/
+          curl -sS -m 25 -H "Accept-Encoding: br, gzip" -I https://$D/ | grep -i content-encoding || echo "no content-encoding"
+          J=$(curl -sS -m 25 https://$D/ | grep -oE "/assets/main-[^\"]+\.js" | head -1); echo "== js $J"
+          curl -sS -m 25 -H "Accept-Encoding: br, gzip" -I https://$D$J | grep -iE "content-encoding|cache-control|content-length" || true
+          echo "== img cache"; curl -sS -m 25 -I https://$D/img/real/berry/hero-heart-720.webp | grep -iE "cache-control|content-length|content-type" || true
+          echo "== CERT"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -issuer -subject -enddate 2>/dev/null || true
+          echo "== TLS"; for v in tls1 tls1_1 tls1_2 tls1_3; do echo -n "$v: "; (echo | timeout 10 openssl s_client -connect $D:443 -servername $D -$v 2>/dev/null | grep -q "BEGIN CERTIFICATE" && echo yes) || echo no; done
+          echo "== title/metrika on live"; curl -sS -m 25 https://$D/ | grep -oE "<title>[^<]*|click_max|ИНН [0-9]+" | sort -u | head -5
+          for S in mobile desktop; do
+            echo "== PageSpeed $S"
+            curl -sS -m 120 "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://$D/&strategy=$S&category=performance&category=accessibility&category=best-practices&category=seo&locale=ru" -o psi.json || true
+            python3 - <<'PY' || true
+          import json
+          try:
+              d = json.load(open('psi.json'))
+              if 'error' in d: print('PSI error:', d['error'].get('message', '')[:200]); raise SystemExit
+              lr = d['lighthouseResult']
+              print({k: round(v['score'] * 100) for k, v in lr['categories'].items() if v.get('score') is not None})
+              for k in ['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index', 'interactive', 'total-byte-weight', 'dom-size']:
+                  a = lr['audits'].get(k)
+                  if a: print(' ', k, '=', a.get('displayValue'))
+              fails = sorted([(a.get('score') or 0, a['id'], a.get('displayValue', '')) for a in lr['audits'].values() if a.get('score') is not None and a['score'] < 0.9 and a.get('scoreDisplayMode') in ('numeric', 'binary', 'metricSavings')])
+              for s, i, v in fails[:25]: print('  FAIL', i, s, v)
+              le = d.get('loadingExperience', {}); print('  field data:', le.get('overall_category', 'нет данных CrUX'))
+          except SystemExit: pass
+          except Exception as e: print('PSI parse failed:', e); print(open('psi.json').read()[:300])
+          PY
+          done
