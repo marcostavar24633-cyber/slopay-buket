@@ -48,7 +48,7 @@ server.listen(0, async () => {
     const html = await page.evaluate(() => {
       const root = document.getElementById('root')
       // декоративный фон (видео, иконки) и всплывающие окна в разметку не нужны
-      root.querySelectorAll(':scope > div.fixed.inset-0, [role="region"]').forEach((e) => e.remove())
+      root.querySelectorAll(':scope > div.fixed.inset-0, [aria-label="Уведомление о cookie"]').forEach((e) => e.remove())
       // элементы, которые ждут появления на экране (opacity: 0), делаем видимыми
       root.querySelectorAll('[style]').forEach((e) => {
         if (e.style.opacity === '0') {
@@ -67,7 +67,12 @@ server.listen(0, async () => {
     const file = path.join(dist, sub, 'index.html')
     const src = fs.readFileSync(file, 'utf8')
     if (!src.includes('<div id="root"></div>')) throw new Error('не нашёл <div id="root"></div>')
-    fs.writeFileSync(file, src.replace('<div id="root"></div>', `<div id="root" data-prerendered="">${html}</div>`))
+    // стили — прямо в страницу: первая отрисовка не ждёт отдельного файла (на медленной связи это ~0,5 с)
+    const inlined = src.replace(/<link rel="stylesheet"[^>]*href="([^"]+\.css)"[^>]*>/g, (tag, href) => {
+      const css = path.join(dist, href.startsWith(base) ? href.slice(base.length) : href.replace(/^\//, ''))
+      return fs.existsSync(css) ? `<style data-href="${href}">${fs.readFileSync(css, 'utf8').replace(/<\/style/gi, '<\\/style')}</style>` : tag
+    })
+    fs.writeFileSync(file, inlined.replace('<div id="root"></div>', () => `<div id="root" data-prerendered="">${html}</div>`))
     console.log(`[prerender] ${path.relative(process.cwd(), file)}: +${Math.round(html.length / 1024)} КБ разметки`)
     await page.close()
     }

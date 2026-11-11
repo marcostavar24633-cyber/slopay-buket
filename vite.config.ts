@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import fs from 'node:fs'
 import path from 'node:path'
+import { execSync } from 'node:child_process'
 
 /**
  * Адрес сайта: переменная окружения SITE_URL (её задаёт сборка для GitHub Pages),
@@ -33,13 +34,65 @@ function basePaths(): Plugin {
   }
 }
 
+/** Разметка Schema.org для главной — из данных админки: контакты, рейтинг, цены, хиты. Всегда совпадает с тем, что на странице. */
+function ldJson() {
+  const read = (f: string) => JSON.parse(fs.readFileSync(path.resolve(__dirname, 'content', f), 'utf8'))
+  const site = read('site.json')
+  const items = (read('products.json').items as { id: string; name: string; desc: string; price: number; image: string; show?: boolean; hit?: boolean; hitOrder?: number }[]).filter((p) => p.show !== false)
+  const prices = items.map((p) => Number(p.price)).filter(Boolean)
+  const digits = String(site.phone).replace(/\D/g, '').replace(/^8/, '7')
+  const hours = /(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})/.exec(site.hours)
+  const hits = items.filter((p) => p.hit).sort((a, b) => (a.hitOrder ?? 99) - (b.hitOrder ?? 99))
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Florist',
+    '@id': `${SITE_URL}/#org`,
+    name: site.brand,
+    url: `${SITE_URL}/`,
+    logo: `${SITE_URL}/logo-256.webp`,
+    image: `${SITE_URL}/og-image.jpg`,
+    description: `Съедобные букеты с доставкой в городе ${site.city}`,
+    telephone: `+${digits}`,
+    ...(site.email ? { email: site.email } : {}),
+    priceRange: prices.length ? `${Math.min(...prices)}–${Math.max(...prices)} ₽` : undefined,
+    currenciesAccepted: 'RUB',
+    address: { '@type': 'PostalAddress', streetAddress: String(site.address).split(',').slice(0, 2).join(',').trim(), addressLocality: site.city, addressCountry: 'RU' },
+    areaServed: { '@type': 'City', name: site.city },
+    ...(hours ? { openingHoursSpecification: { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: `${hours[1].padStart(2, '0')}:${hours[2]}`, closes: `${hours[3]}:${hours[4]}` } } : {}),
+    sameAs: [site.reviewsUrl, site.vk].filter(Boolean),
+    aggregateRating: { '@type': 'AggregateRating', ratingValue: String(site.rating).replace(',', '.'), bestRating: '5', ratingCount: String(site.reviewsCount) },
+    ...(site.ownerName ? { founder: { '@type': 'Person', name: site.ownerName }, ...(site.inn ? { taxID: site.inn } : {}) } : {}),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Хиты продаж',
+      itemListElement: hits.map((p) => ({
+        '@type': 'Offer',
+        price: String(p.price),
+        priceCurrency: 'RUB',
+        availability: 'https://schema.org/InStock',
+        url: `${SITE_URL}/#hits`,
+        itemOffered: { '@type': 'Product', name: p.name, description: p.desc, image: SITE_URL + p.image },
+      })),
+    },
+  }).replace(/</g, '\\u003c')
+}
+
+/** Дата последнего изменения сайта (последний коммит) — для sitemap.xml; не меняется от ежедневной пересборки. */
+function lastChange() {
+  try {
+    return execSync('git log -1 --format=%cs', { cwd: __dirname }).toString().trim() || new Date().toISOString().slice(0, 10)
+  } catch {
+    return new Date().toISOString().slice(0, 10)
+  }
+}
+
 /** Подставляет абсолютный адрес в мета-теги и кладёт в сборку robots.txt и sitemap.xml. */
 function seo(): Plugin {
   let base = '/'
   return {
     name: 'slopay-seo',
     transformIndexHtml: (html, ctx) => {
-      let out = html.replaceAll('%SITE_URL%', SITE_URL)
+      let out = html.replaceAll('%SITE_URL%', SITE_URL).replace('%LD_JSON%', () => ldJson())
       // название и описание главной — из админки (content/site.json)
       if (ctx.path === '/index.html') {
         const site = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'content/site.json'), 'utf8'))
@@ -55,14 +108,15 @@ function seo(): Plugin {
     },
     configResolved: (c) => void (base = c.base),
     generateBundle() {
-      const today = new Date().toISOString().slice(0, 10)
-      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: `User-agent: *\nAllow: /\n\nHost: ${SITE_URL}\nSitemap: ${SITE_URL}/sitemap.xml\n` })
-      const urls = [`${SITE_URL}/`, `${SITE_URL}/corporate/`, `${SITE_URL}/oferta/`, `${SITE_URL}/privacy/`]
+      const today = lastChange()
+      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: `User-agent: *\nAllow: /\n# служебные параметры: режим правки и вариант заголовка — не отдельные страницы\nClean-param: edit&h /\n\nSitemap: ${SITE_URL}/sitemap.xml\n` })
+      // оферта и политика закрыты от индексации (noindex) — в карту сайта не включаем
+      const urls = [`${SITE_URL}/`, `${SITE_URL}/corporate/`]
       this.emitFile({
         type: 'asset',
         fileName: 'sitemap.xml',
         source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
-          .map((u, i) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod><priority>${i ? '0.3' : '1.0'}</priority></url>`)
+          .map((u, i) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod><priority>${i ? '0.8' : '1.0'}</priority></url>`)
           .join('\n')}\n</urlset>\n`,
       })
     },

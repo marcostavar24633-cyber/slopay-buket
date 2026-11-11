@@ -41,7 +41,7 @@ async function test(name, fn) {
 
   await test('Липкая панель MAX / Telegram / Позвонить на мобильном, у карточек нет кнопки MAX', async () => {
     const { ctx, page } = await mobile()
-    const bar = page.locator('div.fixed.bottom-0')
+    const bar = page.locator('nav.fixed.bottom-0')
     const wa = bar.getByRole('link', { name: 'MAX', exact: true })
     assert.ok(await wa.isVisible())
     assert.equal(await wa.getAttribute('href'), 'https://max.ru/u/f9LHodD0cOIE-osl7ttL5eRn4vgUkh_e5h3PmiZSsO1SgIH36TnP4Afv9sI')

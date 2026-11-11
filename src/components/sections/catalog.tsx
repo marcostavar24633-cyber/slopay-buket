@@ -35,21 +35,21 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
   const { openOrder } = useUI()
   return (
     <article className="run-border group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
-      <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`Открыть фото: ${item.name}`}>
+      <button onClick={onOpen} className="relative block aspect-square cursor-zoom-in overflow-hidden bg-cream-2" aria-label={`${hit ? 'Хит. ' : ''}Открыть фото: ${item.name}`}>
         <img loading="lazy" src={item.thumb} alt={`«${item.name}» — ${item.desc}`} width={440} height={440} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         {hit && (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-honey px-2.5 py-1 text-[11px] font-bold text-onaccent shadow-soft">
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-honey px-2.5 py-1 text-[12px] font-bold text-onaccent shadow-soft">
             <Flame className="h-3.5 w-3.5" /> Хит
           </span>
         )}
       </button>
       <div className="flex flex-1 flex-col p-3.5 md:p-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-honey-600">{item.title}</p>
+        <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-honey-600">{item.title}</p>
         <h3 className="mt-1 font-display text-[19px] font-semibold leading-tight md:text-[21px]">{item.name}</h3>
         <p className="mt-1.5 text-[13.5px] leading-snug text-ink-soft">{item.desc}</p>
         <div className="mt-auto pt-3">
           <p className="text-[22px] font-extrabold leading-none tracking-tight">от {rub(item.price)}</p>
-          <p className="mt-1 text-[11.5px] font-semibold leading-snug text-muted">итог зависит от размера и сезона — назовём точно за 5 минут</p>
+          <p className="mt-1 text-[12px] font-semibold leading-snug text-muted">итог зависит от размера и сезона — назовём точно за 5 минут</p>
           <div className="mt-3">
             <Button size="sm" className="h-11 w-full" onClick={() => openOrder(item)}>
               Заказать
@@ -156,7 +156,7 @@ export function Catalog() {
           sub="Только реальные работы мастерской: под каждым фото — состав и цена «от». Соберём такой же или похожий под ваш бюджет."
         />
 
-        <div className="mb-4 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Кому букет">
+        <div className="mb-4 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" role="group" aria-label="Кому букет">
           <FilterRow label="Кому" options={RECIPIENT_TABS} value={who} onChange={(v) => { setWho(v); setShowAll(false); if (v !== 'all' && cat && !RECIPIENT_CATS[v].includes(cat)) setCat(null); goal('catalog_filter', { who: v }) }} />
         </div>
 
@@ -191,7 +191,7 @@ export function Catalog() {
           })}
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" aria-label="Фильтр по цене">
+        <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-line bg-surface/70 p-4 backdrop-blur md:p-5" role="group" aria-label="Фильтр по цене">
           <FilterRow label="Цена" options={PRICE_TABS} value={price} onChange={(v) => { setPrice(v); setShowAll(false); goal('catalog_filter', { price: v }) }} />
           <FilterRow label="Порядок" options={SORT_TABS} value={sort} onChange={(v) => { setSort(v); goal('catalog_sort', { sort: v }) }} />
         </div>

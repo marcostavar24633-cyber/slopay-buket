@@ -61,9 +61,9 @@ export function Corporate() {
         </div>
         <BlurFade className="max-w-3xl">
           <p className="eyebrow mb-3 text-honey">Корпоративным клиентам</p>
-          <h2 className="h-display text-[32px] text-white md:text-[52px]">
+          <h1 className="h-display text-[32px] text-white md:text-[52px]">
             Корпоративные подарки, которые <span className="italic text-gold">не отправятся в ящик стола</span>
-          </h2>
+          </h1>
           <p className="mt-4 text-[16px] text-white/65 md:text-lg">
             Небольшие съедобные подарки в коробочках — для сотрудников, клиентов и партнёров.
           </p>
@@ -75,7 +75,7 @@ export function Corporate() {
               {PAINS.map((p, i) => (
                 <BlurFade key={p.t} delay={i * 0.05} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
                   <p.icon className="h-6 w-6 text-honey" />
-                  <h3 className="mt-3 text-[15px] font-extrabold leading-snug">«{p.t}»</h3>
+                  <h2 className="mt-3 text-[15px] font-extrabold leading-snug">«{p.t}»</h2>
                   <p className="mt-1.5 text-[13.5px] leading-relaxed text-white/60">{p.d}</p>
                 </BlurFade>
               ))}
@@ -115,7 +115,7 @@ export function Corporate() {
             <div
               className={`sticky top-24 rounded-3xl border bg-graphite-2 p-5 shadow-2xl transition md:p-7 ${highlight ? 'border-honey ring-4 ring-honey/30' : 'border-white/10'}`}
             >
-              <h3 className="font-display text-[26px] font-semibold leading-tight">Рассчитать корпоративный заказ</h3>
+              <h2 className="font-display text-[26px] font-semibold leading-tight">Рассчитать корпоративный заказ</h2>
               <p className="mt-1 text-[14px] text-white/55">Выберите количество и дату — пришлём КП с фото и ценами</p>
               <div className="mt-5 flex flex-col gap-3">
                 <Input dark placeholder="Компания (необязательно)" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} aria-label="Компания" />

@@ -13,7 +13,7 @@ import { SITE } from '@/lib/config'
 const fill = (v: string, hint: string) => v || <mark className="rounded bg-honey/25 px-1 text-ink">[{hint}]</mark>
 const owner = fill(SITE.ownerName, 'ФИО ИП или самозанятого')
 const inn = fill(SITE.inn, 'ИНН')
-const email = fill(SITE.email, 'e-mail для обращений')
+const email = SITE.email
 const site = SITE.url.replace(/^https?:\/\//, '')
 
 function H({ children }: { children: React.ReactNode }) {
@@ -73,7 +73,7 @@ function Privacy() {
       <H>7. Ваши права</H>
       <p>
         Вы можете запросить сведения о своих данных, потребовать уточнить, заблокировать или удалить их, а также отозвать согласие на обработку. Для
-        этого напишите на {email} или позвоните по телефону {SITE.phoneDisplay}. Мы ответим в течение 10 рабочих дней.
+        этого {email ? <>напишите на {email} или </> : null}позвоните по телефону {SITE.phoneDisplay}. Мы ответим в течение 10 рабочих дней.
       </p>
 
       <H>8. Защита данных</H>
@@ -153,7 +153,7 @@ function Oferta() {
         <br />
         {SITE.city}, {SITE.address}
         <br />
-        Телефон: {SITE.phoneDisplay} · e-mail: {email}
+        Телефон: {SITE.phoneDisplay}{email ? <> · e-mail: {email}</> : null}
       </p>
     </>
   )

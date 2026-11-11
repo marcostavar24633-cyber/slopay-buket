@@ -32,7 +32,7 @@ export function Footer() {
           </p>
           <p>{SITE.hours}</p>
           <p>Самовывоз из мастерской — бесплатно</p>
-          {legalLine() && <p className="pt-3 text-[12px] leading-relaxed text-white/45">{legalLine()}</p>}
+          {legalLine() && <p className="pt-3 text-[12px] leading-relaxed text-white/70">{legalLine()}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
             <a id="privacy" href="/privacy/" className="inline-flex min-h-11 items-center underline underline-offset-2">Политика конфиденциальности</a>
             <a href="/oferta/" className="inline-flex min-h-11 items-center underline underline-offset-2">Публичная оферта</a>
@@ -55,7 +55,7 @@ export function Footer() {
           )}
         </div>
       </div>
-      <p className="container-x mt-10 border-t border-white/10 pt-6 text-[12px] text-white/40">
+      <p className="container-x mt-10 border-t border-white/10 pt-6 text-[12px] text-white/65">
         © 2023–{new Date().getFullYear()} {SITE.brand} — съедобные букеты с доставкой в Ульяновске. Ягодные, мясные и раковые букеты, сухофрукты, сладкие боксы и корпоративные подарки.
       </p>
     </footer>

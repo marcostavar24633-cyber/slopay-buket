@@ -114,7 +114,7 @@ export function Hero() {
             {PROOFS.map((p) => (
               <li key={p.text} className="rounded-2xl border border-line bg-surface p-2.5">
                 <b className="block text-[18px] font-extrabold leading-none text-honey-600">{p.big}</b>
-                <span className="mt-1 block text-[11.5px] font-semibold leading-snug text-ink-soft">{p.text}</span>
+                <span className="mt-1 block text-[12px] font-semibold leading-snug text-ink-soft">{p.text}</span>
               </li>
             ))}
           </ul>
@@ -181,7 +181,7 @@ function RotatingQuote() {
               <p className="text-[13px] font-bold">
                 {q.name} · {SITE.reviewsSource}
               </p>
-              <p className="text-[11px] text-muted">{q.item}</p>
+              <p className="text-[12px] text-muted">{q.item}</p>
             </div>
           </div>
           <p className="mt-2 text-[13px] leading-snug text-ink-soft">«{q.text}»</p>

@@ -57,7 +57,7 @@ export function OrderSheet() {
         <img src={item.thumb} alt={`«${item.name}» — ${item.desc}`} className="h-16 w-16 rounded-xl object-cover" />
         <div className="min-w-0">
           <p className="truncate font-display text-lg font-semibold leading-tight">{item.name}</p>
-          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-honey-600">{item.title}</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-honey-600">{item.title}</p>
           <p className="line-clamp-2 text-[13px] leading-snug text-muted">{item.desc}</p>
         </div>
         <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight">от {rub(item.price)}<span className="block max-w-[110px] text-[10.5px] font-semibold leading-tight text-muted">итог назовём за 5 минут</span></p>

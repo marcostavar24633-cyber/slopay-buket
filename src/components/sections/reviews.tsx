@@ -46,11 +46,11 @@ export function Reviews() {
         </div>
 
         {/* лента 6 свежих отзывов */}
-        <div className="no-scrollbar -mx-4 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:mt-8 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
+        <div tabIndex={0} role="region" aria-label="Свежие отзывы — листайте в сторону" className="no-scrollbar -mx-4 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:mt-8 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
           {FRESH.map((r) => (
             <figure key={r.name} className="flex w-[82%] shrink-0 snap-center flex-col rounded-3xl border border-line bg-cream p-5 md:w-auto">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex gap-0.5" aria-label="5 звёзд из 5">
+                <div className="flex gap-0.5" role="img" aria-label="5 звёзд из 5">
                   {Array.from({ length: 5 }).map((_, k) => (
                     <Star key={k} className="h-4 w-4 fill-honey text-honey" />
                   ))}

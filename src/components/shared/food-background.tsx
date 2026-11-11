@@ -197,7 +197,7 @@ function BgVideo({ still, mobile }: { still: boolean; mobile: boolean }) {
     // экономия трафика или медленная связь — только неподвижный кадр
     if (still || conn?.saveData || /(^|-)2g|3g/.test(conn?.effectiveType ?? '')) return
     // телефонам — лёгкая версия 640×360 (≈0,8 МБ) вместо 1280×720 (≈4 МБ)
-    const start = () => setSrc(mobile ? '/video/bg-food-mobile.mp4' : '/video/bg-food.mp4?v=2')
+    const start = () => setSrc(mobile ? '/video/bg-food-mobile.mp4' : '/video/bg-food.mp4?v=3')
     if (document.readyState === 'complete') start()
     else window.addEventListener('load', start, { once: true })
     return () => window.removeEventListener('load', start)

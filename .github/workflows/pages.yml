@@ -6,6 +6,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # раз в сутки (00:05 по Ульяновску): обновляет отсчёт дней в сезонной полосе в готовой разметке
+  schedule:
+    - cron: '5 20 * * *'
 
 permissions:
   contents: read

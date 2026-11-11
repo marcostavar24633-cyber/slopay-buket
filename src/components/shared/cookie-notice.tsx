@@ -36,11 +36,11 @@ export function CookieNotice() {
       <Cookie className="h-5 w-5 shrink-0 text-honey" aria-hidden />
       <p>
         Сайт использует cookie и Яндекс Метрику.{' '}
-        <a href="/privacy/" target="_blank" rel="noopener" className="font-semibold text-ink underline underline-offset-2">
+        <a href="/privacy/" target="_blank" rel="noopener" className="-my-3 inline-flex min-h-11 items-center font-semibold text-ink underline underline-offset-2">
           Подробнее
         </a>
       </p>
-      <button onClick={ok} className="h-10 shrink-0 cursor-pointer rounded-full bg-honey px-4 text-[13px] font-bold text-onaccent">
+      <button onClick={ok} className="h-11 shrink-0 cursor-pointer rounded-full bg-honey px-5 text-[13px] font-bold text-onaccent">
         Понятно
       </button>
     </div>

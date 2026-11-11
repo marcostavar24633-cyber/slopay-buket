@@ -21,7 +21,7 @@ const NAV: { id: string; label: string; href?: string }[] = [
 
 export function Logo({ light }: { light?: boolean }) {
   return (
-    <a href="#top" className="group flex min-h-11 min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" aria-label={`${SITE.brand} — на главную`}>
+    <a href="#top" className="group flex min-h-11 min-w-0 items-center gap-2 md:shrink-0 md:gap-2.5" title="На главную">
       <img
         src="/logo-256.webp"
         alt={`Логотип «${SITE.brand}»`}
@@ -33,7 +33,7 @@ export function Logo({ light }: { light?: boolean }) {
         <span className={cn('block font-display text-[17px] font-bold italic tracking-tight md:text-[19px]', light ? 'text-white' : 'text-ink')}>
           {SITE.brand}
         </span>
-        <span className={cn('mt-1 block whitespace-nowrap text-[10px] font-semibold md:text-[11px]', light ? 'text-white/60' : 'text-muted')}>
+        <span className={cn('mt-1 block whitespace-nowrap text-[11px] font-semibold md:text-[12px]', light ? 'text-white/60' : 'text-muted')}>
           <span className="max-sm:hidden">{SITE.tagline}</span><span className="sm:hidden">Букеты</span> · <span className={light ? 'text-white' : 'text-ink'}>{SITE.city}</span>
         </span>
       </span>
@@ -137,8 +137,8 @@ export function Header() {
 
 export function MobileBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl md:hidden">
-      <p className="mb-1.5 text-center text-[11.5px] font-bold uppercase tracking-[0.12em] text-muted">Заказать в 1 сообщение</p>
+    <nav aria-label="Быстрый заказ" className="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-cream/95 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl md:hidden">
+      <p className="mb-1.5 text-center text-[12px] font-bold uppercase tracking-[0.1em] text-muted">Заказать в 1 сообщение</p>
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
         <a
           href={maxLink(MSG.mobileBar)}
@@ -167,6 +167,6 @@ export function MobileBar() {
           <Phone className="h-4 w-4" />
         </a>
       </div>
-    </div>
+    </nav>
   )
 }

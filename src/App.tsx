@@ -47,11 +47,12 @@ function Blocks() {
 export default function App() {
   return (
     <UIProvider>
+      <a href="#main" className="skip-link">Перейти к содержимому</a>
       <EditStyles />
       <FoodBackground />
       <Header />
       <SeasonBar />
-      <main>
+      <main id="main">
         <Hero />
         <Blocks />
       </main>
