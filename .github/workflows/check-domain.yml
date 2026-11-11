@@ -27,23 +27,31 @@ jobs:
           echo "== CERT"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -issuer -subject -enddate 2>/dev/null || true
           echo "== TLS"; for v in tls1 tls1_1 tls1_2 tls1_3; do echo -n "$v: "; (echo | timeout 10 openssl s_client -connect $D:443 -servername $D -$v 2>/dev/null | grep -q "BEGIN CERTIFICATE" && echo yes) || echo no; done
           echo "== title/metrika on live"; curl -sS -m 25 https://$D/ | grep -oE "<title>[^<]*|click_max|ИНН [0-9]+" | sort -u | head -5
+          # Lighthouse на живом сайте (мобильный профиль: медленный 4G, слабый процессор) — 3 прогона, берём медиану
           for S in mobile desktop; do
-            echo "== PageSpeed $S"
-            curl -sS -m 120 "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://$D/&strategy=$S&category=performance&category=accessibility&category=best-practices&category=seo&locale=ru" -o psi.json || true
-            python3 - <<'PY' || true
-          import json
-          try:
-              d = json.load(open('psi.json'))
-              if 'error' in d: print('PSI error:', d['error'].get('message', '')[:200]); raise SystemExit
-              lr = d['lighthouseResult']
-              print({k: round(v['score'] * 100) for k, v in lr['categories'].items() if v.get('score') is not None})
-              for k in ['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index', 'interactive', 'total-byte-weight', 'dom-size']:
-                  a = lr['audits'].get(k)
-                  if a: print(' ', k, '=', a.get('displayValue'))
-              fails = sorted([(a.get('score') or 0, a['id'], a.get('displayValue', '')) for a in lr['audits'].values() if a.get('score') is not None and a['score'] < 0.9 and a.get('scoreDisplayMode') in ('numeric', 'binary', 'metricSavings')])
-              for s, i, v in fails[:25]: print('  FAIL', i, s, v)
-              le = d.get('loadingExperience', {}); print('  field data:', le.get('overall_category', 'нет данных CrUX'))
-          except SystemExit: pass
-          except Exception as e: print('PSI parse failed:', e); print(open('psi.json').read()[:300])
+            echo "== Lighthouse $S"
+            for N in 1 2 3; do
+              npx -y lighthouse@12 "https://$D/" $([ $S = desktop ] && echo --preset=desktop) --quiet --output=json --output-path=lh-$S-$N.json --chrome-flags="--headless=new --no-sandbox" >/dev/null 2>&1 || true
+            done
+            python3 - "$S" <<'PY' || true
+          import json, sys, statistics as st
+          runs = []
+          for n in (1, 2, 3):
+              try: runs.append(json.load(open(f'lh-{sys.argv[1]}-{n}.json')))
+              except Exception as e: print('run', n, 'failed', e)
+          if runs:
+              med = lambda f: st.median([f(r) for r in runs])
+              print('scores:', {k: round(med(lambda r: (r['categories'][k]['score'] or 0) * 100)) for k in runs[0]['categories']})
+              for k in ['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index', 'interactive']:
+                  print(' ', k, '=', round(med(lambda r: r['audits'][k]['numericValue']), 3))
+              r = runs[0]
+              for k in ['total-byte-weight', 'dom-size', 'server-response-time']: print(' ', k, '=', r['audits'].get(k, {}).get('displayValue'))
+              for c in ['performance', 'accessibility', 'best-practices', 'seo']:
+                  for ref in r['categories'][c]['auditRefs']:
+                      a = r['audits'][ref['id']]
+                      if a.get('score') is not None and a['score'] < 0.9 and a.get('scoreDisplayMode') != 'informative' and ref.get('weight', 0) >= 0:
+                          items = (a.get('details') or {}).get('items') or []
+                          hint = '; '.join(str(i.get('url') or (i.get('node') or {}).get('snippet') or '')[:90] for i in items[:3])
+                          print(f'  FAIL [{c}] {a["id"]} score={a["score"]} {a.get("displayValue", "")} | {hint}')
           PY
           done
