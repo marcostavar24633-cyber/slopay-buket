@@ -45,13 +45,14 @@ export function Hero() {
 
   return (
     <HeroFrame>
-    <section id="top" className="relative overflow-hidden pb-10 pt-4 md:pb-20 md:pt-10">
+    <section id="top" className="relative overflow-hidden pb-8 pt-3 md:pb-16 md:pt-8">
       <div aria-hidden className="grain pointer-events-none absolute inset-0" />
       <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-honey/20 blur-[120px]" />
 
-      <div className="container-x relative grid items-center gap-5 md:gap-10 lg:grid-cols-[1.1fr_1fr]">
+      <div className="container-x relative grid items-center gap-4 md:gap-8 lg:grid-cols-[1.05fr_1fr]">
         {/* Текст: H1 → УТП → 3 доказательства → 2 CTA */}
         <div className="order-1">
+          <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-honey-600 md:mb-3 md:text-xs">Съедобные букеты · Ульяновск</p>
           <a
             href={SITE.reviewsUrl}
             target="_blank"
@@ -63,10 +64,10 @@ export function Hero() {
             </span>
             · {SITE.reviewsCount} отзывов на {SITE.reviewsSource}
           </a>
-          <h1 className="h-display text-[29px] leading-[1.08] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
+          <h1 className="h-display text-[30px] leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[52px] xl:text-[58px]" data-variant={variant}>
             {title}
           </h1>
-          <p key={HERO_DATA.subtitle} className="mt-3 max-w-xl text-[16px] font-semibold leading-relaxed text-ink-soft md:mt-5 md:text-lg" {...editableProps('hero', 'subtitle')}>
+          <p key={HERO_DATA.subtitle} className="mt-2 max-w-lg text-[15px] font-semibold leading-relaxed text-ink-soft md:mt-4 md:text-lg" {...editableProps('hero', 'subtitle')}>
             {HERO_DATA.subtitle}
           </p>
           <ul className="mt-5 hidden grid-cols-3 gap-3 md:grid">
@@ -82,7 +83,7 @@ export function Hero() {
 
         {/* Фото — видно сразу, без анимаций; честная цена букета на фото */}
         <div className="relative order-2">
-          <div className="relative mx-auto aspect-square h-[34svh] max-w-full max-h-[640px] min-h-[240px] overflow-hidden rounded-[32px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]">
+          <div className="relative mx-auto aspect-square h-[38svh] max-w-full max-h-[640px] min-h-[230px] overflow-hidden rounded-[28px] shadow-lift ring-1 ring-honey/30 md:h-auto md:max-h-none md:w-full lg:max-w-[520px]">
             <img
               src="/img/real/berry/hero-heart-720.webp"
               srcSet="/img/real/berry/hero-heart-720.webp 720w, /img/real/berry/hero-heart.webp 1100w"
@@ -110,11 +111,11 @@ export function Hero() {
 
         {/* Мобильные: CTA и доказательства под фото */}
         <div className="order-3 md:hidden">
-          <ul className="grid grid-cols-3 gap-2">
+          <ul className="grid grid-cols-3 gap-1.5">
             {PROOFS.map((p) => (
-              <li key={p.text} className="rounded-2xl border border-line bg-surface p-2.5">
-                <b className="block text-[18px] font-extrabold leading-none text-honey-600">{p.big}</b>
-                <span className="mt-1 block text-[12px] font-semibold leading-snug text-ink-soft">{p.text}</span>
+              <li key={p.text} className="rounded-xl border border-line/70 bg-surface/60 px-2 py-2">
+                <b className="block text-[16px] font-extrabold leading-none text-honey-600">{p.big}</b>
+                <span className="mt-1 block text-[10px] font-semibold leading-snug text-ink-soft">{p.text}</span>
               </li>
             ))}
           </ul>
