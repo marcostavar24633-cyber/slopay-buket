@@ -69,11 +69,11 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <div className="hidden flex-col items-end 2xl:flex">
-            <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="text-[16px] font-extrabold tracking-tight text-ink hover:text-honey-600">
+          <div className="hidden min-w-0 shrink-0 flex-col items-end 2xl:flex">
+            <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="whitespace-nowrap text-[13px] font-extrabold leading-tight tracking-tight text-ink hover:text-honey-600 2xl:text-[14px]">
               {SITE.phoneDisplay}
             </a>
-            <StatusPill compact className="whitespace-nowrap text-[12px]" />
+            <StatusPill compact className="whitespace-nowrap text-[10px] leading-tight" />
           </div>
           <a href={SITE.phoneHref} onClick={() => goal('phone_click', { from: 'header' })} className="run-border grid h-11 w-11 place-items-center rounded-full border border-line bg-surface 2xl:hidden" aria-label="Позвонить">
             <Phone className="h-[18px] w-[18px]" />
