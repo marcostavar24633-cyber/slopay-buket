@@ -550,22 +550,58 @@
 
   /* ---------- Быстрый просмотр ---------- */
   const Quick = {
-    id: null,
+    id: null, gallery: [], touchX: 0, touchY: 0,
     init() {
       $('#qv-add').addEventListener('click', (e) => Cart.add(this.id, e.currentTarget));
-      $('#qv-thumbs').addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (b) this.fill(b.dataset.id); });
+      $('#qv-thumbs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-id]'); if (b) this.show(b.dataset.id);
+      });
+      const main = $('.qv__main');
+      main.addEventListener('touchstart', (e) => {
+        this.touchX = e.changedTouches[0].clientX;
+        this.touchY = e.changedTouches[0].clientY;
+      }, { passive: true });
+      main.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - this.touchX;
+        const dy = e.changedTouches[0].clientY - this.touchY;
+        if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        this.move(dx < 0 ? 1 : -1);
+      }, { passive: true });
     },
     fill(id) {
-      const i = BY_ID.get(id); this.id = id;
-      const img = $('#qv-img'); img.src = i.img; img.alt = `${i.name}: ${i.desc}`;
-      $('#qv-cat').textContent = CATS[i.cat].name;
-      $('#qv-title').textContent = i.name;
-      $('#qv-price').textContent = `от ${rub(i.price)}`;
-      $('#qv-desc').textContent = HITS.find((h) => h.id === id)?.desc || i.desc;
-      $('#qv-swap').href = tgLink(`Здравствуйте! Хочу такой, но заменить…\n«${i.name}» — ${CONFIG.photoBase}${id}.jpg\nЧто заменить: `);
-      const sim = ITEMS.filter((x) => x.cat === i.cat && x.id !== id).sort((a, b) => Math.abs(a.price - i.price) - Math.abs(b.price - i.price)).slice(0, 4);
-      $('#qv-thumbs').innerHTML = sim.map((x) => `<button type="button" data-id="${x.id}" aria-label="Открыть «${esc(x.name)}»"><img src="${x.thumb}" alt="" loading="lazy" width="440" height="440"></button>`).join('');
-      if (ANIM) gsap.fromTo('.qv__main img', { scale: 1.08, opacity: 0.4 }, { scale: 1, opacity: 1, duration: 0.8 });
+      const item = BY_ID.get(id); if (!item) return;
+      const similar = ITEMS.filter((x) => x.cat === item.cat && x.id !== id)
+        .sort((a, b) => Math.abs(a.price - item.price) - Math.abs(b.price - item.price)).slice(0, 4);
+      this.gallery = [item, ...similar];
+      this.renderThumbs();
+      this.show(id);
+    },
+    renderThumbs() {
+      $('#qv-thumbs').innerHTML = this.gallery.map((x) =>
+        `<button type="button" data-id="${x.id}" aria-label="Показать фото «${esc(x.name)}»"><img src="${x.thumb}" alt="" loading="lazy" width="440" height="440"></button>`
+      ).join('');
+    },
+    show(id) {
+      const item = BY_ID.get(id); if (!item) return;
+      this.id = id;
+      const img = $('#qv-img'); img.src = item.img; img.alt = `${item.name}: ${item.desc}`;
+      $('#qv-cat').textContent = CATS[item.cat].name;
+      $('#qv-title').textContent = item.name;
+      $('#qv-price').textContent = `от ${rub(item.price)}`;
+      $('#qv-desc').textContent = HITS.find((h) => h.id === id)?.desc || item.desc;
+      $('#qv-swap').href = tgLink(`Здравствуйте! Хочу такой, но заменить…\n«${item.name}» — ${CONFIG.photoBase}${id}.jpg\nЧто заменить: `);
+      $$('#qv-thumbs [data-id]').forEach((button) => {
+        const active = button.dataset.id === id;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-current', active ? 'true' : 'false');
+      });
+      if (ANIM) gsap.fromTo('.qv__main img', { scale: 1.04, opacity: 0.55 }, { scale: 1, opacity: 1, duration: 0.45 });
+    },
+    move(direction) {
+      if (this.gallery.length < 2) return;
+      const index = this.gallery.findIndex((item) => item.id === this.id);
+      const next = (index + direction + this.gallery.length) % this.gallery.length;
+      this.show(this.gallery[next].id);
     },
     open(id, opener) { this.fill(id); Panels.open('quick', opener); },
   };
