@@ -42,7 +42,6 @@ function ldJson() {
   const prices = items.map((p) => Number(p.price)).filter(Boolean)
   const digits = String(site.phone).replace(/\D/g, '').replace(/^8/, '7')
   const hours = /(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})/.exec(site.hours)
-  const hits = items.filter((p) => p.hit).sort((a, b) => (a.hitOrder ?? 99) - (b.hitOrder ?? 99))
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Florist',
@@ -62,17 +61,6 @@ function ldJson() {
     sameAs: [site.reviewsUrl, site.vk].filter(Boolean),
     aggregateRating: { '@type': 'AggregateRating', ratingValue: String(site.rating).replace(',', '.'), bestRating: '5', ratingCount: String(site.reviewsCount) },
     ...(site.ownerName ? { founder: { '@type': 'Person', name: site.ownerName }, ...(site.inn ? { taxID: site.inn } : {}) } : {}),
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Хиты продаж',
-      itemListElement: hits.map((p) => ({
-        '@type': 'Offer',
-        price: String(p.price),
-        priceCurrency: 'RUB',
-        url: `${SITE_URL}/#hits`,
-        itemOffered: { '@type': 'Product', name: p.name, description: p.desc, image: SITE_URL + p.image },
-      })),
-    },
   }).replace(/</g, '\\u003c')
 }
 
