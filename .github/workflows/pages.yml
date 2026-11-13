@@ -37,6 +37,8 @@ jobs:
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: npx vite build --base "${{ steps.pages.outputs.base_path }}/"
+      - name: Проверка SEO-страниц, sitemap и изображений
+        run: node tests/seo-pages.cjs dist
       - name: Пререндер (готовая разметка для поисковиков и быстрого первого экрана)
         run: |
           npm install --no-save playwright@1.63.0
