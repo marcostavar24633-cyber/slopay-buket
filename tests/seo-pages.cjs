@@ -12,7 +12,8 @@ const categories = [
   ['dried', 'suhofrukty'],
   ['sweet', 'sladkie-boksy'],
 ]
-const fail = (message) => { console.error('✗ ' + message); process.exitCode = 1 }
+let errors = 0
+const fail = (message) => { errors++; console.error('✗ ' + message) }
 const pass = (message) => console.log('✓ ' + message)
 
 for (const [key, slug] of categories) {
@@ -24,11 +25,11 @@ for (const [key, slug] of categories) {
   const html = fs.readFileSync(file, 'utf8')
   const visible = products.filter((p) => p.cat === key && p.show !== false)
   const cards = (html.match(/<article class="product">/g) || []).length
-  const title = html.match(/<title>([^<]+)<\\/title>/)?.[1]
-  const h1 = html.match(/<h1>([^<]+)<\\/h1>/)?.[1]
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1]
+  const h1 = html.match(/<h1>([^<]+)<\/h1>/)?.[1]
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]
   const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1]
-  const jsonLd = html.match(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/)?.[1]
+  const jsonLd = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1]
 
   if (!title) fail(slug + ': отсутствует title')
   if (!h1) fail(slug + ': отсутствует H1')
@@ -46,7 +47,7 @@ for (const [key, slug] of categories) {
   if (visible.length === 0) fail(slug + ': в исходных данных нет видимых товаров')
   if (cards !== visible.length) fail(slug + ': карточек ' + cards + ', видимых товаров в JSON ' + visible.length)
   for (const item of visible) {
-    if (!item.image || !fs.existsSync(path.join(repo, 'public', item.image.replace(/^\\//, '')))) {
+    if (!item.image || !fs.existsSync(path.join(repo, 'public', item.image.replace(/^\//, '')))) {
       fail(slug + ': отсутствует фото для товара ' + item.id)
     }
     if (!Number.isFinite(Number(item.price)) || Number(item.price) <= 0) {
@@ -54,7 +55,7 @@ for (const [key, slug] of categories) {
     }
   }
   if (html.includes('Скоро добавим работы этой категории')) fail(slug + ': вместо каталога показана заглушка')
-  if (process.exitCode !== 1) pass(slug + ': SEO, JSON-LD и ' + cards + ' карточек')
+  if (!errors) pass(slug + ': SEO, JSON-LD и ' + cards + ' карточек')
 }
 
 const sitemapFile = path.join(root, 'sitemap.xml')
@@ -64,11 +65,11 @@ else {
   const sitemap = fs.readFileSync(sitemapFile, 'utf8')
   for (const [, slug] of categories) if (!sitemap.includes('/' + slug + '/')) fail('sitemap.xml: нет ' + slug)
   if (!sitemap.includes('<urlset')) fail('sitemap.xml: некорректная структура')
-  if (!process.exitCode) pass('sitemap.xml содержит все пять категорий')
+  if (!errors) pass('sitemap.xml содержит все пять категорий')
 }
 if (!fs.existsSync(robotsFile)) fail('robots.txt не создан')
 else if (!fs.readFileSync(robotsFile, 'utf8').includes('sitemap.xml')) fail('robots.txt не ссылается на sitemap.xml')
-else if (!process.exitCode) pass('robots.txt ссылается на sitemap.xml')
+else if (!errors) pass('robots.txt ссылается на sitemap.xml')
 
-if (process.exitCode) process.exit(1)
+if (errors) process.exit(1)
 console.log('SEO smoke tests passed.')
