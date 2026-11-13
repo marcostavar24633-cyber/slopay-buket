@@ -868,8 +868,8 @@ main { position: relative; }
 .qv__thumbs button.is-active { opacity: 1; border-color: var(--gold); }
 @media (max-width: 767px) {
   .modal {
-    max-height: calc(100dvh - env(safe-area-inset-top) - 6px);
     max-height: calc(100svh - env(safe-area-inset-top) - 6px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - 6px);
     padding-bottom: env(safe-area-inset-bottom);
     overflow-x: hidden;
     overflow-y: auto;
