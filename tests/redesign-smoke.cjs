@@ -98,7 +98,19 @@ function serve() {
           const right = parseFloat(style.right)
           return { owner: el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().replace(/\\s+/g, '.') : ''), pseudo, position: style.position, left: Number.isFinite(left) ? Math.round(left * 10) / 10 : null, right: Number.isFinite(right) ? Math.round(right * 10) / 10 : null, ownerLeft: Math.round(rect.left * 10) / 10, ownerRight: Math.round(rect.right * 10) / 10, width: style.width, transform: style.transform }
         })).filter(Boolean)
-        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, rootChildren, pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
+        const scrollOverflow = [...document.querySelectorAll('#main, #main *')].map((el) => {
+          const rect = el.getBoundingClientRect()
+          const style = getComputedStyle(el)
+          return {
+            tag: el.tagName.toLowerCase(), id: el.id,
+            className: typeof el.className === 'string' ? el.className : '',
+            left: Math.round(rect.left * 10) / 10, right: Math.round(rect.right * 10) / 10,
+            width: Math.round(rect.width * 10) / 10,
+            scrollWidth: el.scrollWidth, clientWidth: el.clientWidth,
+            overflowX: style.overflowX, position: style.position,
+          }
+        }).filter((el) => el.scrollWidth > el.clientWidth + 1)
+        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, rootChildren, scrollOverflow: scrollOverflow.slice(0, 80), pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
       })
       assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify(overflow)}`)
 
