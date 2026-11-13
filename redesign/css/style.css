@@ -907,3 +907,6 @@ main { position: relative; }
   .qv__info { padding-top: 7px; }
   .qv__perks { margin: 10px 0; padding: 9px 0; }
 }
+@media (max-width: 767px) {
+  .maria__photo::before { inset: -8% 0; }
+}
