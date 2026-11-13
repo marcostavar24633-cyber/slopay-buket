@@ -107,6 +107,24 @@ function serve() {
       await context.close()
     }
 
+    // Desktop custom cursor must follow pointer coordinates without tween lag.
+    const cursorContext = await browser.newContext({
+      viewport: { width: 1280, height: 800 },
+      reducedMotion: 'no-preference',
+      hasTouch: false,
+    })
+    const cursorPage = await cursorContext.newPage()
+    await cursorPage.goto(url, { waitUntil: 'networkidle' })
+    await cursorPage.mouse.move(640, 400)
+    await cursorPage.waitForTimeout(50)
+    const cursorCenter = await cursorPage.locator('#cursor').evaluate((el) => {
+      const rect = el.getBoundingClientRect()
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+    })
+    assert.ok(Math.abs(cursorCenter.x - 640) <= 1.5, `custom cursor X lag/offset: expected 640, got ${cursorCenter.x}`)
+    assert.ok(Math.abs(cursorCenter.y - 400) <= 1.5, `custom cursor Y lag/offset: expected 400, got ${cursorCenter.y}`)
+    await cursorContext.close()
+
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
     const page = await context.newPage()
     await page.goto(url + 'privacy/', { waitUntil: 'networkidle' })
