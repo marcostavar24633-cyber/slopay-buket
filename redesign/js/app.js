@@ -858,7 +858,7 @@
     if (!FEATURES.cursor || !FINE || REDUCE || !HAS_GSAP) return;
     document.documentElement.classList.add('has-cursor');
     const c = $('#cursor'); const label = $('.cursor__label', c);
-    const xTo = gsap.quickTo(c, 'x', { duration: 0.35, ease: 'power3.out' }); const yTo = gsap.quickTo(c, 'y', { duration: 0.35, ease: 'power3.out' });
+    const xTo = gsap.quickTo(c, 'x', { duration: 0.06, ease: 'none' }); const yTo = gsap.quickTo(c, 'y', { duration: 0.06, ease: 'none' });
     addEventListener('pointermove', (e) => { c.classList.add('is-on'); xTo(e.clientX); yTo(e.clientY); }, { passive: true });
     document.addEventListener('pointerleave', () => c.classList.remove('is-on'));
     document.addEventListener('pointerover', (e) => {
