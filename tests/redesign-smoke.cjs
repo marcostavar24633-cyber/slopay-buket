@@ -54,8 +54,24 @@ function serve() {
       await page.goto(url, { waitUntil: 'networkidle' })
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-      assert.equal(overflow, 0, `horizontal overflow at ${viewport.width}px: ${overflow}px`)
+      const overflow = await page.evaluate(() => {
+        const offenders = [...document.querySelectorAll('body *')].map((el) => {
+          const rect = el.getBoundingClientRect()
+          const style = getComputedStyle(el)
+          return {
+            tag: el.tagName.toLowerCase(),
+            id: el.id,
+            className: typeof el.className === 'string' ? el.className : '',
+            left: Math.round(rect.left * 10) / 10,
+            right: Math.round(rect.right * 10) / 10,
+            width: Math.round(rect.width * 10) / 10,
+            position: style.position,
+            overflowX: style.overflowX,
+          }
+        }).filter((el) => el.width > 0 && (el.left < -1 || el.right > innerWidth + 1))
+        return { amount: document.documentElement.scrollWidth - innerWidth, offenders: offenders.slice(0, 30) }
+      })
+      assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify(overflow.offenders)}`)
 
       const form = page.locator('#custom-form')
       assert.equal(await form.locator('#cf-name').count(), 1)
