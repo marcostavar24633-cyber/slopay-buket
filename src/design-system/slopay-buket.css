@@ -1,0 +1,42 @@
+/* Slopay Buket brand profile — mapped from the project's existing src/index.css.
+   Additive tokens: preserve all current Tailwind and shadcn variables. */
+:root {
+  --ds-brand-name: "Слопай букет";
+  --ds-bg: #0a0908;
+  --ds-surface: #12100c;
+  --ds-surface-raised: #17140f;
+  --ds-panel: #070605;
+  --ds-text: #f4ecdc;
+  --ds-text-soft: #cbbfa8;
+  --ds-text-muted: #948872;
+  --ds-border: rgb(212 175 55 / 0.16);
+  --ds-accent: #d4af37;
+  --ds-accent-hover: #ebcb6e;
+  --ds-accent-soft: #1f190d;
+  --ds-accent-contrast: #0a0908;
+  --ds-highlight: #e2566c;
+  --ds-leaf: #9cc08f;
+  --ds-font-body: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --ds-font-display: "Playfair Display Variable", Georgia, serif;
+  --ds-radius-card: 1.75rem;
+  --ds-radius-control: 999px;
+  --ds-shadow-card: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px -10px rgb(0 0 0 / .6);
+  --ds-shadow-card-hover: 0 0 0 1px rgb(212 175 55 / .1), 0 24px 56px -18px rgb(0 0 0 / .85), 0 0 40px -20px rgb(212 175 55 / .25);
+}
+:root[data-theme="light"] {
+  --ds-bg: #fff1e6;
+  --ds-surface: #fffaf6;
+  --ds-surface-raised: #ffe2cf;
+  --ds-panel: #ffe6d6;
+  --ds-text: #3b120e;
+  --ds-text-soft: #6e362c;
+  --ds-text-muted: #9b6a5c;
+  --ds-border: rgb(192 57 43 / .16);
+  --ds-accent: #d19a2a;
+  --ds-accent-hover: #b8262c;
+  --ds-accent-soft: #ffe0c2;
+  --ds-accent-contrast: #2b0d09;
+  --ds-highlight: #c62f3a;
+  --ds-leaf: #4f7a45;
+  --ds-shadow-card: 0 1px 2px rgb(120 40 20 / .06), 0 8px 24px -10px rgb(150 50 30 / .18);
+}
