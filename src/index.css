@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./design-system/slopay-buket.css";
 
 @custom-variant dark (&:is(.dark *));
 
