@@ -860,3 +860,49 @@ main { position: relative; }
 /* Без GSAP (не загрузился) — показываем всё сразу */
 .no-anim .preloader { display: none; }
 .no-anim .reveal-img { clip-path: none; }
+
+
+/* Быстрый просмотр: доступная прокрутка и галерея на мобильных */
+.modal { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.qv__main { position: relative; touch-action: pan-y pinch-zoom; }
+.qv__thumbs button.is-active { opacity: 1; border-color: var(--gold); }
+@media (max-width: 767px) {
+  .modal {
+    max-height: calc(100dvh - env(safe-area-inset-top) - 6px);
+    max-height: calc(100svh - env(safe-area-inset-top) - 6px);
+    padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-padding-bottom: 18px;
+  }
+  .qv { display: block; }
+  .qv__gallery { padding: 12px 14px 4px; }
+  .qv__main {
+    width: 100%;
+    max-height: min(34dvh, 270px);
+    aspect-ratio: 1.25;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .qv__main img { object-fit: contain; }
+  .qv__sub { margin: 9px 2px 6px; font-size: 10px; }
+  .qv__thumbs { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .qv__thumbs button { border-radius: 8px; }
+  .qv__info { padding: 10px 18px calc(18px + env(safe-area-inset-bottom)); }
+  .qv__title { font-size: clamp(27px, 7vw, 34px); line-height: 1.08; padding-right: 24px; }
+  .qv__price { margin: 10px 0 14px; gap: 6px 9px; }
+  .qv__price b { font-size: 28px; }
+  .qv__price span { font-size: 11px; }
+  .qv__h { margin-bottom: 5px; }
+  .qv__info > p { font-size: 13.5px; line-height: 1.45; }
+  .qv__perks { gap: 7px; margin: 14px 0; padding: 12px 0; font-size: 12.5px; }
+  .qv__actions { gap: 8px; margin-top: 4px; }
+  .qv__actions .btn { min-height: 46px; padding: 0 14px; font-size: 13px; }
+  .modal__close { position: sticky; float: right; top: 10px; margin: 10px 10px -48px 0; }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  .qv__main { max-height: 27dvh; }
+  .qv__gallery { padding-top: 8px; }
+  .qv__info { padding-top: 7px; }
+  .qv__perks { margin: 10px 0; padding: 9px 0; }
+}
