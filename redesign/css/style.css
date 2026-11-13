@@ -807,6 +807,7 @@ main { position: relative; }
   .section__head--row .rail-nav { display: none; }
   .stack__card { grid-template-columns: 1fr; gap: 16px; top: calc(var(--header-h) + 20px + var(--i, 0) * 10px); }
   .stack__n { position: absolute; right: 22px; top: 18px; font-size: 64px; }
+  .maria { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .maria__facts { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .maria__facts b { font-size: 34px; }
   .reviews { columns: 1; }
