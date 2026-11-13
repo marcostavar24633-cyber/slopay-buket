@@ -110,7 +110,8 @@ function serve() {
             overflowX: style.overflowX, position: style.position,
           }
         }).filter((el) => el.scrollWidth > el.clientWidth + 1)
-        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, rootChildren, scrollOverflow: scrollOverflow.slice(0, 80), pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
+        const mariaGlow = getComputedStyle(document.querySelector('.maria__photo'), '::before')
+        return { amount: document.documentElement.scrollWidth - innerWidth, mariaGlow: { left: mariaGlow.left, right: mariaGlow.right }, rootMetrics, rootChildren, scrollOverflow: scrollOverflow.slice(0, 80), pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
       })
       assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify(overflow)}`)
 
