@@ -37,8 +37,8 @@ if (EDIT_MODE) {
   addEventListener('message', (e: MessageEvent<ToSite>) => {
     if (e.source !== window.parent || !e.data?.type) return
     if (e.data.type === 'slopay:live') {
-      const { type: _t, ...rest } = e.data
-      state = { ...state, ...Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)) }
+      const rest = Object.fromEntries(Object.entries(e.data).filter(([key, value]) => key !== 'type' && value !== undefined))
+      state = { ...state, ...rest }
       emit()
     } else if (e.data.type === 'slopay:scroll') scrollTo(0, e.data.y)
   })
