@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Кейс «Слопай букет» — редизайн сайта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0908; --bg2:#13100e; --bg3:#1b1714; --cream:#f3e9dc; --cream2:#e4d7c5; --muted:#b3a594; --faint:#8a7e71; --gold:#d9b779; --gold2:#f1dcaa; --gold3:#a8833f; --berry:#e8517a; --btn:#b3143f; --line:rgba(217,183,121,.22); --line2:rgba(243,233,220,.1);
+    --serif:"Cormorant Garamond",Georgia,serif; --sans:"Manrope",system-ui,sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { background:#000; }
+  body { font:400 26px/1.5 var(--sans); color:var(--cream); -webkit-font-smoothing:antialiased; }
+  @page { size: 1920px 1080px; margin: 0; }
+  .slide { position:relative; width:1920px; height:1080px; overflow:hidden; background:var(--bg); padding:96px 120px; page-break-after:always; break-after:page; display:flex; flex-direction:column; }
+  .slide::before { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(50% 60% at 80% 40%, rgba(196,30,72,.16), transparent 70%), radial-gradient(40% 50% at 10% 100%, rgba(217,183,121,.07), transparent 70%); }
+  .slide::after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .slide > * { position:relative; z-index:1; }
+  .eyebrow { display:flex; align-items:center; gap:16px; font:600 18px/1 var(--sans); letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:28px; }
+  .eyebrow::before { content:""; width:44px; height:1px; background:linear-gradient(90deg,transparent,var(--gold)); }
+  h1, h2 { font-family:var(--serif); font-weight:400; letter-spacing:-.015em; }
+  h2 { font-size:84px; line-height:1; max-width:1300px; }
+  h2 em, h1 em { color:var(--gold2); font-style:italic; }
+  .lead { color:var(--muted); font-size:28px; max-width:900px; margin-top:24px; }
+  .pn { position:absolute; right:120px; bottom:56px; font:500 18px/1 var(--sans); letter-spacing:.18em; color:var(--faint); }
+  .brand { position:absolute; left:120px; bottom:56px; font:italic 400 24px/1 var(--serif); color:var(--faint); }
+  .brand b { font-style:normal; font-weight:500; color:var(--muted); }
+  /* окно браузера */
+  .win { border-radius:18px; overflow:hidden; border:1px solid var(--line); background:#0d0b0a; box-shadow:0 50px 120px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(0,0,0,.6); }
+  .win__bar { height:36px; display:flex; align-items:center; gap:9px; padding:0 16px; background:#171310; border-bottom:1px solid var(--line2); }
+  .win__bar i { width:11px; height:11px; border-radius:50%; background:#3a312b; }
+  .win__bar span { margin-left:14px; font-size:14px; color:var(--faint); letter-spacing:.02em; }
+  .win img { display:block; width:100%; }
+  /* телефон */
+  .phone { width:300px; border-radius:46px; padding:10px; background:#1d1916; border:1px solid var(--line); box-shadow:0 40px 90px -30px #000; }
+  .phone img { width:100%; border-radius:37px; display:block; aspect-ratio:390/664; object-fit:cover; object-position:top; }
+  .cap { margin-top:16px; font-size:19px; color:var(--muted); text-align:center; }
+  ul.ticks { list-style:none; display:grid; gap:18px; }
+  ul.ticks li { position:relative; padding-left:34px; font-size:24px; color:var(--cream2); line-height:1.4; }
+  ul.ticks li::before { content:"✦"; position:absolute; left:0; top:7px; color:var(--berry); font-size:16px; }
+  ul.ticks b { color:var(--cream); font-weight:600; }
+  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:64px; }
+  .card { border:1px solid var(--line2); background:linear-gradient(160deg,#1c1714,#120f0d); border-radius:22px; padding:34px 36px; }
+  .card h3 { font:400 36px/1.1 var(--serif); margin-bottom:12px; }
+  .card p { color:var(--muted); font-size:21px; line-height:1.45; }
+  .num { font:400 112px/1 var(--serif); color:var(--gold2); }
+  .gold-text { background:linear-gradient(100deg,var(--gold3),var(--gold2) 40%,var(--gold) 60%,var(--gold3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+</style>
+</head>
+<body>
+
+<!-- 1. Обложка -->
+<section class="slide" style="justify-content:center">
+  <div style="display:grid;grid-template-columns:680px 1fr;gap:80px;align-items:center">
+    <div>
+      <p class="eyebrow">Кейс · редизайн сайта</p>
+      <h1 style="font-size:132px;line-height:.92">Слопай <em>букет</em></h1>
+      <p class="lead" style="font-size:30px;margin-top:34px">Мастерская съедобных букетов в Ульяновске. Сайт превратился из витрины «букеты из клубники» в&nbsp;вечерний гастрономический бутик.</p>
+      <p style="margin-top:48px;display:flex;gap:14px;flex-wrap:wrap;font-size:19px;color:var(--cream2)">
+        <span style="border:1px solid var(--line);border-radius:99px;padding:10px 20px">Арт-дирекция</span>
+        <span style="border:1px solid var(--line);border-radius:99px;padding:10px 20px">UI/UX</span>
+        <span style="border:1px solid var(--line);border-radius:99px;padding:10px 20px">Вёрстка и анимации</span>
+        <span style="border:1px solid var(--line);border-radius:99px;padding:10px 20px">SEO</span>
+      </p>
+    </div>
+    <div class="win" style="transform:rotate(-1.2deg)"><div class="win__bar"><i></i><i></i><i></i><span>слопайбукет.рф</span></div><img src="img/d-hero.jpg" alt=""></div>
+  </div>
+  <p class="pn">01</p>
+</section>
+
+<!-- 2. Задача -->
+<section class="slide">
+  <p class="eyebrow">Задача</p>
+  <h2>Бутик гастрономического бренда, <em>а&nbsp;не&nbsp;ещё один сайт с&nbsp;клубникой</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+    <div class="card"><h3>Только правда</h3><p>Ни одной выдуманной цены, срока или отзыва. Каталог — 129 реальных работ, отзывы — с&nbsp;Авито без правок.</p></div>
+    <div class="card"><h3>Мобильный в приоритете</h3><p>Букеты заказывают с телефона в последний момент, поэтому вёрстка начиналась с экрана 360&nbsp;px.</p></div>
+    <div class="card"><h3>Заказ без оплаты на сайте</h3><p>Состав и сумму согласует мастер. Сайт собирает готовый текст заказа и передаёт его в Telegram или MAX.</p></div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">02</p>
+</section>
+
+<!-- 3. Арт-дирекция -->
+<section class="slide">
+  <p class="eyebrow">Арт-дирекция</p>
+  <h2>Вечерняя витрина: <em>цвет даёт еда</em></h2>
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:80px;margin-top:64px;flex:1">
+    <div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <div><div style="height:190px;border-radius:18px;background:#0a0908;border:1px solid var(--line)"></div><p style="margin-top:14px;font-size:20px">Почти чёрный<br><span style="color:var(--faint)">#0a0908</span></p></div>
+        <div><div style="height:190px;border-radius:18px;background:#f3e9dc"></div><p style="margin-top:14px;font-size:20px">Кремовый текст<br><span style="color:var(--faint)">#f3e9dc</span></p></div>
+        <div><div style="height:190px;border-radius:18px;background:linear-gradient(160deg,#e8517a,#b3143f)"></div><p style="margin-top:14px;font-size:20px">Ягодный<br><span style="color:var(--faint)">#b3143f</span></p></div>
+        <div><div style="height:190px;border-radius:18px;background:linear-gradient(160deg,#f1dcaa,#d9b779 50%,#a8833f)"></div><p style="margin-top:14px;font-size:20px">Шампанское<br><span style="color:var(--faint)">#d9b779</span></p></div>
+      </div>
+      <ul class="ticks" style="margin-top:56px">
+        <li>Grain, тонкие золотые линии и мягкое свечение за букетами, как подсветка витрины</li>
+        <li>Эмодзи заменены единым набором тонких линейных иконок</li>
+        <li>Контраст по WCAG AA: основной текст 16,6:1, вторичный 8,3:1</li>
+      </ul>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center;gap:34px">
+      <div><p style="font-size:17px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)">Заголовки · Cormorant Garamond</p>
+        <p style="font:400 100px/1 var(--serif);margin-top:16px">Подарок <em class="gold-text">со&nbsp;вкусом</em></p></div>
+      <div style="height:1px;background:var(--line2)"></div>
+      <div><p style="font-size:17px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)">Текст · Manrope</p>
+        <p style="font-size:28px;color:var(--cream2);margin-top:14px;line-height:1.5">Обычные цветы вянут за 3–5 дней, а&nbsp;такой букет съедают в&nbsp;тот&nbsp;же вечер.</p></div>
+    </div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">03</p>
+</section>
+
+<!-- 4. Первый экран -->
+<section class="slide" style="padding-right:0">
+  <div style="display:grid;grid-template-columns:560px 1fr;gap:70px;height:100%">
+    <div style="display:flex;flex-direction:column">
+      <p class="eyebrow">Первый экран</p>
+      <h2 style="font-size:76px">Влюбить <em>за&nbsp;3 секунды</em></h2>
+      <ul class="ticks" style="margin-top:48px">
+        <li>Логотип прорисовывается золотой линией, шторка открывает сайт</li>
+        <li>Заголовок появляется по строкам, курсив переливается золотом</li>
+        <li>Ягоды, роза и листья вокруг букета двигаются за курсором</li>
+        <li>Плашка с живым отсчётом до 5 декабря, после даты скрывается сама</li>
+        <li>«Сейчас на связи» по часам Ульяновска</li>
+      </ul>
+    </div>
+    <div class="win" style="align-self:center;border-radius:18px 0 0 18px;border-right:0"><div class="win__bar"><i></i><i></i><i></i><span>слопайбукет.рф</span></div><img src="img/d-hero.jpg" alt=""></div>
+  </div>
+  <p class="pn">04</p>
+</section>
+
+<!-- 5. Структура -->
+<section class="slide">
+  <div style="display:grid;grid-template-columns:1fr 1100px;gap:60px;height:100%;align-items:center">
+    <div>
+      <p class="eyebrow">Структура</p>
+      <h2 style="font-size:76px">20 блоков, <em>один сценарий</em></h2>
+      <p class="lead" style="font-size:24px">Влюбить → выбрать → снять сомнения → написать мастеру.</p>
+      <ol style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(10,auto);gap:4px 24px;font-size:19px;color:var(--cream2);line-height:1.6;padding-left:30px">
+        <li>Прелоадер</li><li>Сезонная плашка</li><li>Шапка и меню</li><li>Hero</li><li>Бегущая строка</li><li>Категории</li><li>Хиты</li><li>Каталог</li><li>Поводы</li><li>Розы vs букет</li><li>Свой букет</li><li>Как это работает</li><li>Кто собирает</li><li>Гарантии</li><li>Отзывы</li><li>Компаниям</li><li>Доставка</li><li>FAQ</li><li>Финальный призыв</li><li>Подвал</li>
+      </ol>
+    </div>
+    <img src="img/full-columns.jpg" alt="" style="width:1100px;justify-self:end;border-radius:14px;border:1px solid var(--line2)">
+  </div>
+  <p class="pn">05</p>
+</section>
+
+<!-- 6. Каталог -->
+<section class="slide">
+  <p class="eyebrow">Каталог</p>
+  <h2>129 реальных работ, <em>найти свою за&nbsp;пару кликов</em></h2>
+  <div style="display:grid;grid-template-columns:1.45fr 1fr;gap:56px;margin-top:52px;align-items:start">
+    <div class="win"><div class="win__bar"><i></i><i></i><i></i></div><img src="img/d-catalog.jpg" alt=""></div>
+    <ul class="ticks">
+      <li><b>5 категорий-витрин:</b> при наведении фото приближается и появляется второй кадр</li>
+      <li><b>Фильтры:</b> для кого, цена, сортировка, избранное</li>
+      <li><b>Карточки плавно переставляются</b> при фильтрации (GSAP Flip)</li>
+      <li><b>Данные из админки:</b> цены и работы правятся, как раньше, а количество и цены «от» считаются сами</li>
+    </ul>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">06</p>
+</section>
+
+<!-- 7. Заказ -->
+<section class="slide">
+  <p class="eyebrow">Заказ</p>
+  <h2>Корзина, которая <em>пишет мастеру за&nbsp;клиента</em></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:52px">
+    <div><div class="win"><div class="win__bar"><i></i><i></i><i></i></div><img src="img/d-cart.jpg" alt=""></div><p class="cap">Дата, время, адрес, записка, «анонимно», полоска до бесплатной доставки</p></div>
+    <div><div class="win"><div class="win__bar"><i></i><i></i><i></i></div><img src="img/d-quiz.jpg" alt=""></div><p class="cap">Квиз из 5 шагов подбирает 3 букета из каталога</p></div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">07</p>
+</section>
+
+<!-- 8. Быстрый просмотр и поводы -->
+<section class="slide">
+  <p class="eyebrow">Выбор</p>
+  <h2>Быстрый просмотр <em>и&nbsp;повод для каждого</em></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:52px">
+    <div><div class="win"><div class="win__bar"><i></i><i></i><i></i></div><img src="img/d-quick.jpg" alt=""></div><p class="cap">Состав, «цена от» и кнопка «Хочу такой, но заменить…»</p></div>
+    <div><div class="win"><div class="win__bar"><i></i><i></i><i></i></div><img src="img/d-occasions.jpg" alt=""></div><p class="cap">Bento-сетка из 8 поводов сразу фильтрует каталог</p></div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">08</p>
+</section>
+
+<!-- 9. Доверие -->
+<section class="slide">
+  <p class="eyebrow">Доверие</p>
+  <h2>Снять сомнения <em>до&nbsp;того, как они появятся</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:40px">
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-why.jpg" alt=""></div><p class="cap">Слайдер «розы vs съедобный букет»</p></div>
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-guarantees.jpg" alt=""></div><p class="cap">Гарантии стопкой карточек при скролле</p></div>
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-reviews.jpg" alt=""></div><p class="cap">5,0 на Авито и отзывы без правок</p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:40px">
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-how.jpg" alt=""></div><p class="cap">Таймлайн: линия прорисовывается при скролле</p></div>
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-delivery.jpg" alt=""></div><p class="cap">Схема доставки по Ульяновску</p></div>
+    <div><div class="win"><img style="height:262px;object-fit:cover;object-position:top" src="img/d-custom.jpg" alt=""></div><p class="cap">«Свой букет» с загрузкой фото-примера</p></div>
+  </div>
+  <p class="pn">09</p>
+</section>
+
+<!-- 10. Мобильная версия -->
+<section class="slide">
+  <p class="eyebrow">Мобильная версия</p>
+  <h2>Сначала <em>телефон</em></h2>
+  <div style="display:flex;gap:44px;justify-content:space-between;margin-top:auto;margin-bottom:10px">
+    <div><div class="phone"><img src="img/m-hero.jpg" alt=""></div><p class="cap">Первый экран</p></div>
+    <div><div class="phone"><img src="img/m-catalog.jpg" alt=""></div><p class="cap">Каталог</p></div>
+    <div><div class="phone"><img src="img/m-sheet.jpg" alt=""></div><p class="cap">Фильтры со свайпом</p></div>
+    <div><div class="phone"><img src="img/m-menu.jpg" alt=""></div><p class="cap">Меню раскрывается кругом</p></div>
+    <div><div class="phone"><img src="img/m-guarantees.jpg" alt=""></div><p class="cap">Гарантии</p></div>
+  </div>
+  <p class="pn">10</p>
+</section>
+
+<!-- 11. Анимации -->
+<section class="slide">
+  <p class="eyebrow">Движение</p>
+  <h2>Сочно, <em>но&nbsp;без хаоса</em></h2>
+  <p class="lead">GSAP, ScrollTrigger, Lenis, Swiper. Тайминги 400–1000 мс, easing power3.out. Каждая фишка выключается одним флагом.</p>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 48px;margin-top:56px;font-size:22px;color:var(--cream2)">
+    <ul class="ticks"><li>Плавный скролл</li><li>Заголовки из-под маски</li><li>Фото раскрываются шторкой</li><li>Плавающие ягоды и лепестки</li><li>Бегущая строка от скорости скролла</li></ul>
+    <ul class="ticks"><li>Курсор «Смотреть», «Тяни» и сердечко</li><li>Магнитные кнопки</li><li>3D-наклон карточек</li><li>Букет летит в корзину по дуге</li><li>Конфетти после заявки</li></ul>
+    <ul class="ticks"><li>Шапка прячется при скролле</li><li>Стеклянные панели и drawer</li><li>Bottom sheet со свайпом</li><li>Фокус-ловушки и Esc</li><li>Всё выключается при reduced-motion</li></ul>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">11</p>
+</section>
+
+<!-- 12. Техника -->
+<section class="slide">
+  <p class="eyebrow">Под капотом</p>
+  <h2>Красиво — <em>и&nbsp;находится в&nbsp;поиске</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+    <div class="card"><h3>SEO</h3><p>Один h1 с ключом «съедобные букеты Ульяновск», мета-теги, Open Graph для превью в мессенджерах, микроразметка LocalBusiness (адрес, часы, телефон, рейтинг) и Product.</p></div>
+    <div class="card"><h3>Доступность</h3><p>Семантика и aria, управление с клавиатуры, фокус-ловушки в панелях, контраст AA на тёмном фоне, режим без анимаций.</p></div>
+    <div class="card"><h3>Скорость и запуск</h3><p>WebP и ленивая загрузка, анимации только через transform и opacity, библиотеки без CDN. Публикация через GitHub Pages, Яндекс Метрика с целями сохранена.</p></div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">12</p>
+</section>
+
+<!-- 13. Цифры -->
+<section class="slide">
+  <p class="eyebrow">Итог</p>
+  <h2>Проект <em>в&nbsp;цифрах</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:56px 60px;margin-top:auto">
+    <div><p class="num">20</p><p style="color:var(--muted);font-size:24px;margin-top:10px">блоков по ТЗ</p></div>
+    <div><p class="num">129</p><p style="color:var(--muted);font-size:24px;margin-top:10px">реальных работ в каталоге</p></div>
+    <div><p class="num">5</p><p style="color:var(--muted);font-size:24px;margin-top:10px">панелей: корзина, просмотр, квиз, фильтры, меню</p></div>
+    <div><p class="num">2</p><p style="color:var(--muted);font-size:24px;margin-top:10px">мессенджера для заказа: Telegram и MAX</p></div>
+    <div><p class="num" style="font-size:96px">360–1920</p><p style="color:var(--muted);font-size:24px;margin-top:10px">адаптив под 5 ширин экрана</p></div>
+    <div><p class="num">AA</p><p style="color:var(--muted);font-size:24px;margin-top:10px">контраст по WCAG на тёмном фоне</p></div>
+  </div>
+  <p class="brand"><b>Слопай букет</b> · кейс</p><p class="pn">13</p>
+</section>
+
+<!-- 14. Призыв -->
+<section class="slide" style="justify-content:center;align-items:center;text-align:center">
+  <div style="position:absolute;left:50%;top:50%;width:1100px;height:1100px;margin:-550px 0 0 -550px;border-radius:50%;background:radial-gradient(circle,rgba(214,38,84,.3),rgba(217,183,121,.07) 40%,transparent 65%)"></div>
+  <p class="eyebrow" style="justify-content:center">Ваш проект</p>
+  <h2 style="font-size:110px;max-width:1500px">Сделаю такой же <em>для&nbsp;вашего бизнеса</em></h2>
+  <p class="lead" style="margin:36px auto 0;max-width:1100px">Премиальный лендинг или редизайн: от арт-дирекции и текстов до анимаций, SEO и запуска. Напишите в личные сообщения на Kwork — обсудим задачу.</p>
+  <p class="pn">14</p>
+</section>
+
+</body>
+</html>

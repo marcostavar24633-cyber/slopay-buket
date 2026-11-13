@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Обложки кворка</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#333; padding:20px; display:grid; gap:20px; font-family:"Manrope",sans-serif; color:#f3e9dc; -webkit-font-smoothing:antialiased; }
+  .cover { position:relative; width:660px; height:440px; overflow:hidden; background:#0a0908; }
+  .cover::before { content:""; position:absolute; inset:0; background:radial-gradient(60% 70% at 78% 45%, rgba(214,38,84,.32), transparent 70%), radial-gradient(40% 50% at 0% 100%, rgba(217,183,121,.12), transparent 70%); }
+  .cover > * { position:relative; }
+  .serif { font-family:"Cormorant Garamond",serif; font-weight:500; letter-spacing:-.01em; }
+  em { font-style:italic; color:#f1dcaa; }
+  .chip { display:inline-block; padding:6px 12px; border:1px solid rgba(217,183,121,.4); border-radius:99px; font-size:12.5px; font-weight:600; color:#e4d7c5; }
+  .win { border-radius:10px; overflow:hidden; border:1px solid rgba(217,183,121,.3); box-shadow:0 30px 60px -20px #000; background:#0d0b0a; }
+  .win b { display:flex; gap:5px; height:18px; align-items:center; padding:0 9px; background:#171310; }
+  .win b i { width:6px; height:6px; border-radius:50%; background:#3a312b; }
+  .win img { display:block; width:100%; }
+  .phone { border-radius:24px; padding:5px; background:#1d1916; border:1px solid rgba(217,183,121,.35); box-shadow:0 30px 60px -20px #000; }
+  .phone img { display:block; width:100%; border-radius:19px; aspect-ratio:390/700; object-fit:cover; object-position:top; }
+  .eyebrow { font-size:11.5px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:#d9b779; }
+</style>
+</head>
+<body>
+
+<!-- A: сайт в окне + заголовок -->
+<div class="cover" id="c1">
+  <div style="position:absolute;left:36px;top:40px;width:285px">
+    <p class="eyebrow">Дизайн + вёрстка</p>
+    <h1 class="serif" style="font-size:50px;line-height:.98;margin-top:14px">Премиальный сайт <em>под ключ</em></h1>
+    <p style="margin-top:16px;font-size:15px;line-height:1.45;color:#c9bcab">Анимации, адаптив, SEO и запуск</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:22px"><span class="chip">GSAP</span><span class="chip">Адаптив</span><span class="chip">SEO</span></div>
+  </div>
+  <div class="win" style="position:absolute;left:345px;top:58px;width:420px;transform:rotate(-2deg)"><b><i></i><i></i><i></i></b><img src="img/d-hero.jpg" alt=""></div>
+  <div class="phone" style="position:absolute;left:520px;top:200px;width:118px;transform:rotate(3deg)"><img src="img/m-hero.jpg" alt=""></div>
+</div>
+
+<!-- B: телефон + десктоп, акцент на продажи -->
+<div class="cover" id="c2">
+  <div class="win" style="position:absolute;left:-30px;top:150px;width:430px;transform:rotate(-3deg);opacity:.95"><b><i></i><i></i><i></i></b><img src="img/d-catalog.jpg" alt=""></div>
+  <div class="phone" style="position:absolute;left:250px;top:110px;width:128px;transform:rotate(-4deg)"><img src="img/m-catalog.jpg" alt=""></div>
+  <div style="position:absolute;right:30px;top:44px;width:225px;text-align:right">
+    <p class="eyebrow">Лендинг · редизайн</p>
+    <h1 class="serif" style="font-size:46px;line-height:1;margin-top:14px">Сайт, который <em>выглядит дорого</em></h1>
+    <p style="margin-top:16px;font-size:14.5px;line-height:1.45;color:#c9bcab">Каталог, корзина и заявки в мессенджер</p>
+  </div>
+</div>
+
+<!-- C: типографика + коллаж -->
+<div class="cover" id="c3">
+  <div style="position:absolute;left:0;right:0;top:0;height:250px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 14px 0">
+    <img src="../../public/img/real/berry/yag-24.webp" style="width:100%;height:210px;object-fit:cover;border-radius:10px" alt="">
+    <img src="../../public/img/real/meat/k-36.webp" style="width:100%;height:210px;object-fit:cover;border-radius:10px" alt="">
+    <img src="../../public/img/real/sea/m-1.webp" style="width:100%;height:210px;object-fit:cover;border-radius:10px" alt="">
+  </div>
+  <div style="position:absolute;left:0;right:0;top:150px;height:76px;background:linear-gradient(rgba(10,9,8,0),#0a0908)"></div>
+  <div style="position:absolute;left:36px;right:36px;bottom:34px">
+    <h1 class="serif" style="font-size:52px;line-height:1">Сайт-бутик <em>для вашего бренда</em></h1>
+    <p style="margin-top:12px;font-size:15px;color:#c9bcab">Тёмный премиальный дизайн · анимации · мобильная версия · SEO</p>
+  </div>
+</div>
+
+</body>
+</html>
