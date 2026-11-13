@@ -44,6 +44,9 @@ jobs:
           npm install --no-save playwright@1.63.0
           npx playwright install --with-deps chromium
           node scripts/prerender.cjs dist "${{ steps.pages.outputs.base_path }}/"
+      # Новая главная (redesign/) поверх собранного сайта. Откат на старую — удалить этот шаг.
+      - name: Новая главная
+        run: python3 redesign/tools/install.py dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

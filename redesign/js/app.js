@@ -122,8 +122,10 @@
       document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch { /* */ } ta.remove(); return ok;
     }
   }
+  const goal = (name) => { try { if (typeof window.ym === 'function') window.ym(114134059, 'reachGoal', name); } catch { /* */ } };
   /** MAX не принимает текст в ссылке — копируем его в буфер и открываем чат. */
-  function sendMax(text) {
+  function sendMax(text, fromLink) {
+    if (!fromLink) goal('click_max');
     copy(withSource(text)).then((ok) => toast(ok ? 'Текст скопирован — вставьте его в чат MAX' : 'Откройте чат MAX и опишите заказ'));
     window.open(CONFIG.maxUrl, '_blank', 'noopener');
   }
@@ -131,7 +133,7 @@
     $$('[data-tg]').forEach((a) => { a.href = tgLink(MSG[a.dataset.msg] || MSG.default); });
     $$('[data-max]').forEach((a) => {
       a.href = CONFIG.maxUrl;
-      a.addEventListener('click', (e) => { e.preventDefault(); sendMax(MSG[a.dataset.msg] || MSG.default); });
+      a.addEventListener('click', (e) => { e.preventDefault(); sendMax(MSG[a.dataset.msg] || MSG.default, true); });
     });
     $$('[data-avito]').forEach((a) => { a.href = CONFIG.avitoUrl; });
     $('#avito-link').href = CONFIG.avitoUrl;
@@ -762,7 +764,7 @@
       if (picked && navigator.canShare?.({ files: [picked] })) {
         try { await navigator.share({ files: [picked], text: withSource(text) }); Effects.confetti(); toast('Готово! Мария ответит в течение 15 минут'); return; } catch { /* отменили */ }
       }
-      if (via === 'max') sendMax(text); else window.open(tgLink(text), '_blank', 'noopener');
+      if (via === 'max') sendMax(text); else { goal('click_telegram'); window.open(tgLink(text), '_blank', 'noopener'); }
       Effects.confetti();
       toast(picked ? 'Текст готов — прикрепите фото в чате' : 'Готово! Мария ответит в течение 15 минут');
     });

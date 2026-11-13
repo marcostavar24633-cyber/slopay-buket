@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="google-site-verification" content="wNU0fIN2LdUJLdbBy0Ddxm848pnMkdjyGPQaPMCSFBE">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Съедобные букеты в Ульяновске с доставкой — «Слопай букет»</title>
 <meta name="description" content="Съедобные букеты в Ульяновске ручной работы: клубничные сердца, мясные и раковые букеты, сухофрукты и сладкие боксы. Фото перед отправкой, доставка Яндекс Go. 5,0 на Авито, 107 отзывов. От 1 700 ₽.">
@@ -24,6 +25,7 @@
 <link rel="icon" href="../public/favicon-64.png" sizes="64x64">
 <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
 
+<link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -64,9 +66,36 @@
 }
 </script>
 <!-- Product-разметка хитов добавляется скриптом из каталога (js/app.js → seoProducts) -->
+<!-- Yandex.Metrika counter (перенесён со старой главной; не грузится у роботов сборки и тестов) -->
+<script>
+  if (!navigator.webdriver && !/[?&]edit=1/.test(location.search)) {
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059', 'ym');
+    ym(114134059, 'init', {ssr:true, webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  }
+</script>
+<!-- Цели Метрики: те же, что на старой главной (телефон, Telegram, MAX, Авито, PDF) -->
+<script>
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest && e.target.closest('a[href]');
+    if (!el || typeof ym !== 'function') return;
+    var ID = 114134059, href = el.getAttribute('href') || '';
+    if (href.indexOf('tel:') === 0) ym(ID, 'reachGoal', 'click_phone');
+    else if (href.indexOf('t.me') > -1) ym(ID, 'reachGoal', 'click_telegram');
+    else if (href.indexOf('max.ru') > -1) ym(ID, 'reachGoal', 'click_max');
+    else if (href.indexOf('avito.ru') > -1) ym(ID, 'reachGoal', 'click_avito');
+    else if (/\.pdf($|\?)/.test(href)) ym(ID, 'reachGoal', 'corp_pdf');
+  }, true);
+</script>
+<!-- /Yandex.Metrika counter -->
 </head>
 
 <body class="is-loading">
+<noscript><div><img src="https://mc.yandex.ru/watch/114134059" style="position:absolute; left:-9999px;" alt=""></div></noscript>
 <a class="skip-link" href="#main">Перейти к содержанию</a>
 
 <!-- ============ ИКОНКИ (тонкая линия, 1.25px) ============ -->
