@@ -52,8 +52,8 @@ function serve() {
         void original
       })
       await page.goto(url, { waitUntil: 'networkidle' })
-      await page.locator('#catalog').waitFor()
-      await page.locator('#custom-form').waitFor()
+      await page.locator('#catalog').waitFor({ state: 'attached' })
+      await page.locator('#custom-form').waitFor({ state: 'attached' })
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       assert.equal(overflow, 0, `horizontal overflow at ${viewport.width}px: ${overflow}px`)
 
