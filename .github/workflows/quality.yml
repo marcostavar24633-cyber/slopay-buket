@@ -1,0 +1,45 @@
+name: Quality checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Build
+        env:
+          SITE_URL: https://xn--80acmogcvipsi.xn--p1ai
+        run: npx vite build --base /
+      - name: SEO smoke tests
+        run: node tests/seo-pages.cjs dist
+      - name: Prerender
+        run: node scripts/prerender.cjs dist /
+      - name: Install redesigned homepage
+        run: python3 redesign/tools/install.py dist
+      - name: Browser smoke tests for final site output
+        run: node tests/redesign-smoke.cjs dist
