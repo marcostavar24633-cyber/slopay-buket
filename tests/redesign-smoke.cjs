@@ -100,7 +100,7 @@ function serve() {
         })).filter(Boolean)
         return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, rootChildren, pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
       })
-      assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify({ root: overflow.rootMetrics, offenders: overflow.offenders })}`)
+      assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify(overflow)}`)
 
       const form = page.locator('#custom-form')
       assert.equal(await form.locator('#cf-name').count(), 1)
