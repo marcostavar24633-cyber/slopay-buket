@@ -55,6 +55,13 @@ function serve() {
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
       const overflow = await page.evaluate(() => {
+        const rootMetrics = {
+          htmlScrollWidth: document.documentElement.scrollWidth,
+          bodyScrollWidth: document.body.scrollWidth,
+          htmlClientWidth: document.documentElement.clientWidth,
+          bodyClientWidth: document.body.clientWidth,
+          scrollX: window.scrollX,
+        }
         const offenders = [...document.querySelectorAll('body *')].map((el) => {
           const rect = el.getBoundingClientRect()
           const style = getComputedStyle(el)
@@ -67,11 +74,20 @@ function serve() {
             width: Math.round(rect.width * 10) / 10,
             position: style.position,
             overflowX: style.overflowX,
+            clippedBy: (() => {
+              let parent = el.parentElement
+              while (parent && parent !== document.body) {
+                const p = getComputedStyle(parent)
+                if (/(hidden|clip|auto|scroll)/.test(p.overflowX)) return parent.tagName.toLowerCase() + (parent.id ? '#' + parent.id : '') + (typeof parent.className === 'string' && parent.className ? '.' + parent.className.trim().replace(/\\s+/g, '.') : '')
+                parent = parent.parentElement
+              }
+              return getComputedStyle(document.body).overflowX
+            })(),
           }
         }).filter((el) => el.width > 0 && (el.left < -1 || el.right > innerWidth + 1))
-        return { amount: document.documentElement.scrollWidth - innerWidth, offenders: offenders.slice(0, 30) }
+        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, offenders: offenders.slice(-20) }
       })
-      assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify(overflow.offenders)}`)
+      assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify({ root: overflow.rootMetrics, offenders: overflow.offenders })}`)
 
       const form = page.locator('#custom-form')
       assert.equal(await form.locator('#cf-name').count(), 1)
