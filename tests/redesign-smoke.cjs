@@ -85,7 +85,20 @@ function serve() {
             })(),
           }
         }).filter((el) => el.width > 0 && (el.left < -1 || el.right > innerWidth + 1))
-        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, offenders: offenders.slice(-20) }
+        const rootChildren = [...document.body.children].map((el) => {
+          const rect = el.getBoundingClientRect()
+          const style = getComputedStyle(el)
+          return { tag: el.tagName.toLowerCase(), id: el.id, className: typeof el.className === 'string' ? el.className : '', left: Math.round(rect.left * 10) / 10, right: Math.round(rect.right * 10) / 10, width: Math.round(rect.width * 10) / 10, scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, overflowX: style.overflowX }
+        })
+        const pseudoOffenders = [...document.querySelectorAll('body *')].flatMap((el) => ['::before', '::after'].map((pseudo) => {
+          const style = getComputedStyle(el, pseudo)
+          if (style.content === 'none' || style.content === 'normal' || style.display === 'none') return null
+          const rect = el.getBoundingClientRect()
+          const left = parseFloat(style.left)
+          const right = parseFloat(style.right)
+          return { owner: el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().replace(/\\s+/g, '.') : ''), pseudo, position: style.position, left: Number.isFinite(left) ? Math.round(left * 10) / 10 : null, right: Number.isFinite(right) ? Math.round(right * 10) / 10 : null, ownerLeft: Math.round(rect.left * 10) / 10, ownerRight: Math.round(rect.right * 10) / 10, width: style.width, transform: style.transform }
+        })).filter(Boolean)
+        return { amount: document.documentElement.scrollWidth - innerWidth, rootMetrics, rootChildren, pseudoOffenders: pseudoOffenders.slice(-30), offenders: offenders.slice(-30) }
       })
       assert.equal(overflow.amount, 0, `horizontal overflow at ${viewport.width}px: ${overflow.amount}px; offenders: ${JSON.stringify({ root: overflow.rootMetrics, offenders: overflow.offenders })}`)
 
