@@ -174,7 +174,7 @@ export function Editor() {
             ref={frame}
             src={src}
             title="Сайт в режиме редактирования"
-            className={cn('absolute inset-y-0 left-1/2 h-full -translate-x-1/2 border-0 bg-cream transition-[width]', device === 'phone' ? 'my-3 h-[calc(100%-24px)] w-[390px] rounded-[28px] shadow-2xl ring-1 ring-line' : 'w-full')}
+            className={cn('absolute inset-y-0 left-1/2 h-full -translate-x-1/2 border-0 bg-cream transition-[width]', device === 'phone' ? 'my-3 h-[calc(100%-24px)] w-[min(390px,calc(100%-16px))] rounded-[28px] shadow-2xl ring-1 ring-line' : 'w-full')}
           />
         </div>
         <p className="hidden border-t border-line bg-surface px-3 py-1.5 text-[12px] text-muted md:block">
