@@ -386,8 +386,8 @@ main { position: relative; }
 .cat-tab { flex: none; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2); font-size: 14.5px; transition: .35s var(--ease); white-space: nowrap; }
 .cat-tab small { color: var(--faint); margin-left: 6px; font-size: 12px; }
 .cat-tab:hover { border-color: var(--line); }
-.cat-tab[aria-selected="true"] { background: var(--cream); color: var(--bg); border-color: var(--cream); }
-.cat-tab[aria-selected="true"] small { color: #5b5047; }
+.cat-tab[aria-pressed="true"] { background: var(--cream); color: var(--bg); border-color: var(--cream); }
+.cat-tab[aria-pressed="true"] small { color: #5b5047; }
 
 .filters { display: flex; flex-wrap: wrap; gap: 18px 34px; align-items: center; padding: 20px 0; border-block: 1px solid var(--line-2); margin-bottom: 18px; }
 .filters__group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
