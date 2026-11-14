@@ -24,6 +24,10 @@ dist = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else 'dist').resolve()
 if not (dist / 'index.html').exists():
     sys.exit(f'Нет сборки в {dist}: сначала vite build')
 
+# Сохраняем исходное приложение Vite: новая главная статическая и не поддерживает протокол визуального редактора.
+# Админка открывает этот файл во фрейме, чтобы postMessage и черновики продолжали работать.
+shutil.copy2(dist / 'index.html', dist / 'editor-preview.html')
+
 runpy.run_path(str(red / 'tools' / 'build-data.py'))
 
 for d in ('css', 'js', 'vendor'):
