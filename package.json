@@ -15,7 +15,8 @@
     "test:header": "node tests/header-overlap.cjs",
     "photos": "node scripts/photos.mjs",
     "gallery": "node scripts/build-gallery.mjs",
-    "tg-photos": "node scripts/tg-photos.mjs"
+    "tg-photos": "node scripts/tg-photos.mjs",
+    "test:ci": "node tests/ci-smoke.cjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.6",
