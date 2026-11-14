@@ -151,6 +151,35 @@ function serve() {
       await context.close()
     }
 
+    // Cart order details persist locally and are included in the Telegram draft link.
+    const orderContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
+    const orderPage = await orderContext.newPage()
+    await orderPage.addInitScript(() => {
+      localStorage.setItem('sb-cart', JSON.stringify({ 'sn-3': 1 }))
+    })
+    orderPage.on('pageerror', (error) => errors.push(`cart: ${error.message}`))
+    await orderPage.goto(url, { waitUntil: 'networkidle' })
+    await orderPage.locator('[data-open="cart"]').click()
+    await orderPage.locator('#cart').waitFor({ state: 'visible' })
+    assert.ok((await orderPage.locator('#cart-list').innerText()).includes('Тачка'), 'saved cart item was not restored')
+    await orderPage.locator('#o-date').fill('2099-12-31')
+    await orderPage.locator('#o-time').fill('13:00–17:00')
+    await orderPage.locator('#o-addr').fill('Ульяновск, тестовый адрес')
+    await orderPage.locator('#o-note').fill('Тестовая открытка')
+    await orderPage.locator('#o-anon').check()
+    const savedOrder = await orderPage.evaluate(() => JSON.parse(localStorage.getItem('sb-order') || '{}'))
+    assert.equal(savedOrder.date, '2099-12-31')
+    assert.equal(savedOrder.addr, 'Ульяновск, тестовый адрес')
+    assert.equal(savedOrder.note, 'Тестовая открытка')
+    assert.equal(savedOrder.anon, true)
+    const orderDraft = await orderPage.locator('#send-tg').getAttribute('href')
+    assert.ok(orderDraft.startsWith('https://t.me/'), 'cart does not produce a Telegram draft')
+    const orderText = new URL(orderDraft).searchParams.get('text') || ''
+    assert.ok(orderText.includes('Тачка'), 'Telegram draft misses cart item')
+    assert.ok(orderText.includes('Ульяновск, тестовый адрес'), 'Telegram draft misses delivery address')
+    assert.ok(orderText.includes('Тестовая открытка'), 'Telegram draft misses card note')
+    await orderContext.close()
+
     // Desktop custom cursor must follow pointer coordinates without tween lag.
     const cursorContext = await browser.newContext({
       viewport: { width: 1280, height: 800 },
