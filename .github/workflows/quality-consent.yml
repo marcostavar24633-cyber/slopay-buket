@@ -43,6 +43,8 @@ jobs:
         run: node tests/seo-pages.cjs dist
       - name: Prerender
         run: node scripts/prerender.cjs dist /
+      - name: Verify legal-page prerender output
+        run: node tests/legal-prerender.cjs dist
       - name: Install redesigned homepage
         run: python3 redesign/tools/install.py dist
       - name: Browser smoke tests
