@@ -49,8 +49,13 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.equal(await categoryTabs.first().getAttribute('tabindex'), '0')
     await categoryTabs.first().focus()
     assert.equal(await page.evaluate(() => document.activeElement?.id), await categoryTabs.first().getAttribute('id'), 'фокус установлен на первой вкладке')
-    await categoryTabs.first().press('ArrowRight')
+    const keyHandled = await categoryTabs.first().evaluate((el) => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+      el.dispatchEvent(event)
+      return event.defaultPrevented
+    })
     const tabDebug = await categoryTabs.evaluateAll((els) => els.map((el) => ({ id: el.id, selected: el.getAttribute('aria-selected'), tabIndex: el.tabIndex })))
+    assert.equal(keyHandled, true, 'обработчик должен перехватить ArrowRight')
     assert.equal(await categoryTabs.nth(1).getAttribute('aria-selected'), 'true', 'стрелка вправо выбирает следующую вкладку: ' + JSON.stringify(tabDebug))
     assert.equal(await categoryTabs.nth(1).getAttribute('tabindex'), '0')
     assert.equal(await catalogPanel.getAttribute('aria-labelledby'), await categoryTabs.nth(1).getAttribute('id'))
