@@ -54,6 +54,7 @@ function serve() {
         void original
       })
       await page.goto(url, { waitUntil: 'networkidle' })
+      assert.deepEqual(errors, [], `browser JavaScript errors during boot at ${viewport.width}px`)
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
       assert.equal(await page.locator('#cat-tabs').getAttribute('role'), 'group', 'category filters must not expose incomplete tab semantics')
@@ -84,8 +85,11 @@ function serve() {
         .map((item) => ({ id: item.id, category: item.cat, image: item.img })))
       assert.deepEqual(categoryMismatches, [], 'catalog categories do not match their image folders')
       // The snack item must have a registered category and open its quick-view without JS errors.
+      assert.equal(await page.locator('#cat-tabs [data-cat="snack"]').count(), 1, 'snack category filter button is missing')
       await page.locator('#cat-tabs [data-cat="snack"]').click()
-      await page.waitForFunction(() => document.querySelector('#cat-tabs [data-cat="snack"]')?.getAttribute('aria-pressed') === 'true')
+      await page.waitForTimeout(100)
+      const categoryState = await page.evaluate(() => ({ pressed: document.querySelector('#cat-tabs [data-cat="snack"]')?.getAttribute('aria-pressed'), count: document.querySelector('#catalog-count')?.textContent, errors: window.__smokeErrors || [] }))
+      assert.equal(categoryState.pressed, 'true', `snack category click did not update its pressed state: ${JSON.stringify(categoryState)}`)
       const snackState = await page.evaluate(() => ({ count: document.querySelector('#catalog-count')?.textContent, ids: [...document.querySelectorAll('#grid .card')].map((card) => card.dataset.id) }))
       assert.ok(snackState.ids.includes('sn-3'), `snack filter did not render sn-3; count=${snackState.count}; ids=${snackState.ids.join(',')}`)
       await page.locator('#grid .card[data-id="sn-3"] .card__media').click()
