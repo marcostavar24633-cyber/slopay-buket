@@ -66,6 +66,7 @@ type Store = {
   publishing: boolean
   upload: (file: File) => Promise<string>
   deploys: Deploy[]
+  deployError: string | null
   refreshDeploys: () => void
   toasts: Toast[]
   toast: (text: string, kind?: Toast['kind']) => void
@@ -89,6 +90,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   const [error, setError] = useState<string | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [deploys, setDeploys] = useState<Deploy[]>([])
+  const [deployError, setDeployError] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const toast = useCallback((text: string, kind: Toast['kind'] = 'ok') => {
@@ -145,8 +147,19 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 
   const discard = () => setData((prev) => ({ ...prev, ...Object.fromEntries(dirty.map((k) => [k, JSON.parse(saved.current[k])])) }))
 
-  const refreshDeploys = useCallback(() => {
-    if (token) getDeploys(token).then(setDeploys)
+  const refreshDeploys = useCallback(async () => {
+    if (!token) {
+      setDeploys([])
+      setDeployError(null)
+      return
+    }
+    try {
+      const next = await getDeploys(token)
+      setDeploys(next)
+      setDeployError(null)
+    } catch (e) {
+      setDeployError((e as Error).message || 'Не удалось получить статус сборки GitHub Actions.')
+    }
   }, [token])
   useEffect(refreshDeploys, [refreshDeploys])
   // пока сайт пересобирается — обновляем статус каждые 15 секунд
@@ -189,7 +202,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
     onLogout()
   }
 
-  const value: Store = { mode, user, loading, error, data, set, dirty, discard, publish, publishing, upload, deploys, refreshDeploys, toasts, toast, logout }
+  const value: Store = { mode, user, loading, error, data, set, dirty, discard, publish, publishing, upload, deploys, deployError, refreshDeploys, toasts, toast, logout }
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
