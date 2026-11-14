@@ -126,7 +126,17 @@ export async function writeFile(token: string, path: string, data: unknown, sha:
  * Возвращает путь для сайта: /img/uploads/…webp (появится на сайте после пересборки).
  */
 export async function uploadImage(token: string, file: File): Promise<string> {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Поддерживаются только JPG, PNG, WebP и GIF. SVG и другие форматы не принимаются.')
+  }
+  if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
+    throw new Error('Размер исходного фото должен быть от 1 байта до 15 МБ.')
+  }
   const blob = await compress(file)
+  if (blob.size > 8 * 1024 * 1024) {
+    throw new Error('Сжатое изображение превышает 8 МБ. Выберите фото меньшего размера.')
+  }
   const slug = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-|-$/g, '').slice(0, 40) || 'photo'
   const name = `${Date.now().toString(36)}-${translit(slug)}.webp`
   const buf = new Uint8Array(await blob.arrayBuffer())
@@ -140,13 +150,32 @@ export async function uploadImage(token: string, file: File): Promise<string> {
 }
 
 async function compress(file: File, max = 1600): Promise<Blob> {
-  const bmp = await createImageBitmap(file)
-  const k = Math.min(1, max / Math.max(bmp.width, bmp.height))
-  const c = document.createElement('canvas')
-  c.width = Math.round(bmp.width * k)
-  c.height = Math.round(bmp.height * k)
-  c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
-  return new Promise((ok, fail) => c.toBlob((b) => (b ? ok(b) : fail(new Error('Не удалось сжать фото'))), 'image/webp', 0.85))
+  let bmp: ImageBitmap
+  try {
+    bmp = await createImageBitmap(file)
+  } catch {
+    throw new Error('Не удалось открыть изображение. Проверьте формат и целостность файла.')
+  }
+  try {
+    const pixels = bmp.width * bmp.height
+    if (!bmp.width || !bmp.height || bmp.width > 12000 || bmp.height > 12000 || pixels > 40_000_000) {
+      throw new Error('Слишком большое разрешение фото. Максимум — 40 мегапикселей и 12 000 px по стороне.')
+    }
+    const k = Math.min(1, max / Math.max(bmp.width, bmp.height))
+    const c = document.createElement('canvas')
+    c.width = Math.max(1, Math.round(bmp.width * k))
+    c.height = Math.max(1, Math.round(bmp.height * k))
+    const ctx = c.getContext('2d')
+    if (!ctx) throw new Error('Браузер не смог подготовить изображение для сжатия.')
+    ctx.drawImage(bmp, 0, 0, c.width, c.height)
+    const blob = await new Promise<Blob>((ok, fail) =>
+      c.toBlob((b) => (b ? ok(b) : fail(new Error('Не удалось сжать фото'))), 'image/webp', 0.85),
+    )
+    if (blob.type !== 'image/webp') throw new Error('Браузер не поддерживает сохранение фото в WebP.')
+    return blob
+  } finally {
+    bmp.close()
+  }
 }
 
 const TR: Record<string, string> = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'c', ч: 'ch', ш: 'sh', щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya' }
