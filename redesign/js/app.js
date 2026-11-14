@@ -57,6 +57,7 @@
     sea:   { name: 'Раки и морепродукты', short: 'Раки', who: 'him', imgs: ['m-1', 'm-5'] },
     dried: { name: 'Сухофрукты и орехи', short: 'Сухофрукты', who: 'her', imgs: ['suh-11', 'suh-19'] },
     sweet: { name: 'Сладкие боксы', short: 'Сладкие', who: 'her', imgs: ['sl-25', 'sl-5'] },
+    snack: { name: 'Снеки и закуски', short: 'Снеки', who: 'him', imgs: ['sn-3'] },
   };
   /* Хиты — порядок и описания из ТЗ */
   const HITS = [
