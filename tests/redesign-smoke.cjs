@@ -62,7 +62,7 @@ function serve() {
       }))
       assert.equal(homepageSeo.canonical, 'https://xn--80acmogcvipsi.xn--p1ai/', 'homepage canonical URL is incorrect')
       assert.ok(homepageSeo.description.length >= 70, 'homepage meta description is missing or too short')
-      assert.ok(homepageSeo.schemas.some((schema) => Array.isArray(schema['@type']) && schema['@type'].includes('LocalBusiness')), 'homepage LocalBusiness JSON-LD is missing or invalid')
+      assert.ok(homepageSeo.schemas.some((schema) => schema['@type'] === 'LocalBusiness' || (Array.isArray(schema['@type']) && schema['@type'].includes('LocalBusiness'))), 'homepage LocalBusiness JSON-LD is missing or invalid')
       const productList = homepageSeo.schemas.find((schema) => schema['@type'] === 'ItemList')
       assert.equal(productList?.itemListElement?.length, 6, 'homepage product structured data must include six featured products')
       assert.ok(productList.itemListElement.every((entry) => entry.item?.image?.startsWith('https://xn--80acmogcvipsi.xn--p1ai/tg/') && Number(entry.item?.offers?.price) > 0), 'featured product structured data has invalid image or price')
