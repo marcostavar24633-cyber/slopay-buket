@@ -24,7 +24,7 @@ function Privacy() {
   return (
     <>
       <h1 className="h-display text-[30px] md:text-[42px]">Политика обработки персональных данных</h1>
-      <p className="mt-2 text-muted">Редакция от 12.11.2026</p>
+      <p className="mt-2 text-muted">Редакция от 14.11.2026</p>
 
       <H>1. Общие положения</H>
       <p>
