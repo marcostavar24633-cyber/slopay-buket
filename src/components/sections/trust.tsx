@@ -11,7 +11,7 @@ const FAQ_LD = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-})
+}).replace(/</g, '\\u003c')
 
 export function Faq() {
   return (
