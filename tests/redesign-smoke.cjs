@@ -70,7 +70,7 @@ function serve() {
       await page.locator('#cat-tabs [data-cat="snack"]').click()
       await page.locator('#grid .card[data-id="sn-3"] .card__media').click()
       await page.locator('#quick').waitFor({ state: 'visible' })
-      assert.equal((await page.locator('#qv-cat').innerText()).trim(), 'Снеки и закуски')
+      assert.equal((await page.locator('#qv-cat').innerText()).trim(), 'СНЕКИ И ЗАКУСКИ')
       await page.locator('#quick [data-close]').click()
       const overflow = await page.evaluate(() => {
         const rootMetrics = {
