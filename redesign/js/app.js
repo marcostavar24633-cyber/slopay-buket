@@ -357,8 +357,8 @@
     els: new Map(),
     init() {
       const tabs = $('#cat-tabs');
-      tabs.innerHTML = `<button class="cat-tab" id="catalog-tab-all" type="button" role="tab" aria-controls="catalog-panel" aria-selected="true" tabindex="0" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
-        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" id="catalog-tab-${k}" type="button" role="tab" aria-controls="catalog-panel" aria-selected="false" tabindex="-1" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
+      tabs.innerHTML = `<button class="cat-tab" id="catalog-tab-all" type="button" role="tab" aria-controls="grid" aria-selected="true" tabindex="0" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
+        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" id="catalog-tab-${k}" type="button" role="tab" aria-controls="grid" aria-selected="false" tabindex="-1" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
       tabs.addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) this.set({ cat: b.dataset.cat }); });
       tabs.addEventListener('keydown', (e) => {
         const current = e.target.closest('[role="tab"]');
