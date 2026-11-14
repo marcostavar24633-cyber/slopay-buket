@@ -37,6 +37,96 @@ for d in ('css', 'js', 'vendor'):
     shutil.copytree(red / d, target)
 
 html = (red / 'index.html').read_text(encoding='utf-8')
+
+# Новая главная заменяет HTML, который собрал Vite. Поэтому SEO-метаданные
+# и JSON-LD нужно заново сформировать из тех же content/*.json, что использует админка.
+import json, re
+from html import escape as escape_html
+
+site = json.loads((root / 'content' / 'site.json').read_text(encoding='utf-8'))
+products = json.loads((root / 'content' / 'products.json').read_text(encoding='utf-8'))['items']
+visible = [p for p in products if p.get('show') is not False]
+prices = [int(p['price']) for p in visible if int(p.get('price') or 0) > 0]
+
+def replace_one(source, pattern, value, label):
+    updated, count = re.subn(
+        pattern,
+        lambda match: match.group(1) + escape_html(str(value), quote=True) + match.group(2),
+        source,
+        count=1,
+    )
+    if count != 1:
+        sys.exit(f'Не удалось обновить {label} в redesign/index.html')
+    return updated
+
+html = replace_one(html, r'(<title>)[^<]*(</title>)', site.get('seoTitle') or site['brand'], 'title')
+html = replace_one(html, r'(<meta name="description" content=")[^"]*(")', site.get('seoDescription') or '', 'description')
+html = replace_one(html, r'(<meta property="og:title" content=")[^"]*(")', site.get('seoTitle') or site['brand'], 'og:title')
+html = replace_one(html, r'(<meta property="og:description" content=")[^"]*(")', site.get('seoDescription') or '', 'og:description')
+html = replace_one(html, r'(<meta property="og:site_name" content=")[^"]*(")', site['brand'], 'og:site_name')
+
+canonical = re.search(r'<link rel="canonical" href="([^"]+)"', html)
+if not canonical:
+    sys.exit('В redesign/index.html отсутствует canonical URL')
+site_url = canonical.group(1).rstrip('/')
+digits = re.sub(r'\D', '', str(site.get('phone', '')))
+if digits.startswith('8'):
+    digits = '7' + digits[1:]
+
+schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Florist',
+    '@id': site_url + '/#org',
+    'name': site['brand'],
+    'url': site_url + '/',
+    'logo': site_url + '/logo-256.webp',
+    'image': site_url + '/og-image.jpg',
+    'description': f"Съедобные букеты с доставкой в городе {site.get('city', '')}",
+    'priceRange': f"{min(prices)}–{max(prices)} ₽" if prices else '',
+    'currenciesAccepted': 'RUB',
+    'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': ', '.join(str(site.get('address', '')).split(',')[:2]).strip(),
+        'addressLocality': site.get('city', ''),
+        'addressCountry': 'RU',
+    },
+    'areaServed': {'@type': 'City', 'name': site.get('city', '')},
+    'sameAs': [value for value in (site.get('reviewsUrl'), site.get('vk')) if value],
+}
+if digits:
+    schema['telephone'] = '+' + digits
+if site.get('email'):
+    schema['email'] = site['email']
+hours = re.search(r'(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})', str(site.get('hours', '')))
+if hours:
+    schema['openingHoursSpecification'] = {
+        '@type': 'OpeningHoursSpecification',
+        'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        'opens': f"{int(hours.group(1)):02d}:{hours.group(2)}",
+        'closes': f"{int(hours.group(3)):02d}:{hours.group(4)}",
+    }
+if site.get('rating') and int(site.get('reviewsCount') or 0) > 0:
+    schema['aggregateRating'] = {
+        '@type': 'AggregateRating',
+        'ratingValue': str(site['rating']).replace(',', '.'),
+        'bestRating': '5',
+        'ratingCount': str(site['reviewsCount']),
+    }
+if site.get('ownerName'):
+    schema['founder'] = {'@type': 'Person', 'name': site['ownerName']}
+    if site.get('inn'):
+        schema['taxID'] = site['inn']
+
+schema_json = json.dumps(schema, ensure_ascii=False, separators=(',', ':')).replace('<', r'\\u003c')
+html, schema_count = re.subn(
+    r'(<script type="application/ld\\+json">)[\\s\\S]*?(</script>)',
+    lambda match: match.group(1) + schema_json + match.group(2),
+    html,
+    count=1,
+)
+if schema_count != 1:
+    sys.exit('Не удалось обновить JSON-LD в redesign/index.html')
+
 for a, b in {
     '../privacy/': 'privacy/',
     '../oferta/': 'oferta/',
