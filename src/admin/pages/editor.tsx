@@ -169,7 +169,7 @@ export function Editor() {
             </Btn>
           </div>
         </div>
-        <div className="relative min-h-[50dvh] flex-1 overflow-hidden bg-[repeating-conic-gradient(rgb(128_128_128/0.06)_0_25%,transparent_0_50%)] bg-[length:24px_24px]">
+        <div className="relative min-h-0 flex-1 overflow-hidden bg-[repeating-conic-gradient(rgb(128_128_128/0.06)_0_25%,transparent_0_50%)] bg-[length:24px_24px]">
           <iframe
             ref={frame}
             src={src}
@@ -183,7 +183,7 @@ export function Editor() {
       </div>
 
       {/* Панель свойств */}
-      <aside className="inspector max-h-[50dvh] w-full shrink-0 overflow-y-auto overflow-x-hidden border-t border-line bg-surface lg:max-h-none lg:w-[380px] lg:border-l lg:border-t-0">
+      <aside className="inspector max-h-[40dvh] w-full shrink-0 overflow-y-auto overflow-x-hidden border-t border-line bg-surface lg:max-h-none lg:w-[380px] lg:border-l lg:border-t-0">
         {panel === 'theme' ? (
           <ThemePanel theme={theme} onChange={(t) => set('site', (s) => void ((s as { theme?: Theme }).theme = Object.keys(t).length ? t : undefined))} onClose={() => setPanel('block')} />
         ) : sel === 'hero' ? (
