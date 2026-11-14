@@ -74,7 +74,7 @@ export function Editor() {
   // сообщения со страницы
   useEffect(() => {
     const h = (e: MessageEvent<ToAdmin>) => {
-      if (e.source !== frame.current?.contentWindow) return
+      if (e.source !== frame.current?.contentWindow || e.origin !== location.origin) return
       const m = e.data
       if (!m?.type?.startsWith('slopay:')) return
       if (m.type === 'slopay:ready') {
