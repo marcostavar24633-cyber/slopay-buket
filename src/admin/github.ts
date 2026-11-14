@@ -73,8 +73,10 @@ async function gh<T>(token: string, path: string, init: RequestInit = {}): Promi
     const msg =
       res.status === 401
         ? 'Токен недействителен или истёк. Войдите заново.'
-        : res.status === 403 || res.status === 404
-          ? 'У токена нет доступа к репозиторию сайта (нужно право Contents: Read and write).'
+        : (res.status === 403 || res.status === 404) && path.includes('/actions/')
+          ? 'Не удалось получить статус сборки. Проверьте право Actions: Read-only и наличие workflow pages.yml.'
+          : res.status === 403 || res.status === 404
+            ? 'У токена нет доступа к репозиторию сайта (нужно право Contents: Read and write).'
           : res.status === 409
             ? 'Файл изменился, пока вы редактировали. Обновите страницу и повторите.'
             : `Ошибка GitHub ${res.status}: ${text.slice(0, 200)}`
@@ -184,15 +186,11 @@ const translit = (s: string) => s.replace(/[а-яё]/g, (c) => TR[c] ?? '')
 /** Последние пересборки сайта (нужно право Actions: Read; без него вернётся пустой список). */
 export type Deploy = { id: number; status: string; conclusion: string | null; created_at: string; title: string; url: string }
 export async function getDeploys(token: string): Promise<Deploy[]> {
-  try {
-    const r = await gh<{ workflow_runs: { id: number; status: string; conclusion: string | null; created_at: string; display_title: string; html_url: string }[] }>(
-      token,
-      `/repos/${REPO.owner}/${REPO.name}/actions/workflows/pages.yml/runs?per_page=6`,
-    )
-    return r.workflow_runs.map((w) => ({ id: w.id, status: w.status, conclusion: w.conclusion, created_at: w.created_at, title: w.display_title, url: w.html_url }))
-  } catch {
-    return []
-  }
+  const r = await gh<{ workflow_runs: { id: number; status: string; conclusion: string | null; created_at: string; display_title: string; html_url: string }[] }>(
+    token,
+    `/repos/${REPO.owner}/${REPO.name}/actions/workflows/pages.yml/runs?per_page=6`,
+  )
+  return r.workflow_runs.map((w) => ({ id: w.id, status: w.status, conclusion: w.conclusion, created_at: w.created_at, title: w.display_title, url: w.html_url }))
 }
 
 /** Ссылка на создание токена с уже выбранными правами (GitHub подставит их в форму). */
