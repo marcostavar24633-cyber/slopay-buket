@@ -49,14 +49,15 @@ jobs:
       # Новая главная (redesign/) поверх собранного сайта. Откат на старую — удалить этот шаг.
       - name: Новая главная
         run: python3 redesign/tools/install.py dist
-      - name: Сквозные проверки сайта и админки
+      - name: Сквозные проверки сайта и визуального редактора
+        timeout-minutes: 10
         run: |
           npm run preview -- --host 127.0.0.1 > /tmp/slopay-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/ > /dev/null; then break; fi
             sleep 2
           done
-          URL=http://127.0.0.1:4173/ npm run test:e2e
+          URL=http://127.0.0.1:4173/ npm run test:ci
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
