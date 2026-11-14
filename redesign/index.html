@@ -66,19 +66,44 @@
 }
 </script>
 <!-- Product-разметка хитов добавляется скриптом из каталога (js/app.js → seoProducts) -->
-<!-- Yandex.Metrika counter (перенесён со старой главной; не грузится у роботов сборки и тестов) -->
+<!-- Аналитика включается только после явного согласия посетителя. -->
 <script>
-  if (!navigator.webdriver && !/[?&]edit=1/.test(location.search)) {
+(function () {
+  var KEY = 'slopay-analytics-consent';
+  function startAnalytics() {
+    if (window.__slopayAnalyticsStarted || navigator.webdriver || /[?&]edit=1/.test(location.search)) return;
+    window.__slopayAnalyticsStarted = true;
     (function(m,e,t,r,i,k,a){
       m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
       m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059', 'ym');
-    ym(114134059, 'init', {ssr:true, webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+      for (var j=0;j<document.scripts.length;j++) if (document.scripts[j].src===r) return;
+      k=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a);
+    })(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059','ym');
+    ym(114134059,'init',{ssr:true,webvisor:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
   }
+  var choice = '';
+  try { choice = localStorage.getItem(KEY) || ''; } catch (e) {}
+  if (choice === 'accepted') { startAnalytics(); return; }
+  if (choice === 'rejected') return;
+  document.addEventListener('DOMContentLoaded', function () {
+    var panel = document.createElement('section');
+    panel.className = 'cookie-consent';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', 'Настройки аналитики');
+    panel.innerHTML = '<p>Мы используем Яндекс Метрику, чтобы понимать, как посетители пользуются сайтом. Аналитика включится только с вашего разрешения. <a href="/privacy/">Подробнее</a></p><div class="cookie-consent__actions"><button type="button" data-choice="reject">Не разрешать</button><button type="button" data-choice="accept">Разрешить аналитику</button></div>';
+    panel.addEventListener('click', function (event) {
+      var button = event.target.closest('button[data-choice]');
+      if (!button) return;
+      var accepted = button.getAttribute('data-choice') === 'accept';
+      try { localStorage.setItem(KEY, accepted ? 'accepted' : 'rejected'); } catch (e) {}
+      panel.remove();
+      if (accepted) startAnalytics();
+    });
+    document.body.appendChild(panel);
+  }, { once: true });
+})();
 </script>
-<!-- Цели Метрики: те же, что на старой главной (телефон, Telegram, MAX, Авито, PDF) -->
+<!-- Цели Метрики работают только после загрузки счётчика по согласию -->
 <script>
   document.addEventListener('click', function (e) {
     var el = e.target.closest && e.target.closest('a[href]');
@@ -95,7 +120,7 @@
 </head>
 
 <body class="is-loading">
-<noscript><div><img src="https://mc.yandex.ru/watch/114134059" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+<!-- Без JavaScript аналитика не запускается. -->
 <a class="skip-link" href="#main">Перейти к содержанию</a>
 
 <!-- ============ ИКОНКИ (тонкая линия, 1.25px) ============ -->
