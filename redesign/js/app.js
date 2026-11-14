@@ -363,7 +363,7 @@
       tabs.addEventListener('keydown', (e) => {
         const current = e.target.closest('[role="tab"]');
         if (!current) return;
-        const items = $('.cat-tab', tabs);
+        const items = $$('.cat-tab', tabs);
         const index = items.indexOf(current);
         let next = index;
         if (e.key === 'ArrowRight') next = (index + 1) % items.length;
