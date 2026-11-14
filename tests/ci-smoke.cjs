@@ -42,6 +42,17 @@ const URL = process.env.URL || 'http://localhost:4173/'
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
 
+    // Проверяем реальный путь заказа без отправки данных в мессенджер.
+    const addToCart = page.locator('#hits-list .add-btn').first()
+    await addToCart.waitFor({ state: 'visible' })
+    await addToCart.click()
+    await page.locator('button.cart-btn').click()
+    await page.locator('#cart-list .cart-item').first().waitFor()
+    const orderLink = await page.locator('#send-tg').getAttribute('href')
+    assert.ok(orderLink?.startsWith('https://t.me/'), 'ссылка заказа должна вести в Telegram')
+    assert.match(decodeURIComponent(orderLink), /Хочу заказать букет/i)
+    assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
+
     await page.goto(URL + 'admin/')
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, nofollow')
     await page.getByRole('button', { name: /Посмотреть без входа/ }).click()
