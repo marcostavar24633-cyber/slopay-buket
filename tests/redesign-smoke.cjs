@@ -54,6 +54,10 @@ function serve() {
       await page.goto(url, { waitUntil: 'networkidle' })
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
+      const categoryMismatches = await page.evaluate(() => (window.SB_DATA?.items || [])
+        .filter((item) => item.img && item.cat && !item.img.includes('/' + item.cat + '/'))
+        .map((item) => ({ id: item.id, category: item.cat, image: item.img })))
+      assert.deepEqual(categoryMismatches, [], 'catalog categories do not match their image folders')
       const overflow = await page.evaluate(() => {
         const rootMetrics = {
           htmlScrollWidth: document.documentElement.scrollWidth,
