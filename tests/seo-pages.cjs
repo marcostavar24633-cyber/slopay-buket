@@ -1,4 +1,4 @@
-// SEO smoke tests for the five public category landing pages.
+// SEO smoke tests for the six public category landing pages.
 // Run after `vite build`: node tests/seo-pages.cjs [dist-directory]
 const fs = require('node:fs')
 const path = require('node:path')
@@ -11,6 +11,7 @@ const categories = [
   ['sea', 'bukety-iz-rakov'],
   ['dried', 'suhofrukty'],
   ['sweet', 'sladkie-boksy'],
+  ['snack', 'sneki-i-zakuski'],
 ]
 let errors = 0
 const fail = (message) => { errors++; console.error('✗ ' + message) }
@@ -65,7 +66,7 @@ else {
   const sitemap = fs.readFileSync(sitemapFile, 'utf8')
   for (const [, slug] of categories) if (!sitemap.includes('/' + slug + '/')) fail('sitemap.xml: нет ' + slug)
   if (!sitemap.includes('<urlset')) fail('sitemap.xml: некорректная структура')
-  if (!errors) pass('sitemap.xml содержит все пять категорий')
+  if (!errors) pass('sitemap.xml содержит все шесть категорий')
 }
 if (!fs.existsSync(robotsFile)) fail('robots.txt не создан')
 else if (!fs.readFileSync(robotsFile, 'utf8').includes('sitemap.xml')) fail('robots.txt не ссылается на sitemap.xml')
