@@ -53,6 +53,39 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.match(decodeURIComponent(orderLink), /Хочу заказать букет/i)
     assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
 
+    // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
+    await page.setViewportSize({ width: 360, height: 800 })
+    await page.locator('button.cart-btn').click()
+    const cartBounds = await page.locator('#cart').evaluate((el) => {
+      const r = el.getBoundingClientRect()
+      return { left: r.left, right: r.right, width: r.width, viewport: innerWidth, height: r.height, viewportHeight: innerHeight }
+    })
+    assert.ok(cartBounds.left >= -1 && cartBounds.right <= cartBounds.viewport + 1, 'мобильная корзина выходит за экран: ' + JSON.stringify(cartBounds))
+    assert.ok(cartBounds.height <= cartBounds.viewportHeight + 1, 'мобильная корзина выше экрана: ' + JSON.stringify(cartBounds))
+    for (const selector of ['#send-tg', '#send-max']) {
+      const bounds = await page.locator(selector).evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        return { left: r.left, right: r.right, height: r.height, viewport: innerWidth }
+      })
+      assert.ok(bounds.left >= -1 && bounds.right <= bounds.viewport + 1 && bounds.height >= 44, 'кнопка заказа неудобна на телефоне: ' + selector + ' ' + JSON.stringify(bounds))
+    }
+    await page.locator('#cart [data-close]').click()
+
+    // Форма индивидуального заказа: проверяем ошибку телефона и корректную Telegram-ссылку.
+    await page.locator('#cf-phone').fill('123')
+    await page.locator('#custom-form button[type="submit"][data-send="tg"]').click()
+    assert.match(await page.locator('.field__err').innerText(), /Проверьте номер/)
+    await page.locator('#cf-name').fill('Тест')
+    await page.locator('#cf-phone').fill('+79131234567')
+    await page.locator('#cf-wish').fill('Тестовая заявка')
+    const popupPromise = page.waitForEvent('popup')
+    await page.locator('#custom-form button[type="submit"][data-send="tg"]').click()
+    const popup = await popupPromise
+    await popup.waitForLoadState('domcontentloaded').catch(() => {})
+    assert.ok(popup.url().startsWith('https://t.me/'), 'форма должна открыть Telegram: ' + popup.url())
+    assert.ok(decodeURIComponent(popup.url()).includes('Тестовая заявка'), 'в ссылке должны быть пожелания')
+    await popup.close().catch(() => {})
+
     await page.goto(URL + 'admin/')
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, nofollow')
     await page.getByRole('button', { name: /Посмотреть без входа/ }).click()
