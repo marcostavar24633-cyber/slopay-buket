@@ -92,6 +92,8 @@ jobs:
         run: npm run lint
       - name: Unit tests
         run: npm run test:unit
+      - name: Generate redesign catalog data
+        run: python3 redesign/tools/build-data.py
       - name: Build
         env:
           SITE_URL: https://xn--80acmogcvipsi.xn--p1ai
