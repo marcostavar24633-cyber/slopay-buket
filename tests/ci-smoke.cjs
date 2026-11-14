@@ -55,7 +55,9 @@ const URL = process.env.URL || 'http://localhost:4173/'
 
     // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
     await page.setViewportSize({ width: 360, height: 800 })
-    await page.locator('button.cart-btn').click()
+    if (!(await page.locator('#cart').evaluate((el) => el.classList.contains('is-open')))) {
+      await page.locator('button.cart-btn').click()
+    }
     const cartBounds = await page.locator('#cart').evaluate((el) => {
       const r = el.getBoundingClientRect()
       return { left: r.left, right: r.right, width: r.width, viewport: innerWidth, height: r.height, viewportHeight: innerHeight }
