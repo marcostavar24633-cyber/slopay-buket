@@ -358,8 +358,8 @@
     els: new Map(),
     init() {
       const tabs = $('#cat-tabs');
-      tabs.innerHTML = `<button class="cat-tab" role="tab" aria-selected="true" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
-        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" role="tab" aria-selected="false" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
+      tabs.innerHTML = `<button type="button" class="cat-tab" aria-pressed="true" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
+        Object.entries(CATS).map(([k, c]) => `<button type="button" class="cat-tab" aria-pressed="false" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
       tabs.addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) this.set({ cat: b.dataset.cat }); });
       $('#filters').addEventListener('click', (e) => {
         const c = e.target.closest('.chip'); if (!c) return;
@@ -386,7 +386,7 @@
     },
     syncUI() {
       const s = this.st;
-      $$('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.cat === s.cat));
+      $('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cat === s.cat));
       $$('[data-filter]').forEach((g) => $$('.chip', g).forEach((c) => { const on = c.dataset.v === s[g.dataset.filter]; c.classList.toggle('is-active', on); c.setAttribute('aria-pressed', on); }));
       $$('[data-fav-filter]').forEach((b) => b.setAttribute('aria-pressed', s.fav));
       $$('select[data-sort], #sort').forEach((el) => { el.value = s.sort; });
@@ -795,7 +795,7 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const ph = $('#cf-phone'); const field = ph.closest('.field'); const ok = ph.value.replace(/\D/g, '').length === 11;
-      field.classList.toggle('is-error', !ok); $('.field__err', field).textContent = ok ? '' : 'Проверьте номер: нужно 10 цифр после +7';
+      field.classList.toggle('is-error', !ok); ph.setAttribute('aria-invalid', String(!ok)); $('.field__err', field).textContent = ok ? '' : 'Проверьте номер: нужно 10 цифр после +7';
       if (!ok) { ph.focus(); return; }
       const text = `Здравствуйте! Хочу индивидуальный букет.\nИмя: ${$('#cf-name').value || '—'}\nТелефон: ${ph.value}\nПожелания: ${$('#cf-wish').value || '—'}${picked ? '\nФото-пример пришлю в чат.' : ''}`;
       // На телефоне с фото — системное «Поделиться»: фото и текст уйдут в выбранный мессенджер
