@@ -205,6 +205,8 @@ function serve() {
     assert.ok(policy.includes('форма индивидуального заказа'), 'privacy policy does not describe the order form')
     assert.ok(policy.includes('локальном хранилище браузера'), 'privacy policy does not describe browser storage')
     assert.ok(policy.includes('фотографии'), 'privacy policy does not describe user-selected photos')
+    assert.ok(policy.includes('отдельного согласия на аналитику'), 'privacy policy does not describe analytics consent')
+    assert.ok(policy.includes('только после нажатия «Разрешить аналитику»'), 'privacy policy does not describe analytics activation')
     await context.close()
 
     // Analytics must remain off until explicit consent, and persist either choice.
