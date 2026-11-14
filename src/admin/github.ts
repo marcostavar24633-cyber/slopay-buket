@@ -21,10 +21,21 @@ export const auth = {
     }
   },
   set(token: string, remember: boolean) {
+    // Не оставляем старую копию токена в другом хранилище при смене режима.
+    try {
+      localStorage.removeItem(TOKEN_KEY)
+    } catch {
+      /* localStorage недоступен */
+    }
+    try {
+      sessionStorage.removeItem(TOKEN_KEY)
+    } catch {
+      /* sessionStorage недоступен */
+    }
     try {
       ;(remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token)
     } catch {
-      /* приватный режим — токен живёт до перезагрузки */
+      /* хранилище недоступно */
     }
   },
   clear() {
