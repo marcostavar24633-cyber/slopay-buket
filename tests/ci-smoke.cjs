@@ -42,6 +42,13 @@ const URL = process.env.URL || 'http://localhost:4173/'
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
 
+    // Все поля ввода имеют программно определяемую подпись.
+    const unlabeledFields = await page.locator('input, textarea, select').evaluateAll((fields) =>
+      fields.filter((el) => !el.labels?.length && !el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby'))
+        .map((el) => ({ id: el.id, type: el.type || el.tagName.toLowerCase() }))
+    )
+    assert.deepEqual(unlabeledFields, [], 'поля без доступных подписей: ' + JSON.stringify(unlabeledFields))
+
     // Доступность вкладок каталога: стрелки, Home/End и связь с областью содержимого.
     const categoryTabs = page.locator('#cat-tabs [role="tab"]')
     const catalogPanel = page.locator('#grid[role="tabpanel"]')
@@ -115,6 +122,18 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await popup.close().catch(() => {})
 
     await page.setViewportSize({ width: 1280, height: 900 })
+
+    // Диалог квиза: фокус входит внутрь, Escape закрывает окно и возвращает фокус инициатору.
+    const quizOpener = page.getByRole('button', { name: /Подобрать за 30 секунд/ }).first()
+    await quizOpener.focus()
+    await quizOpener.click()
+    await page.locator('#quiz.is-open').waitFor()
+    const quizFocusInside = await page.locator('#quiz').evaluate((el) => el.contains(document.activeElement))
+    assert.equal(quizFocusInside, true, 'при открытии диалога фокус должен перейти внутрь')
+    await page.keyboard.press('Escape')
+    await page.locator('#quiz[hidden]').waitFor()
+    assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('quiz-open')), true, 'после закрытия диалога фокус возвращается к кнопке открытия')
+
     await page.goto(URL + 'admin/')
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, nofollow')
     await page.getByRole('button', { name: /Посмотреть без входа/ }).click()
