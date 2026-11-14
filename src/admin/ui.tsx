@@ -201,7 +201,8 @@ export function ImageField({ label, value, onChange, hint }: { label: string; va
   const input = useRef<HTMLInputElement>(null)
   const pick = async (f?: File) => {
     if (!f) return
-    if (!f.type.startsWith('image/')) return toast('Нужен файл-картинка (JPG, PNG, WebP, HEIC не поддерживается)', 'error')
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if (!allowedTypes.includes(f.type)) return toast('Поддерживаются только JPG, PNG, WebP и GIF. HEIC, SVG и другие форматы не принимаются.', 'error')
     setBusy(true)
     try {
       onChange(await upload(f))
@@ -209,6 +210,7 @@ export function ImageField({ label, value, onChange, hint }: { label: string; va
       toast((e as Error).message, 'error')
     } finally {
       setBusy(false)
+      if (input.current) input.current.value = ''
     }
   }
   return (
@@ -238,7 +240,7 @@ export function ImageField({ label, value, onChange, hint }: { label: string; va
           </div>
           <p className="mt-1.5 truncate text-[12px] text-muted">{value || hint || 'Перетащите фото сюда или нажмите «Загрузить». Сожмём до 1600 px автоматически.'}</p>
         </div>
-        <input ref={input} type="file" accept="image/*" hidden onChange={(e) => pick(e.target.files?.[0] ?? undefined)} />
+        <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={(e) => pick(e.target.files?.[0] ?? undefined)} />
       </div>
     </div>
   )
