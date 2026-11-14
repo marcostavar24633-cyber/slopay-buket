@@ -115,6 +115,8 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.equal(await catalogPanel.getAttribute('aria-labelledby'), await categoryTabs.nth(1).getAttribute('id'))
     await page.keyboard.press('End')
     assert.equal(await categoryTabs.last().getAttribute('aria-selected'), 'true', 'End выбирает последнюю вкладку')
+    await page.locator('#grid .card').filter({ hasText: 'Тачка' }).waitFor({ state: 'visible' })
+    assert.equal(await page.locator('#grid .card').filter({ hasText: 'Тачка' }).count(), 1, 'последняя вкладка «Снеки» должна показывать товар «Тачка»')
     await page.keyboard.press('Home')
     assert.equal(await categoryTabs.first().getAttribute('aria-selected'), 'true', 'Home возвращает первую вкладку')
     
