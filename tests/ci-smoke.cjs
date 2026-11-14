@@ -47,6 +47,21 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.ok(acceptedAnalyticsRequests.length > 0, 'после согласия должен загружаться счётчик')
     await acceptedContext.close()
 
+    // Публичные внутренние страницы не должны обходить согласие отдельным счётчиком или noscript beacon.
+    const publicPagesContext = await browser.newContext()
+    for (const route of ['privacy/', 'oferta/', 'corporate/']) {
+      const publicPage = await publicPagesContext.newPage()
+      const pageAnalyticsRequests = []
+      publicPage.on('request', (request) => {
+        if (request.url().includes('mc.yandex.ru')) pageAnalyticsRequests.push(request.url())
+      })
+      await publicPage.goto(new globalThis.URL(route, URL).toString(), { waitUntil: 'domcontentloaded' })
+      assert.equal(pageAnalyticsRequests.length, 0, route + ' не должна загружать Яндекс Метрику без согласия')
+      assert.equal(await publicPage.locator('noscript img[src*="mc.yandex.ru"]').count(), 0, route + ' не должна содержать обходной noscript beacon')
+      await publicPage.close()
+    }
+    await publicPagesContext.close()
+
     for (const width of [360, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 })
       await page.waitForTimeout(150)
