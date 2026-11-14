@@ -147,19 +147,21 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 
   const discard = () => setData((prev) => ({ ...prev, ...Object.fromEntries(dirty.map((k) => [k, JSON.parse(saved.current[k])])) }))
 
-  const refreshDeploys = useCallback(async () => {
+  const refreshDeploys = useCallback(() => {
     if (!token) {
       setDeploys([])
       setDeployError(null)
       return
     }
-    try {
-      const next = await getDeploys(token)
-      setDeploys(next)
-      setDeployError(null)
-    } catch (e) {
-      setDeployError((e as Error).message || 'Не удалось получить статус сборки GitHub Actions.')
-    }
+    void (async () => {
+      try {
+        const next = await getDeploys(token)
+        setDeploys(next)
+        setDeployError(null)
+      } catch (e) {
+        setDeployError((e as Error).message || 'Не удалось получить статус сборки GitHub Actions.')
+      }
+    })()
   }, [token])
   useEffect(refreshDeploys, [refreshDeploys])
   // пока сайт пересобирается — обновляем статус каждые 15 секунд
