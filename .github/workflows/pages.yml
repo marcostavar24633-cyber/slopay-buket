@@ -33,6 +33,8 @@ jobs:
       # без домена → https://<логин>.github.io/<репозиторий>/. Менять здесь ничего не нужно.
       - id: pages
         uses: actions/configure-pages@v5
+      - name: Сгенерировать данные каталога редизайна
+        run: python3 redesign/tools/build-data.py
       - name: Сборка
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
