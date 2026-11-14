@@ -29,8 +29,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Адрес сайта берётся из настроек Pages: свой домен (слопайбукет.рф) → корень «/»,
-      # без домена → https://<логин>.github.io/<репозиторий>/. Менять здесь ничего не нужно.
+      # Адрес сайта берётся из настроек Pages: свой домен (слопайбукет.рф) → корень (/) либо путь репозитория.
       - id: pages
         uses: actions/configure-pages@v5
       - name: Проверка TypeScript
@@ -41,11 +40,13 @@ jobs:
         run: npx vite build --base "${{ steps.pages.outputs.base_path }}/"
       - name: Проверка SEO-страниц, sitemap и изображений
         run: node tests/seo-pages.cjs dist
-      - name: Пререндер (готовая разметка для поисковиков и быстрого первого экрана)
+      - name: Пререндер публичных страниц
         run: |
           npm install --no-save playwright@1.63.0
           npx playwright install --with-deps chromium
           node scripts/prerender.cjs dist "${{ steps.pages.outputs.base_path }}/"
+      - name: Проверка пререндеринга юридических страниц
+        run: node tests/legal-prerender.cjs dist
       # Новая главная (redesign/) поверх собранного сайта. Откат на старую — удалить этот шаг.
       - name: Новая главная
         run: python3 redesign/tools/install.py dist
