@@ -60,6 +60,7 @@ function serve() {
       assert.equal(await page.locator('#cat-tabs').getAttribute('role'), 'group', 'category filters must not expose incomplete tab semantics')
       assert.equal(await page.locator('#cat-tabs .cat-tab').first().getAttribute('aria-pressed'), 'true', 'selected category filter must expose pressed state')
       assert.ok(await page.locator('#cf-phone').getAttribute('aria-describedby') === 'cf-phone-error', 'phone field must reference its validation message')
+      assert.equal(await page.locator('#quiz-body').getAttribute('aria-live'), 'polite', 'quiz step changes must be announced to assistive technology')
       assert.ok((await page.locator('.hero img').first().getAttribute('alt'))?.trim(), 'hero image must have descriptive alternative text')
       const homepageSeo = await page.evaluate(() => ({
         canonical: document.querySelector('link[rel="canonical"]')?.href || '',
