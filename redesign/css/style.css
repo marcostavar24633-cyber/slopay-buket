@@ -831,6 +831,8 @@ main { position: relative; }
   .hero__cta .btn { flex: 1 1 100%; }
 }
 @media (max-width: 420px) {
+  /* На узких телефонах номер остаётся в мобильной панели контактов, шапка не переполняется. */
+  .header__phone { display: none; }
   .cats { grid-template-columns: 1fr; }
   .cat:nth-child(1) { grid-column: span 1; aspect-ratio: 4/5; }
   .bento { grid-auto-rows: 160px; }
