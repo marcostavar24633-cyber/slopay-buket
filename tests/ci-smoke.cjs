@@ -135,7 +135,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     const quizFocusInside = await page.locator('#quiz').evaluate((el) => el.contains(document.activeElement))
     assert.equal(quizFocusInside, true, 'при открытии диалога фокус должен перейти внутрь')
     await page.keyboard.press('Escape')
-    await page.locator('#quiz[hidden]').waitFor()
+    await page.locator('#quiz').waitFor({ state: 'hidden' })
     assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('quiz-open')), true, 'после закрытия диалога фокус возвращается к кнопке открытия')
 
     await page.goto(URL + 'admin/')
