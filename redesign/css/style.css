@@ -790,6 +790,8 @@ main { position: relative; }
   .qv { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
+  /* Зернистая текстура на десктопе выходит за края для анимации; на телефонах фиксируем её в viewport. */
+  .grain { inset: 0; animation: none; }
   :root { --header-h: 62px; --radius: 18px; }
   .filters { display: none; }
   .filters-mobile { display: inline-flex; }
