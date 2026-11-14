@@ -357,9 +357,24 @@
     els: new Map(),
     init() {
       const tabs = $('#cat-tabs');
-      tabs.innerHTML = `<button class="cat-tab" role="tab" aria-selected="true" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
-        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" role="tab" aria-selected="false" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
+      tabs.innerHTML = `<button class="cat-tab" id="catalog-tab-all" type="button" role="tab" aria-controls="catalog-panel" aria-selected="true" tabindex="0" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
+        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" id="catalog-tab-${k}" type="button" role="tab" aria-controls="catalog-panel" aria-selected="false" tabindex="-1" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
       tabs.addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) this.set({ cat: b.dataset.cat }); });
+      tabs.addEventListener('keydown', (e) => {
+        const current = e.target.closest('[role="tab"]');
+        if (!current) return;
+        const items = $('.cat-tab', tabs);
+        const index = items.indexOf(current);
+        let next = index;
+        if (e.key === 'ArrowRight') next = (index + 1) % items.length;
+        else if (e.key === 'ArrowLeft') next = (index - 1 + items.length) % items.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = items.length - 1;
+        else return;
+        e.preventDefault();
+        items[next].focus();
+        this.set({ cat: items[next].dataset.cat });
+      });
       $('#filters').addEventListener('click', (e) => {
         const c = e.target.closest('.chip'); if (!c) return;
         if (c.hasAttribute('data-fav-filter')) return this.set({ fav: !this.st.fav });
@@ -385,7 +400,12 @@
     },
     syncUI() {
       const s = this.st;
-      $$('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.cat === s.cat));
+      $('#cat-tabs .cat-tab').forEach((b) => {
+        const selected = b.dataset.cat === s.cat;
+        b.setAttribute('aria-selected', selected);
+        b.tabIndex = selected ? 0 : -1;
+      });
+      $('#grid').setAttribute('aria-labelledby', `catalog-tab-${s.cat}`);
       $$('[data-filter]').forEach((g) => $$('.chip', g).forEach((c) => { const on = c.dataset.v === s[g.dataset.filter]; c.classList.toggle('is-active', on); c.setAttribute('aria-pressed', on); }));
       $$('[data-fav-filter]').forEach((b) => b.setAttribute('aria-pressed', s.fav));
       $$('select[data-sort], #sort').forEach((el) => { el.value = s.sort; });
