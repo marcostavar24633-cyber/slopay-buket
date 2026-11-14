@@ -55,6 +55,17 @@ function serve() {
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
       assert.ok((await page.locator('.hero img').first().getAttribute('alt'))?.trim(), 'hero image must have descriptive alternative text')
+      const homepageSeo = await page.evaluate(() => ({
+        canonical: document.querySelector('link[rel="canonical"]')?.href || '',
+        description: document.querySelector('meta[name="description"]')?.content || '',
+        schemas: [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent || 'null')),
+      }))
+      assert.equal(homepageSeo.canonical, 'https://xn--80acmogcvipsi.xn--p1ai/', 'homepage canonical URL is incorrect')
+      assert.ok(homepageSeo.description.length >= 70, 'homepage meta description is missing or too short')
+      assert.ok(homepageSeo.schemas.some((schema) => Array.isArray(schema['@type']) && schema['@type'].includes('LocalBusiness')), 'homepage LocalBusiness JSON-LD is missing or invalid')
+      const productList = homepageSeo.schemas.find((schema) => schema['@type'] === 'ItemList')
+      assert.equal(productList?.itemListElement?.length, 6, 'homepage product structured data must include six featured products')
+      assert.ok(productList.itemListElement.every((entry) => entry.item?.image?.startsWith('https://xn--80acmogcvipsi.xn--p1ai/tg/') && Number(entry.item?.offers?.price) > 0), 'featured product structured data has invalid image or price')
       const minOrderDate = await page.locator('#o-date').getAttribute('min')
       const ullyanovskToday = await page.evaluate(() => {
         const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
