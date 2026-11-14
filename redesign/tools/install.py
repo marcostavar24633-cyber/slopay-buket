@@ -117,9 +117,9 @@ if site.get('ownerName'):
     if site.get('inn'):
         schema['taxID'] = site['inn']
 
-schema_json = json.dumps(schema, ensure_ascii=False, separators=(',', ':')).replace('<', r'\\u003c')
+schema_json = json.dumps(schema, ensure_ascii=False, separators=(',', ':')).replace('<', r'\u003c')
 html, schema_count = re.subn(
-    r'(<script type="application/ld\\+json">)[\\s\\S]*?(</script>)',
+    r'(<script type="application/ld\+json">)[\s\S]*?(</script>)',
     lambda match: match.group(1) + schema_json + match.group(2),
     html,
     count=1,
