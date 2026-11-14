@@ -55,7 +55,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
       publicPage.on('request', (request) => {
         if (request.url().includes('mc.yandex.ru')) pageAnalyticsRequests.push(request.url())
       })
-      await publicPage.goto(new URL(route, URL).toString(), { waitUntil: 'domcontentloaded' })
+      await publicPage.goto(new globalThis.URL(route, URL).toString(), { waitUntil: 'domcontentloaded' })
       assert.equal(pageAnalyticsRequests.length, 0, route + ' не должна загружать Яндекс Метрику без согласия')
       assert.equal(await publicPage.locator('noscript img[src*="mc.yandex.ru"]').count(), 0, route + ' не должна содержать обходной noscript beacon')
       await publicPage.close()
