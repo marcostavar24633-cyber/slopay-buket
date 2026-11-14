@@ -58,6 +58,10 @@ const URL = process.env.URL || 'http://localhost:4173/'
     if (!(await page.locator('#cart').evaluate((el) => el.classList.contains('is-open')))) {
       await page.locator('button.cart-btn').click()
     }
+    await page.waitForFunction(() => {
+      const el = document.querySelector('#cart')
+      return !!el && el.classList.contains('is-open') && el.getBoundingClientRect().right <= innerWidth + 1
+    }, null, { timeout: 3000 })
     const cartBounds = await page.locator('#cart').evaluate((el) => {
       const r = el.getBoundingClientRect()
       return { left: r.left, right: r.right, width: r.width, viewport: innerWidth, height: r.height, viewportHeight: innerHeight }
