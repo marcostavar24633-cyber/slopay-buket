@@ -75,7 +75,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
       })
       assert.ok(bounds.left >= -1 && bounds.right <= bounds.viewport + 1 && bounds.height >= 44, 'кнопка заказа неудобна на телефоне: ' + selector + ' ' + JSON.stringify(bounds))
     }
-    await page.locator('#cart [data-close]').click()
+    await page.locator('#cart button[data-close]').click()
 
     // Форма индивидуального заказа: проверяем ошибку телефона и корректную Telegram-ссылку.
     await page.locator('#cf-phone').fill('123')
