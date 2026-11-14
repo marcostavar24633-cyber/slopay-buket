@@ -56,6 +56,9 @@ function serve() {
       await page.goto(url, { waitUntil: 'networkidle' })
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
+      assert.equal(await page.locator('#cat-tabs').getAttribute('role'), 'group', 'category filters must not expose incomplete tab semantics')
+      assert.equal(await page.locator('#cat-tabs .cat-tab').first().getAttribute('aria-pressed'), 'true', 'selected category filter must expose pressed state')
+      assert.ok(await page.locator('#cf-phone').getAttribute('aria-describedby') === 'cf-phone-error', 'phone field must reference its validation message')
       assert.ok((await page.locator('.hero img').first().getAttribute('alt'))?.trim(), 'hero image must have descriptive alternative text')
       const homepageSeo = await page.evaluate(() => ({
         canonical: document.querySelector('link[rel="canonical"]')?.href || '',
@@ -155,6 +158,9 @@ function serve() {
       assert.ok((await form.locator('a[href*="privacy"]').getAttribute('href')).includes('privacy'))
 
       if (viewport.width < 768) {
+        await form.locator('button[data-send="tg"]').click()
+        assert.equal(await form.locator('#cf-phone').getAttribute('aria-invalid'), 'true', 'invalid phone must expose aria-invalid')
+        assert.ok((await form.locator('#cf-phone-error').innerText()).includes('Проверьте номер'), 'phone validation message is missing')
         await form.locator('#cf-name').fill('Тест')
         await form.locator('#cf-phone').fill('+7 999 000-00-00')
         await form.locator('button[data-send="tg"]').click()
