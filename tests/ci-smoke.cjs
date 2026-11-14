@@ -21,6 +21,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
       if (request.url().includes('mc.yandex.ru')) analyticsRequests.push(request.url())
     })
     await page.locator('.cookie-consent').waitFor({ state: 'visible' })
+    assert.equal(await page.locator('noscript img[src*="mc.yandex.ru"]').count(), 0, 'noscript не должен обходить согласие на аналитику')
     assert.equal(analyticsRequests.length, 0, 'Яндекс Метрика не должна загружаться до выбора посетителя')
     await page.locator('.cookie-consent button[data-choice="reject"]').click()
     assert.equal(await page.evaluate(() => localStorage.getItem('slopay-analytics-consent')), 'rejected')
