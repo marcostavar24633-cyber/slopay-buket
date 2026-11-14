@@ -400,7 +400,7 @@
     },
     syncUI() {
       const s = this.st;
-      $('#cat-tabs .cat-tab').forEach((b) => {
+      $$('#cat-tabs .cat-tab').forEach((b) => {
         const selected = b.dataset.cat === s.cat;
         b.setAttribute('aria-selected', selected);
         b.tabIndex = selected ? 0 : -1;
