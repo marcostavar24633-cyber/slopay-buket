@@ -35,6 +35,8 @@ function serve() {
 ;(async () => {
   assert.ok(fs.existsSync(path.join(root, 'index.html')), 'dist/index.html missing')
   assert.ok(fs.existsSync(path.join(root, 'privacy', 'index.html')), 'dist/privacy/index.html missing')
+  const homepageHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8')
+  assert.ok(!/<link[^>]+rel=["']preconnect["'][^>]+href=["']https:\/\/mc\.yandex\.ru/i.test(homepageHtml), 'Yandex preconnect must not run before analytics consent')
   const server = serve()
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   const url = `http://127.0.0.1:${server.address().port}/`
