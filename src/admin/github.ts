@@ -15,7 +15,13 @@ const TOKEN_KEY = 'slopay-admin-token'
 export const auth = {
   get: (): string | null => {
     try {
-      return localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY)
+      const token = localStorage.getItem(TOKEN_KEY)
+      if (token) return token
+    } catch {
+      /* localStorage недоступен — пробуем sessionStorage */
+    }
+    try {
+      return sessionStorage.getItem(TOKEN_KEY)
     } catch {
       return null
     }
@@ -41,9 +47,13 @@ export const auth = {
   clear() {
     try {
       localStorage.removeItem(TOKEN_KEY)
+    } catch {
+      /* localStorage недоступен */
+    }
+    try {
       sessionStorage.removeItem(TOKEN_KEY)
     } catch {
-      /* ignore */
+      /* sessionStorage недоступен */
     }
   },
 }
