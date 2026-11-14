@@ -200,6 +200,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   }
 
   const logout = () => {
+    if (dirty.length && !window.confirm('Есть неопубликованные изменения. Выйти и потерять эти правки?')) return
     auth.clear()
     onLogout()
   }
