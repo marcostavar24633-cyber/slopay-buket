@@ -10,7 +10,7 @@ import { Btn, Card, PageHead } from '../ui'
 const CAT_NAMES = Object.fromEntries(GALLERY_CATS.filter((c) => c.key !== 'all').map((c) => [c.key, c.label]))
 
 export function Dashboard({ go }: { go: (r: Route, q?: Record<string, string>) => void }) {
-  const { data, deploys, mode } = useStore()
+  const { data, deploys, deployError, mode } = useStore()
   const all = data.products.items
   const shown = all.filter((p) => p.show !== false)
   const prices = shown.map((p) => Number(p.price) || 0).filter(Boolean)
@@ -107,31 +107,40 @@ export function Dashboard({ go }: { go: (r: Route, q?: Record<string, string>) =
           <Card title="Обновления сайта">
             {mode === 'demo' ? (
               <p className="text-[13.5px] text-muted">После входа здесь видно, когда сайт пересобрался после ваших правок.</p>
-            ) : deploys.length ? (
-              <ul className="space-y-2.5">
-                {deploys.slice(0, 5).map((d) => (
-                  <li key={d.id}>
-                    <a href={d.url} target="_blank" rel="noopener" className="flex items-start gap-2.5 text-[13.5px] hover:text-honey-600">
-                      {d.status !== 'completed' ? (
-                        <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-honey" />
-                      ) : d.conclusion === 'success' ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-leaf" />
-                      ) : (
-                        <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-berry" />
-                      )}
-                      <span className="min-w-0">
-                        <span className="block truncate font-semibold">{d.title}</span>
-                        <span className={cn('block text-[12px]', d.conclusion === 'failure' ? 'text-berry' : 'text-muted')}>
-                          {new Date(d.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} ·{' '}
-                          {d.status !== 'completed' ? 'обновляется' : d.conclusion === 'success' ? 'на сайте' : 'не удалось'}
-                        </span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
             ) : (
-              <p className="text-[13.5px] text-muted">Нет данных. Дайте ключу право «Actions: Read-only», чтобы видеть статус.</p>
+              <div className="space-y-3">
+                {deployError && (
+                  <p role="alert" className="rounded-xl border border-berry/30 bg-berry/10 px-3 py-2 text-[13px] text-berry">
+                    {deployError}
+                  </p>
+                )}
+                {deploys.length ? (
+                  <ul className="space-y-2.5">
+                    {deploys.slice(0, 5).map((d) => (
+                      <li key={d.id}>
+                        <a href={d.url} target="_blank" rel="noopener" className="flex items-start gap-2.5 text-[13.5px] hover:text-honey-600">
+                          {d.status !== 'completed' ? (
+                            <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-honey" />
+                          ) : d.conclusion === 'success' ? (
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-leaf" />
+                          ) : (
+                            <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-berry" />
+                          )}
+                          <span className="min-w-0">
+                            <span className="block truncate font-semibold">{d.title}</span>
+                            <span className={cn('block text-[12px]', d.conclusion === 'failure' ? 'text-berry' : 'text-muted')}>
+                              {new Date(d.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} ·{' '}
+                              {d.status !== 'completed' ? 'обновляется' : d.conclusion === 'success' ? 'на сайте' : 'не удалось'}
+                            </span>
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : !deployError ? (
+                  <p className="text-[13.5px] text-muted">Нет данных. Дайте ключу право «Actions: Read-only», чтобы видеть статус.</p>
+                ) : null}
+              </div>
             )}
           </Card>
         </div>
