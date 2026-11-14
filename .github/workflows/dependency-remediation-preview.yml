@@ -1,0 +1,107 @@
+name: Dependency remediation preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/dependency-remediation-preview.yml'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'src/**'
+      - 'redesign/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install current locked dependencies
+        run: npm ci
+
+      - name: Prepare isolated candidate dependency set
+        run: |
+          npm pkg set 'devDependencies.sharp=^0.35.5'
+          npm pkg set 'devDependencies.typescript-eslint=^8.72.2'
+          npm pkg set 'overrides.minimatch=^11.0.8'
+          npm install --package-lock-only --ignore-scripts
+
+      - name: Install candidate lockfile
+        run: npm ci
+
+      - name: Candidate dependency audit
+        run: |
+          npm audit --json > "$RUNNER_TEMP/candidate-audit.json" || true
+          node --input-type=commonjs <<'NODE'
+          const report = require(process.env.RUNNER_TEMP + '/candidate-audit.json');
+          const summary = report.metadata?.vulnerabilities || {};
+          console.log('Candidate dependency audit:', JSON.stringify(summary));
+          for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
+            console.log(JSON.stringify({ package: name, severity: item.severity, via: item.via }));
+          }
+          if ((summary.total || 0) > 0) process.exit(1);
+          NODE
+
+      - name: Verify sharp runtime
+        run: |
+          node --input-type=module <<'NODE'
+          import sharp from 'sharp';
+          const output = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#ffffff' } }).png().toBuffer();
+          if (!output.length) throw new Error('sharp produced an empty image');
+          console.log('sharp candidate smoke test passed:', output.length, 'bytes');
+          NODE
+
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Generate redesign catalog data
+        run: python3 redesign/tools/build-data.py
+      - name: Build
+        env:
+          SITE_URL: https://xn--80acmogcvipsi.xn--p1ai
+        run: npx vite build --base /
+
+      - name: SEO smoke tests
+        run: node tests/seo-pages.cjs dist
+
+      - name: Prerender
+        run: node scripts/prerender.cjs dist /
+
+      - name: Install redesigned homepage
+        run: python3 redesign/tools/install.py dist
+
+      - name: Browser smoke tests
+        run: node tests/redesign-smoke.cjs dist
+
+      - name: Upload validated candidate lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-remediation-candidate
+          path: |
+            package.json
+            package-lock.json
+          if-no-files-found: error

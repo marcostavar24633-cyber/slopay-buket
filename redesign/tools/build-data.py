@@ -12,7 +12,7 @@ for p in items:
         continue
     img = p['image']                      # /img/real/berry/yag-1.webp
     cat = img.split('/')[3]
-    cat = p['cat'] if p['cat'] in ('berry', 'meat', 'sea', 'dried', 'sweet') else 'meat'
+    cat = p['cat'] if p['cat'] in ('berry', 'meat', 'sea', 'dried', 'sweet', 'snack') else 'meat'
     out.append({
         'id': p['id'], 'cat': cat, 'name': p['name'], 'desc': p['desc'], 'price': int(p['price']),
         'img': img.lstrip('/'), 'thumb': img.lstrip('/').replace('/' + img.split('/')[3] + '/', '/' + img.split('/')[3] + '/thumbs/'),

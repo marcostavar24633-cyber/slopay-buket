@@ -25,7 +25,6 @@
 <link rel="icon" href="../public/favicon-64.png" sizes="64x64">
 <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
 
-<link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,7 +36,7 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": ["LocalBusiness", "Florist"],
+  "@type": "LocalBusiness",
   "@id": "https://xn--80acmogcvipsi.xn--p1ai/#business",
   "name": "Слопай букет — съедобные букеты в Ульяновске",
   "description": "Мастерская фудфлористики: съедобные букеты из клубники, мяса, раков, сухофруктов и сладостей ручной работы.",
@@ -66,19 +65,46 @@
 }
 </script>
 <!-- Product-разметка хитов добавляется скриптом из каталога (js/app.js → seoProducts) -->
-<!-- Yandex.Metrika counter (перенесён со старой главной; не грузится у роботов сборки и тестов) -->
+<!-- Аналитика включается только после явного согласия посетителя. -->
 <script>
-  if (!navigator.webdriver && !/[?&]edit=1/.test(location.search)) {
+(function () {
+  var KEY = 'slopay-analytics-consent';
+  function startAnalytics() {
+    if (window.__slopayAnalyticsStarted || navigator.webdriver || /[?&]edit=1/.test(location.search)) return;
+    window.__slopayAnalyticsStarted = true;
     (function(m,e,t,r,i,k,a){
       m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
       m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059', 'ym');
-    ym(114134059, 'init', {ssr:true, webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+      for (var j=0;j<document.scripts.length;j++) if (document.scripts[j].src===r) return;
+      k=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a);
+    })(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059','ym');
+    ym(114134059,'init',{ssr:true,webvisor:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
   }
+  var choice = '';
+  try { choice = localStorage.getItem(KEY) || ''; } catch (e) {}
+  if (choice === 'accepted') { startAnalytics(); return; }
+  if (choice === 'rejected') return;
+  document.addEventListener('DOMContentLoaded', function () {
+    var panel = document.createElement('section');
+    panel.className = 'cookie-consent';
+    panel.setAttribute('role', 'region');
+    panel.setAttribute('aria-label', 'Настройки аналитики');
+    panel.innerHTML = '<p>Мы используем Яндекс Метрику, чтобы понимать, как посетители пользуются сайтом. Аналитика включится только с вашего разрешения. <a href="/privacy/">Подробнее</a></p><div class="cookie-consent__actions"><button type="button" data-choice="reject">Не разрешать</button><button type="button" data-choice="accept">Разрешить аналитику</button></div>';
+    panel.addEventListener('click', function (event) {
+      var button = event.target.closest('button[data-choice]');
+      if (!button) return;
+      var accepted = button.getAttribute('data-choice') === 'accept';
+      try { localStorage.setItem(KEY, accepted ? 'accepted' : 'rejected'); } catch (e) {}
+      panel.remove();
+      if (accepted) startAnalytics();
+    });
+    var skipLink = document.querySelector('.skip-link');
+    if (skipLink && skipLink.parentNode) skipLink.parentNode.insertBefore(panel, skipLink.nextSibling);
+    else document.body.insertBefore(panel, document.body.firstChild);
+  }, { once: true });
+})();
 </script>
-<!-- Цели Метрики: те же, что на старой главной (телефон, Telegram, MAX, Авито, PDF) -->
+<!-- Цели Метрики работают только после загрузки счётчика по согласию -->
 <script>
   document.addEventListener('click', function (e) {
     var el = e.target.closest && e.target.closest('a[href]');
@@ -95,7 +121,7 @@
 </head>
 
 <body class="is-loading">
-<noscript><div><img src="https://mc.yandex.ru/watch/114134059" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+<!-- Без JavaScript аналитика не запускается. -->
 <a class="skip-link" href="#main">Перейти к содержанию</a>
 
 <!-- ============ ИКОНКИ (тонкая линия, 1.25px) ============ -->
@@ -258,7 +284,7 @@
     <div class="hero__visual" id="hero-visual" aria-hidden="true">
       <div class="hero__halo"></div>
       <div class="hero__frame layer" data-depth="0.15">
-        <img src="img/real/berry/hero-heart-720.webp" srcset="img/real/berry/hero-heart-720.webp 720w, img/real/berry/hero-heart.webp 1100w" sizes="(max-width: 900px) 80vw, 560px" width="720" height="672" alt="" fetchpriority="high" decoding="async">
+        <img src="img/real/berry/hero-heart-720.webp" srcset="img/real/berry/hero-heart-720.webp 720w, img/real/berry/hero-heart.webp 1100w" sizes="(max-width: 900px) 80vw, 560px" width="720" height="672" alt="Клубничное сердце в подарочном букете ручной работы" fetchpriority="high" decoding="async">
       </div>
       <!-- Слои параллакса: реагируют на курсор с разной глубиной -->
       <svg class="layer deco deco--berry1" data-depth="0.9" viewBox="0 0 60 70"><use href="#d-berry"/></svg>
@@ -350,7 +376,7 @@
       <button class="btn btn--ghost quiz-open" type="button" data-open="quiz"><svg class="ico"><use href="#i-sparkle"/></svg>Подобрать за 30 секунд</button>
     </div>
 
-    <div class="cat-tabs" role="tablist" aria-label="Категории" id="cat-tabs"></div>
+    <div class="cat-tabs" role="group" aria-label="Фильтр по категориям" id="cat-tabs"></div>
 
     <div class="filters" id="filters">
       <div class="filters__group" role="group" aria-label="Для кого">
@@ -450,9 +476,9 @@
         <label for="cf-name">Как к вам обращаться</label>
       </div>
       <div class="field">
-        <input id="cf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " data-mask="phone" required>
+        <input id="cf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " data-mask="phone" aria-describedby="cf-phone-error" required>
         <label for="cf-phone">Телефон</label>
-        <span class="field__err" role="alert"></span>
+        <span class="field__err" id="cf-phone-error" role="alert"></span>
       </div>
       <div class="field">
         <textarea id="cf-wish" name="wish" rows="3" placeholder=" "></textarea>
@@ -467,7 +493,7 @@
         <button class="btn btn--primary magnetic" type="submit" data-send="tg" data-cursor="heart"><svg class="ico"><use href="#i-tg"/></svg>Отправить в Telegram</button>
         <button class="btn btn--ghost" type="submit" data-send="max"><svg class="ico"><use href="#i-max"/></svg>Отправить в MAX</button>
       </div>
-      <p class="form__hint">Сайт не хранит ваши данные: текст заявки откроется в мессенджере, фото прикрепите в чате. Отправляя, вы соглашаетесь с <a href="../privacy/">политикой конфиденциальности</a>.</p>
+      <p class="form__hint">Текст заявки передаётся только после вашего подтверждения в мессенджере. Данные корзины могут сохраняться в памяти браузера на этом устройстве. Фото не загружается на сайт: прикрепите его в чате. Подробнее — в <a href="../privacy/">политике обработки персональных данных</a>.</p>
     </form>
   </div>
 </section>
@@ -774,7 +800,7 @@
     <button class="icon-btn" type="button" data-close aria-label="Закрыть"><svg class="ico"><use href="#i-close"/></svg></button>
   </div>
   <div class="quiz__progress"><span id="quiz-bar"></span></div>
-  <div class="drawer__body" id="quiz-body"></div>
+  <div class="drawer__body" id="quiz-body" aria-live="polite" aria-atomic="true"></div>
   <div class="drawer__foot quiz__foot">
     <button class="btn btn--ghost" type="button" id="quiz-back">Назад</button>
     <button class="btn btn--primary" type="button" id="quiz-next">Дальше</button>

@@ -18,7 +18,8 @@ import { HeroSettings } from './settings'
 type Sel = number | 'hero' | null
 /** Что меняется без перезагрузки фрейма; остальное (товары, отзывы, контакты…) — перезагрузкой. */
 const reloadSnapshot = (d: Content) => {
-  const { theme: _t, ...site } = d.site as Content['site'] & { theme?: Theme }
+  const site = { ...d.site } as Content['site'] & { theme?: Theme }
+  delete site.theme
   return JSON.stringify([site, d.products, d.reviews, d.faq, d.occasions, d.seasons, d.messages])
 }
 

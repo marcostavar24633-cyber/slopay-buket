@@ -57,6 +57,7 @@
     sea:   { name: 'Раки и морепродукты', short: 'Раки', who: 'him', imgs: ['m-1', 'm-5'] },
     dried: { name: 'Сухофрукты и орехи', short: 'Сухофрукты', who: 'her', imgs: ['suh-11', 'suh-19'] },
     sweet: { name: 'Сладкие боксы', short: 'Сладкие', who: 'her', imgs: ['sl-25', 'sl-5'] },
+    snack: { name: 'Снеки и закуски', short: 'Снеки', who: 'him', imgs: ['sn-3'] },
   };
   /* Хиты — порядок и описания из ТЗ */
   const HITS = [
@@ -357,8 +358,8 @@
     els: new Map(),
     init() {
       const tabs = $('#cat-tabs');
-      tabs.innerHTML = `<button class="cat-tab" role="tab" aria-selected="true" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
-        Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" role="tab" aria-selected="false" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
+      tabs.innerHTML = `<button type="button" class="cat-tab" aria-pressed="true" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
+        Object.entries(CATS).map(([k, c]) => `<button type="button" class="cat-tab" aria-pressed="false" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
       tabs.addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) this.set({ cat: b.dataset.cat }); });
       $('#filters').addEventListener('click', (e) => {
         const c = e.target.closest('.chip'); if (!c) return;
@@ -385,7 +386,7 @@
     },
     syncUI() {
       const s = this.st;
-      $$('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.cat === s.cat));
+      $$('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cat === s.cat));
       $$('[data-filter]').forEach((g) => $$('.chip', g).forEach((c) => { const on = c.dataset.v === s[g.dataset.filter]; c.classList.toggle('is-active', on); c.setAttribute('aria-pressed', on); }));
       $$('[data-fav-filter]').forEach((b) => b.setAttribute('aria-pressed', s.fav));
       $$('select[data-sort], #sort').forEach((el) => { el.value = s.sort; });
@@ -488,7 +489,8 @@
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
         store.set('sb-order', this.form); this.links();
       });
-      $('#o-date').min = new Date().toISOString().slice(0, 10);
+      const today = ulyNow();
+      $('#o-date').min = `${String(today.y).padStart(4, '0')}-${String(today.m).padStart(2, '0')}-${String(today.d).padStart(2, '0')}`;
       $('#cart-list').addEventListener('click', (e) => {
         const li = e.target.closest('[data-id]'); if (!li) return; const id = li.dataset.id;
         if (e.target.closest('[data-inc]')) this.qty(id, 1);
@@ -793,7 +795,7 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const ph = $('#cf-phone'); const field = ph.closest('.field'); const ok = ph.value.replace(/\D/g, '').length === 11;
-      field.classList.toggle('is-error', !ok); $('.field__err', field).textContent = ok ? '' : 'Проверьте номер: нужно 10 цифр после +7';
+      field.classList.toggle('is-error', !ok); ph.setAttribute('aria-invalid', String(!ok)); $('.field__err', field).textContent = ok ? '' : 'Проверьте номер: нужно 10 цифр после +7';
       if (!ok) { ph.focus(); return; }
       const text = `Здравствуйте! Хочу индивидуальный букет.\nИмя: ${$('#cf-name').value || '—'}\nТелефон: ${ph.value}\nПожелания: ${$('#cf-wish').value || '—'}${picked ? '\nФото-пример пришлю в чат.' : ''}`;
       // На телефоне с фото — системное «Поделиться»: фото и текст уйдут в выбранный мессенджер
@@ -858,8 +860,8 @@
     if (!FEATURES.cursor || !FINE || REDUCE || !HAS_GSAP) return;
     document.documentElement.classList.add('has-cursor');
     const c = $('#cursor'); const label = $('.cursor__label', c);
-    const xTo = gsap.quickTo(c, 'x', { duration: 0.35, ease: 'power3.out' }); const yTo = gsap.quickTo(c, 'y', { duration: 0.35, ease: 'power3.out' });
-    addEventListener('pointermove', (e) => { c.classList.add('is-on'); xTo(e.clientX); yTo(e.clientY); }, { passive: true });
+    const xSet = gsap.quickSetter(c, 'x', 'px'); const ySet = gsap.quickSetter(c, 'y', 'px');
+    addEventListener('pointermove', (e) => { c.classList.add('is-on'); xSet(e.clientX); ySet(e.clientY); }, { passive: true });
     document.addEventListener('pointerleave', () => c.classList.remove('is-on'));
     document.addEventListener('pointerover', (e) => {
       const t = e.target.closest('[data-cursor], a, button, input, textarea, select, label');

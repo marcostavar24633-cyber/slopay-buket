@@ -1,0 +1,108 @@
+name: Quality checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Dependency vulnerability report
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node --input-type=commonjs <<'NODE'
+          const report = require(process.env.RUNNER_TEMP + '/npm-audit.json');
+          const vulnerabilities = Object.entries(report.vulnerabilities || {});
+          console.log('Dependency audit summary:', JSON.stringify(report.metadata?.vulnerabilities || {}));
+          for (const [name, item] of vulnerabilities) {
+            console.log(JSON.stringify({
+              package: name,
+              severity: item.severity,
+              direct: item.isDirect,
+              installedPaths: item.nodes,
+              fixAvailable: item.fixAvailable,
+              advisories: item.via.map(v => typeof v === 'string' ? v : {
+                title: v.title, url: v.url, range: v.range
+              })
+            }));
+          }
+          NODE
+      - name: Production dependency security gate
+        run: |
+          npm audit --omit=dev --json > "$RUNNER_TEMP/npm-audit-production.json" || true
+          node --input-type=commonjs <<'NODE'
+          const report = require(process.env.RUNNER_TEMP + '/npm-audit-production.json');
+          const summary = report.metadata?.vulnerabilities || {};
+          console.log('Production dependency audit:', JSON.stringify(summary));
+          if ((summary.total || 0) > 0) {
+            for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
+              console.log(JSON.stringify({ package: name, severity: item.severity, via: item.via }));
+            }
+            process.exit(1);
+          }
+          NODE
+      - name: Check current safe package versions
+        run: |
+          echo "Registry latest versions:"
+          npm view sharp version
+          npm view typescript-eslint version
+          npm view minimatch version
+      - name: Preview safe dependency remediation
+        run: |
+          npm audit fix --dry-run --json > "$RUNNER_TEMP/npm-audit-fix-preview.json" || true
+          node --input-type=commonjs <<'NODE'
+          const fs = require('node:fs');
+          const raw = fs.readFileSync(process.env.RUNNER_TEMP + '/npm-audit-fix-preview.json', 'utf8');
+          const match = raw.match(/\{\s*"added"\s*:\s*\d+[\s\S]*?\n\}/);
+          if (!match) {
+            console.log('npm audit fix preview output (unparsed):');
+            console.log(raw.slice(-12000));
+            process.exit(0);
+          }
+          const report = JSON.parse(match[0]);
+          console.log('Dependency remediation preview:', JSON.stringify({
+            added: report.added,
+            removed: report.removed,
+            changed: report.changed,
+            audited: report.audited,
+            audit: report.audit?.metadata?.vulnerabilities
+          }));
+          NODE
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Generate redesign catalog data
+        run: python3 redesign/tools/build-data.py
+      - name: Build
+        env:
+          SITE_URL: https://xn--80acmogcvipsi.xn--p1ai
+        run: npx vite build --base /
+      - name: SEO smoke tests
+        run: node tests/seo-pages.cjs dist
+      - name: Prerender
+        run: node scripts/prerender.cjs dist /
+      - name: Install redesigned homepage
+        run: python3 redesign/tools/install.py dist
+      - name: Browser smoke tests for final site output
+        run: node tests/redesign-smoke.cjs dist
