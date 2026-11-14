@@ -25,7 +25,6 @@
 <link rel="icon" href="../public/favicon-64.png" sizes="64x64">
 <link rel="apple-touch-icon" href="../public/apple-touch-icon.png">
 
-<link rel="preconnect" href="https://mc.yandex.ru" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -66,17 +65,47 @@
 }
 </script>
 <!-- Product-разметка хитов добавляется скриптом из каталога (js/app.js → seoProducts) -->
-<!-- Yandex.Metrika counter (перенесён со старой главной; не грузится у роботов сборки и тестов) -->
+<!-- Яндекс Метрика запускается только после явного согласия посетителя. -->
 <script>
-  if (!navigator.webdriver && !/[?&]edit=1/.test(location.search)) {
+(function () {
+  'use strict';
+  var KEY = 'slopay-analytics-consent';
+  function startAnalytics() {
+    if (window.__slopayAnalyticsStarted || navigator.webdriver || /[?&]edit=1/.test(location.search)) return;
+    window.__slopayAnalyticsStarted = true;
     (function(m,e,t,r,i,k,a){
       m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
       m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059', 'ym');
-    ym(114134059, 'init', {ssr:true, webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+      for (var j=0;j<document.scripts.length;j++) if (document.scripts[j].src===r) return;
+      k=e.createElement(t); a=e.getElementsByTagName(t)[0]; k.async=1; k.src=r; a.parentNode.insertBefore(k,a);
+    })(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=114134059','ym');
+    ym(114134059,'init',{ssr:true,webvisor:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
   }
+  var choice = '';
+  try { choice = localStorage.getItem(KEY) || ''; } catch (e) {}
+  document.addEventListener('DOMContentLoaded', function () {
+    var panel = document.querySelector('.cookie-consent');
+    if (choice === 'accepted') {
+      if (panel) panel.remove();
+      startAnalytics();
+      return;
+    }
+    if (choice === 'rejected') {
+      if (panel) panel.remove();
+      return;
+    }
+    if (!panel) return;
+    panel.hidden = false;
+    panel.addEventListener('click', function (event) {
+      var button = event.target.closest('button[data-choice]');
+      if (!button) return;
+      var accepted = button.getAttribute('data-choice') === 'accept';
+      try { localStorage.setItem(KEY, accepted ? 'accepted' : 'rejected'); } catch (e) {}
+      panel.remove();
+      if (accepted) startAnalytics();
+    });
+  });
+})();
 </script>
 <!-- Цели Метрики: те же, что на старой главной (телефон, Telegram, MAX, Авито, PDF) -->
 <script>
@@ -95,7 +124,13 @@
 </head>
 
 <body class="is-loading">
-<noscript><div><img src="https://mc.yandex.ru/watch/114134059" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+<section class="cookie-consent" role="region" aria-label="Настройки аналитики" hidden>
+  <p>Мы используем Яндекс Метрику для анализа посещаемости. Она включится только с вашего разрешения. <a href="privacy/">Подробнее</a></p>
+  <div class="cookie-consent__actions">
+    <button type="button" data-choice="reject">Не разрешать</button>
+    <button type="button" data-choice="accept">Разрешить аналитику</button>
+  </div>
+</section>
 <a class="skip-link" href="#main">Перейти к содержанию</a>
 
 <!-- ============ ИКОНКИ (тонкая линия, 1.25px) ============ -->

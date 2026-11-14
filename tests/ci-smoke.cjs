@@ -15,6 +15,38 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.match(await page.title(), /Слопай букет/i)
     assert.ok(await page.locator('h1').count(), 'главная содержит H1')
 
+    // Аналитика не должна загружаться до согласия; отказ сохраняется после перезагрузки.
+    const analyticsRequests = []
+    page.on('request', (request) => {
+      if (request.url().includes('mc.yandex.ru')) analyticsRequests.push(request.url())
+    })
+    await page.locator('.cookie-consent').waitFor({ state: 'visible' })
+    assert.equal(await page.locator('noscript img[src*="mc.yandex.ru"]').count(), 0, 'noscript не должен обходить согласие на аналитику')
+    assert.equal(analyticsRequests.length, 0, 'Яндекс Метрика не должна загружаться до выбора посетителя')
+    await page.locator('.cookie-consent button[data-choice="reject"]').click()
+    assert.equal(await page.evaluate(() => localStorage.getItem('slopay-analytics-consent')), 'rejected')
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(250)
+    assert.equal(await page.locator('.cookie-consent').count(), 0, 'после отказа уведомление не должно показываться повторно')
+    assert.equal(analyticsRequests.length, 0, 'после отказа запросы к Яндекс Метрике запрещены')
+
+    // Согласие запускает счётчик, а не просто скрывает уведомление.
+    const acceptedContext = await browser.newContext()
+    const acceptedPage = await acceptedContext.newPage()
+    // В production счётчик намеренно отключён для Playwright; здесь проверяем именно ветку согласия.
+    await acceptedPage.addInitScript(() => Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false }))
+    const acceptedAnalyticsRequests = []
+    acceptedPage.on('request', (request) => {
+      if (request.url().includes('mc.yandex.ru/metrika/tag.js')) acceptedAnalyticsRequests.push(request.url())
+    })
+    await acceptedPage.goto(URL, { waitUntil: 'domcontentloaded' })
+    await acceptedPage.locator('.cookie-consent button[data-choice="accept"]').click()
+    await acceptedPage.waitForFunction(() => window.__slopayAnalyticsStarted === true)
+    assert.equal(await acceptedPage.evaluate(() => localStorage.getItem('slopay-analytics-consent')), 'accepted')
+    await acceptedPage.waitForFunction(() => document.querySelector('script[src*="mc.yandex.ru/metrika/tag.js"]') !== null)
+    assert.ok(acceptedAnalyticsRequests.length > 0, 'после согласия должен загружаться счётчик')
+    await acceptedContext.close()
+
     for (const width of [360, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 })
       await page.waitForTimeout(150)

@@ -1,0 +1,56 @@
+name: Quality checks (current main)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-current-main-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Production dependency security gate
+        run: npm audit --omit=dev
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Lint changed TypeScript and browser-test files
+        run: npx eslint src/legal.tsx tests/ci-smoke.cjs
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Generate redesign catalog data
+        run: python3 redesign/tools/build-data.py
+      - name: Build
+        env:
+          SITE_URL: https://xn--80acmogcvipsi.xn--p1ai
+        run: npx vite build --base /
+      - name: SEO smoke tests
+        run: node tests/seo-pages.cjs dist
+      - name: Prerender
+        run: node scripts/prerender.cjs dist /
+      - name: Install redesigned homepage
+        run: python3 redesign/tools/install.py dist
+      - name: Browser smoke tests
+        timeout-minutes: 10
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/slopay-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 2
+          done
+          URL=http://127.0.0.1:4173/ npm run test:ci
