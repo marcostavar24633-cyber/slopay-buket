@@ -53,7 +53,7 @@ export function Editor() {
   // первый запуск: черновик в sessionStorage, потом фрейм
   const [src] = useState(() => {
     writeDraft()
-    return siteUrl('?edit=1')
+    return siteUrl('editor-preview.html?edit=1')
   })
 
   // Сохраняем актуальный черновик после любого изменения, в том числе живых правок блоков и первого экрана.
