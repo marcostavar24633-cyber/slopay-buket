@@ -54,6 +54,14 @@ function serve() {
       await page.goto(url, { waitUntil: 'networkidle' })
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
+      const minOrderDate = await page.locator('#o-date').getAttribute('min')
+      const ullyanovskToday = await page.evaluate(() => {
+        const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Europe/Ulyanovsk', year: 'numeric', month: '2-digit', day: '2-digit',
+        }).formatToParts(new Date()).map((part) => [part.type, part.value]))
+        return `${parts.year}-${parts.month}-${parts.day}`
+      })
+      assert.equal(minOrderDate, ullyanovskToday, 'minimum order date must use the business timezone')
       const categoryMismatches = await page.evaluate(() => (window.SB_DATA?.items || [])
         .filter((item) => item.img && item.cat && !item.img.includes('/' + item.cat + '/'))
         .map((item) => ({ id: item.id, category: item.cat, image: item.img })))
