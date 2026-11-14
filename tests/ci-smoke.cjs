@@ -21,6 +21,10 @@ const URL = process.env.URL || 'http://localhost:4173/'
       const dimensions = await page.evaluate(() => ({
         width: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
+        offenders: [...document.querySelectorAll('body *')].map((el) => {
+          const r = el.getBoundingClientRect()
+          return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 90) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) }
+        }).filter((r) => r.width > 0 && (r.right > innerWidth + 1 || r.left < -1)).sort((a, b) => b.right - a.right).slice(0, 8),
       }))
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
