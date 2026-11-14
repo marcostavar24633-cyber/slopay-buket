@@ -21,10 +21,18 @@ const URL = process.env.URL || 'http://localhost:4173/'
       const dimensions = await page.evaluate(() => ({
         width: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
+        bodyWidth: document.body.scrollWidth,
         offenders: [...document.querySelectorAll('body *')].map((el) => {
           const r = el.getBoundingClientRect()
-          return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 90) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) }
-        }).filter((r) => r.width > 0 && (r.right > innerWidth + 1 || r.left < -1)).sort((a, b) => b.right - a.right).slice(0, 8),
+          let clipped = false
+          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+            const o = getComputedStyle(p).overflowX
+            const pr = p.getBoundingClientRect()
+            if (['hidden', 'clip', 'auto', 'scroll'].includes(o) && (r.right > pr.right + 1 || r.left < pr.left - 1)) { clipped = true; break }
+          }
+          return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 90) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), clipped }
+        }).filter((r) => r.width > 0 && !r.clipped && (r.right > innerWidth + 1 || r.left < -1)).sort((a, b) => b.right - a.right).slice(0, 12),
+        bodyChildren: [...document.body.children].map((el) => { const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 70) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) } }),
       }))
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
