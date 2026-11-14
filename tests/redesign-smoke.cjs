@@ -215,7 +215,6 @@ function serve() {
       const consentContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
       const consentPage = await consentContext.newPage()
       await consentPage.addInitScript(() => {
-        localStorage.removeItem('slopay-analytics-consent')
         Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false })
       })
       await consentPage.route('https://mc.yandex.ru/**', async (route) => {
