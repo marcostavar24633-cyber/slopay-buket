@@ -469,6 +469,12 @@ async function test(name, fn) {
     await page.keyboard.type('Нам доверяют')
     await page.keyboard.press('Enter')
     await f.locator('[data-bi="1"] h2', { hasText: 'Нам доверяют' }).waitFor()
+    await page.waitForFunction(() => {
+      const draft = sessionStorage.getItem('slopay-draft')
+      return !!draft && JSON.parse(draft).page.blocks[1].title === 'Нам доверяют'
+    })
+    await page.locator('iframe').evaluate((frame) => frame.contentWindow.location.reload())
+    await f.locator('[data-bi="1"] h2', { hasText: 'Нам доверяют' }).waitFor()
     // перетаскивание за ярлык: «Отзывы» под «4 шага»
     await f.locator('[data-bi="1"] figure').first().scrollIntoViewIfNeeded()
     const hd = await f.locator('[data-bi="1"] .slopay-ui button').boundingBox()
