@@ -128,6 +128,10 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await quizOpener.focus()
     await quizOpener.click()
     await page.locator('#quiz.is-open').waitFor()
+    await page.waitForFunction(() => {
+      const dialog = document.querySelector('#quiz')
+      return !!dialog && dialog.contains(document.activeElement)
+    }, null, { timeout: 3000 })
     const quizFocusInside = await page.locator('#quiz').evaluate((el) => el.contains(document.activeElement))
     assert.equal(quizFocusInside, true, 'при открытии диалога фокус должен перейти внутрь')
     await page.keyboard.press('Escape')
