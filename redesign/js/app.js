@@ -489,7 +489,8 @@
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
         store.set('sb-order', this.form); this.links();
       });
-      $('#o-date').min = new Date().toISOString().slice(0, 10);
+      const today = ulyNow();
+      $('#o-date').min = `${String(today.y).padStart(4, '0')}-${String(today.m).padStart(2, '0')}-${String(today.d).padStart(2, '0')}`;
       $('#cart-list').addEventListener('click', (e) => {
         const li = e.target.closest('[data-id]'); if (!li) return; const id = li.dataset.id;
         if (e.target.closest('[data-inc]')) this.qty(id, 1);
