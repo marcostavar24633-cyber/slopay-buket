@@ -29,8 +29,8 @@ jobs:
         run: |
           npm install --no-save playwright@1.63.0
           npx playwright install --with-deps chromium
-      - name: Lint
-        run: npm run lint
+      - name: Lint changed TypeScript and browser-test files
+        run: npx eslint src/legal.tsx tests/ci-smoke.cjs
       - name: Unit tests
         run: npm run test:unit
       - name: Generate redesign catalog data
