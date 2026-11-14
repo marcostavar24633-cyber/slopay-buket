@@ -56,6 +56,12 @@ export function Editor() {
     return siteUrl('?edit=1')
   })
 
+  // Сохраняем актуальный черновик после любого изменения, в том числе живых правок блоков и первого экрана.
+  // Фрейм читает эти данные из общего sessionStorage при первой загрузке и после перезагрузки.
+  useEffect(() => {
+    writeDraft()
+  }, [data])
+
   // живые правки: блоки, первый экран, цвета, выбор, режим
   useEffect(sendLive, [data.page, data.hero, theme, sel, interactive, sendLive])
 
