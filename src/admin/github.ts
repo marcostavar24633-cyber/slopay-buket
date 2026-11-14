@@ -120,8 +120,22 @@ export async function readFile<T>(token: string, path: string): Promise<{ data: 
     `/repos/${REPO.owner}/${REPO.name}/contents/${path}?ref=${REPO.branch}`,
   )
   // файлы больше 1 МБ API отдаёт без содержимого — тогда берём по download_url
-  const text = r.content ? fromB64(r.content) : await (await fetch(r.download_url, { headers: { Authorization: `Bearer ${token}` } })).text()
-  return { data: JSON.parse(text) as T, sha: r.sha }
+  let text: string
+  if (r.content) {
+    text = fromB64(r.content)
+  } else {
+    if (!r.download_url) throw new Error(`GitHub не вернул ссылку для загрузки файла: ${path}`)
+    const response = await fetch(r.download_url, { headers: { Authorization: `Bearer ${token}` } })
+    if (!response.ok) {
+      throw new ApiError(response.status, `Не удалось загрузить содержимое файла ${path} (HTTP ${response.status}). Повторите попытку.`)
+    }
+    text = await response.text()
+  }
+  try {
+    return { data: JSON.parse(text) as T, sha: r.sha }
+  } catch {
+    throw new Error(`Файл ${path} содержит некорректный JSON. Сохранение остановлено, чтобы не повредить данные.`)
+  }
 }
 
 /** Сохранить JSON-файл = коммит в ветку main. Возвращает новый sha. */
