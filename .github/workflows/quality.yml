@@ -43,6 +43,26 @@ jobs:
             }));
           }
           NODE
+      - name: Preview safe dependency remediation
+        run: |
+          npm audit fix --dry-run --json > "$RUNNER_TEMP/npm-audit-fix-preview.json" || true
+          node --input-type=commonjs <<'NODE'
+          const fs = require('node:fs');
+          const raw = fs.readFileSync(process.env.RUNNER_TEMP + '/npm-audit-fix-preview.json', 'utf8');
+          try {
+            const report = JSON.parse(raw);
+            console.log('Dependency remediation preview:', JSON.stringify({
+              added: report.added,
+              removed: report.removed,
+              changed: report.changed,
+              audited: report.audited,
+              audit: report.audit?.metadata?.vulnerabilities
+            }));
+          } catch {
+            console.log('npm audit fix preview output (unparsed):');
+            console.log(raw.slice(-12000));
+          }
+          NODE
       - name: Install Playwright browser
         run: |
           npm install --no-save playwright@1.63.0
