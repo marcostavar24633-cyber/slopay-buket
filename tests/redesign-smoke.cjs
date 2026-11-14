@@ -160,6 +160,39 @@ function serve() {
     assert.ok(policy.includes('фотографии'), 'privacy policy does not describe user-selected photos')
     await context.close()
 
+    // Analytics must remain off until explicit consent, and persist either choice.
+    for (const decision of ['reject', 'accept']) {
+      let metricRequests = 0
+      const consentContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
+      const consentPage = await consentContext.newPage()
+      await consentPage.addInitScript(() => localStorage.removeItem('slopay-analytics-consent'))
+      await consentPage.route('https://mc.yandex.ru/**', async (route) => {
+        metricRequests += 1
+        await route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.ym = window.ym || function () {};' })
+      })
+      await consentPage.goto(url, { waitUntil: 'networkidle' })
+      const panel = consentPage.locator('.cookie-consent')
+      await panel.waitFor({ state: 'visible' })
+      assert.ok((await panel.innerText()).includes('только с вашего разрешения'))
+      await panel.locator(`button[data-choice="${decision}"]`).click()
+      assert.equal(await consentPage.evaluate(() => localStorage.getItem('slopay-analytics-consent')), decision === 'accept' ? 'accepted' : 'rejected')
+      if (decision === 'accept') {
+        await consentPage.waitForFunction(() => window.__slopayAnalyticsStarted === true)
+        assert.ok(metricRequests > 0, 'analytics was not loaded after consent')
+      } else {
+        await consentPage.waitForTimeout(150)
+        assert.equal(metricRequests, 0, 'analytics loaded without consent')
+      }
+      await consentPage.reload({ waitUntil: 'networkidle' })
+      if (decision === 'reject') {
+        assert.equal(await consentPage.locator('.cookie-consent').count(), 0, 'rejected consent should persist')
+        assert.equal(metricRequests, 0, 'analytics loaded after saved rejection')
+      } else {
+        await consentPage.waitForFunction(() => window.__slopayAnalyticsStarted === true)
+      }
+      await consentContext.close()
+    }
+
     assert.deepEqual(errors, [], 'browser JavaScript errors')
     console.log('Redesign browser smoke tests passed (mobile, desktop, custom order form, privacy page).')
   } finally {
