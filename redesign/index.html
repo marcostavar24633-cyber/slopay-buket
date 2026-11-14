@@ -88,7 +88,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     var panel = document.createElement('section');
     panel.className = 'cookie-consent';
-    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('role', 'region');
     panel.setAttribute('aria-label', 'Настройки аналитики');
     panel.innerHTML = '<p>Мы используем Яндекс Метрику, чтобы понимать, как посетители пользуются сайтом. Аналитика включится только с вашего разрешения. <a href="/privacy/">Подробнее</a></p><div class="cookie-consent__actions"><button type="button" data-choice="reject">Не разрешать</button><button type="button" data-choice="accept">Разрешить аналитику</button></div>';
     panel.addEventListener('click', function (event) {
@@ -99,7 +99,9 @@
       panel.remove();
       if (accepted) startAnalytics();
     });
-    document.body.appendChild(panel);
+    var skipLink = document.querySelector('.skip-link');
+    if (skipLink && skipLink.parentNode) skipLink.parentNode.insertBefore(panel, skipLink.nextSibling);
+    else document.body.insertBefore(panel, document.body.firstChild);
   }, { once: true });
 })();
 </script>
