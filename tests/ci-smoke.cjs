@@ -33,6 +33,8 @@ const URL = process.env.URL || 'http://localhost:4173/'
     // Согласие запускает счётчик, а не просто скрывает уведомление.
     const acceptedContext = await browser.newContext()
     const acceptedPage = await acceptedContext.newPage()
+    // В production счётчик намеренно отключён для Playwright; здесь проверяем именно ветку согласия.
+    await acceptedPage.addInitScript(() => Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false }))
     const acceptedAnalyticsRequests = []
     acceptedPage.on('request', (request) => {
       if (request.url().includes('mc.yandex.ru/metrika/tag.js')) acceptedAnalyticsRequests.push(request.url())
