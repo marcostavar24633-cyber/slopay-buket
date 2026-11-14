@@ -54,6 +54,7 @@ function serve() {
       await page.goto(url, { waitUntil: 'networkidle' })
       await page.locator('#catalog').waitFor({ state: 'attached' })
       await page.locator('#custom-form').waitFor({ state: 'attached' })
+      assert.ok((await page.locator('.hero img').first().getAttribute('alt'))?.trim(), 'hero image must have descriptive alternative text')
       const minOrderDate = await page.locator('#o-date').getAttribute('min')
       const ullyanovskToday = await page.evaluate(() => {
         const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
@@ -224,6 +225,8 @@ function serve() {
       await consentPage.goto(url, { waitUntil: 'networkidle' })
       const panel = consentPage.locator('.cookie-consent')
       await panel.waitFor({ state: 'visible' })
+      assert.equal(await panel.getAttribute('role'), 'region', 'analytics consent must be a named region, not a modal dialog')
+      assert.equal(await panel.evaluate((el) => el.previousElementSibling?.classList.contains('skip-link')), true, 'analytics consent must follow the skip link in keyboard navigation order')
       assert.ok((await panel.innerText()).includes('только с вашего разрешения'))
       await panel.locator(`button[data-choice="${decision}"]`).click()
       assert.equal(await consentPage.evaluate(() => localStorage.getItem('slopay-analytics-consent')), decision === 'accept' ? 'accepted' : 'rejected')
