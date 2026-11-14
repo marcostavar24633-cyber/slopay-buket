@@ -35,7 +35,7 @@ export const toAdmin = (m: ToAdmin) => EDIT_MODE && window.parent.postMessage(m,
 if (EDIT_MODE) {
   queueMicrotask(() => toAdmin({ type: 'slopay:ready' }))
   addEventListener('message', (e: MessageEvent<ToSite>) => {
-    if (e.source !== window.parent || !e.data?.type) return
+    if (e.source !== window.parent || e.origin !== location.origin || !e.data?.type) return
     if (e.data.type === 'slopay:live') {
       const { type: _t, ...rest } = e.data
       state = { ...state, ...Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)) }
