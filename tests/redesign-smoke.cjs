@@ -85,6 +85,9 @@ function serve() {
       assert.deepEqual(categoryMismatches, [], 'catalog categories do not match their image folders')
       // The snack item must have a registered category and open its quick-view without JS errors.
       await page.locator('#cat-tabs [data-cat="snack"]').click()
+      await page.waitForFunction(() => document.querySelector('#cat-tabs [data-cat="snack"]')?.getAttribute('aria-pressed') === 'true')
+      const snackState = await page.evaluate(() => ({ count: document.querySelector('#catalog-count')?.textContent, ids: [...document.querySelectorAll('#grid .card')].map((card) => card.dataset.id) }))
+      assert.ok(snackState.ids.includes('sn-3'), `snack filter did not render sn-3; count=${snackState.count}; ids=${snackState.ids.join(',')}`)
       await page.locator('#grid .card[data-id="sn-3"] .card__media').click()
       await page.locator('#quick').waitFor({ state: 'visible' })
       assert.equal((await page.locator('#qv-cat').innerText()).trim(), 'СНЕКИ И ЗАКУСКИ')
