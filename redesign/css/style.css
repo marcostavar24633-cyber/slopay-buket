@@ -919,6 +919,7 @@ main { position: relative; }
 
 
 /* Уведомление о согласии на аналитические cookie */
+.cookie-consent[hidden] { display: none; }
 .cookie-consent {
   position: fixed;
   z-index: 10000;
