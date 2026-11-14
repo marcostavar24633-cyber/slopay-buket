@@ -42,6 +42,21 @@ const URL = process.env.URL || 'http://localhost:4173/'
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
 
+    // Доступность вкладок каталога: стрелки, Home/End и связь с областью содержимого.
+    const categoryTabs = page.locator('#cat-tabs [role="tab"]')
+    const catalogPanel = page.locator('#grid[role="tabpanel"]')
+    assert.ok(await catalogPanel.count(), 'у вкладок есть панель содержимого')
+    assert.equal(await categoryTabs.first().getAttribute('tabindex'), '0')
+    await categoryTabs.first().focus()
+    await page.keyboard.press('ArrowRight')
+    assert.equal(await categoryTabs.nth(1).getAttribute('aria-selected'), 'true', 'стрелка вправо выбирает следующую вкладку')
+    assert.equal(await categoryTabs.nth(1).getAttribute('tabindex'), '0')
+    assert.equal(await catalogPanel.getAttribute('aria-labelledby'), await categoryTabs.nth(1).getAttribute('id'))
+    await page.keyboard.press('End')
+    assert.equal(await categoryTabs.last().getAttribute('aria-selected'), 'true', 'End выбирает последнюю вкладку')
+    await page.keyboard.press('Home')
+    assert.equal(await categoryTabs.first().getAttribute('aria-selected'), 'true', 'Home возвращает первую вкладку')
+    
     // Проверяем реальный путь заказа без отправки данных в мессенджер.
     const addToCart = page.locator('#hits-list .add-btn').first()
     await addToCart.waitFor({ state: 'visible' })
