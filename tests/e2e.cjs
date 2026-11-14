@@ -484,6 +484,27 @@ async function test(name, fn) {
     await ctx.close()
   })
 
+  await test('Мобильный визуальный редактор: предпросмотр помещается на узком экране', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 360, height: 800 } })
+    const page = await ctx.newPage()
+    const errs = []
+    page.on('pageerror', (e) => errs.push(e.message))
+    await page.goto(URL + 'admin/')
+    await page.getByText('Посмотреть без входа').click()
+    await page.getByRole('button', { name: 'Визуальный редактор', exact: true }).click()
+    await page.getByRole('group', { name: 'Размер экрана' }).getByRole('button').nth(1).click()
+    const dimensions = await page.locator('iframe').evaluate((frame) => ({
+      frameWidth: frame.getBoundingClientRect().width,
+      viewportWidth: frame.parentElement.getBoundingClientRect().width,
+      inspectorHeight: document.querySelector('aside.inspector').getBoundingClientRect().height,
+    }))
+    assert.ok(dimensions.frameWidth <= dimensions.viewportWidth, JSON.stringify(dimensions))
+    assert.ok(dimensions.inspectorHeight <= 800 * 0.4 + 2, JSON.stringify(dimensions))
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 360, 'нет горизонтальной прокрутки')
+    assert.deepEqual(errs, [])
+    await ctx.close()
+  })
+
   await test('На сайте нет следов редактора', async () => {
     const { ctx, page } = await mobile()
     assert.equal(await page.locator('.slopay-edit, .slopay-handle, [contenteditable="true"]').count(), 0)
