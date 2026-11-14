@@ -386,7 +386,7 @@
     },
     syncUI() {
       const s = this.st;
-      $('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cat === s.cat));
+      $$('#cat-tabs .cat-tab').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cat === s.cat));
       $$('[data-filter]').forEach((g) => $$('.chip', g).forEach((c) => { const on = c.dataset.v === s[g.dataset.filter]; c.classList.toggle('is-active', on); c.setAttribute('aria-pressed', on); }));
       $$('[data-fav-filter]').forEach((b) => b.setAttribute('aria-pressed', s.fav));
       $$('select[data-sort], #sort').forEach((el) => { el.value = s.sort; });
