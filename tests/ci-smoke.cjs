@@ -32,7 +32,10 @@ const URL = process.env.URL || 'http://localhost:4173/'
           }
           return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 90) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), clipped }
         }).filter((r) => r.width > 0 && !r.clipped && (r.right > innerWidth + 1 || r.left < -1)).sort((a, b) => b.right - a.right).slice(0, 12),
-        bodyChildren: [...document.body.children].map((el) => { const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 70) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) } }),
+        bodyChildren: [...document.body.children].map((el) => { const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 70) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth } }),
+        rootPseudo: ['::before', '::after'].map(p => ({ selector: 'html' + p, content: getComputedStyle(document.documentElement, p).content, width: getComputedStyle(document.documentElement, p).width, position: getComputedStyle(document.documentElement, p).position, transform: getComputedStyle(document.documentElement, p).transform })),
+        bodyPseudo: ['::before', '::after'].map(p => ({ selector: 'body' + p, content: getComputedStyle(document.body, p).content, width: getComputedStyle(document.body, p).width, position: getComputedStyle(document.body, p).position, transform: getComputedStyle(document.body, p).transform })),
+        wideScrollers: [...document.querySelectorAll('body *')].filter(el => el.scrollWidth > el.clientWidth + 1).map(el => ({ tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 70) : '', scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, overflowX: getComputedStyle(el).overflowX })).slice(0, 15),
       }))
       assert.ok(dimensions.scrollWidth <= dimensions.width, 'горизонтальный overflow: ' + JSON.stringify(dimensions))
     }
