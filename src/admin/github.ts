@@ -41,7 +41,7 @@ export const auth = {
     try {
       ;(remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token)
     } catch {
-      /* хранилище недоступно */
+      throw new Error('Браузер не разрешил сохранить ключ доступа. Разрешите хранилища сайта или откройте админку в обычном режиме браузера и повторите вход.')
     }
   },
   clear() {
