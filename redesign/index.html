@@ -376,7 +376,7 @@
       <button class="btn btn--ghost quiz-open" type="button" data-open="quiz"><svg class="ico"><use href="#i-sparkle"/></svg>Подобрать за 30 секунд</button>
     </div>
 
-    <div class="cat-tabs" role="tablist" aria-label="Категории" id="cat-tabs"></div>
+    <div class="cat-tabs" role="group" aria-label="Фильтр по категориям" id="cat-tabs"></div>
 
     <div class="filters" id="filters">
       <div class="filters__group" role="group" aria-label="Для кого">
@@ -476,9 +476,9 @@
         <label for="cf-name">Как к вам обращаться</label>
       </div>
       <div class="field">
-        <input id="cf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " data-mask="phone" required>
+        <input id="cf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " data-mask="phone" aria-describedby="cf-phone-error" required>
         <label for="cf-phone">Телефон</label>
-        <span class="field__err" role="alert"></span>
+        <span class="field__err" id="cf-phone-error" role="alert"></span>
       </div>
       <div class="field">
         <textarea id="cf-wish" name="wish" rows="3" placeholder=" "></textarea>
