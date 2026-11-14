@@ -212,7 +212,10 @@ function serve() {
       let metricRequests = 0
       const consentContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
       const consentPage = await consentContext.newPage()
-      await consentPage.addInitScript(() => localStorage.removeItem('slopay-analytics-consent'))
+      await consentPage.addInitScript(() => {
+        localStorage.removeItem('slopay-analytics-consent')
+        Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false })
+      })
       await consentPage.route('https://mc.yandex.ru/**', async (route) => {
         metricRequests += 1
         await route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.ym = window.ym || function () {};' })
