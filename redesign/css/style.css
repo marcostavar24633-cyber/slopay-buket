@@ -817,6 +817,8 @@ main { position: relative; }
   /* Две десктопные колонки автора на телефоне сжимались по min-content и расширяли страницу. */
   .maria { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .maria > * { min-width: 0; }
+  /* Декоративное свечение портрета не должно расширять страницу по горизонтали. */
+  .maria__photo::before { inset: -8% 0; }
   .drawer__send { grid-template-columns: 1fr; }
   .modal { top: auto; bottom: 0; left: 0; width: 100%; max-height: 92svh; border-radius: 24px 24px 0 0; transform: translateY(100%); }
   .modal.is-open { transform: none; }
