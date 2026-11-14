@@ -92,6 +92,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.ok(decodeURIComponent(popup.url()).includes('Тестовая заявка'), 'в ссылке должны быть пожелания')
     await popup.close().catch(() => {})
 
+    await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto(URL + 'admin/')
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, nofollow')
     await page.getByRole('button', { name: /Посмотреть без входа/ }).click()
