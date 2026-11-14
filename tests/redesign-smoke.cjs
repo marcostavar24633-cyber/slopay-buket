@@ -58,6 +58,12 @@ function serve() {
         .filter((item) => item.img && item.cat && !item.img.includes('/' + item.cat + '/'))
         .map((item) => ({ id: item.id, category: item.cat, image: item.img })))
       assert.deepEqual(categoryMismatches, [], 'catalog categories do not match their image folders')
+      // The snack item must have a registered category and open its quick-view without JS errors.
+      await page.locator('#cat-tabs [data-cat="snack"]').click()
+      await page.locator('#grid .card[data-id="sn-3"] .card__media').click()
+      await page.locator('#quick').waitFor({ state: 'visible' })
+      assert.equal((await page.locator('#qv-cat').innerText()).trim(), 'Снеки и закуски')
+      await page.locator('#quick [data-close]').click()
       const overflow = await page.evaluate(() => {
         const rootMetrics = {
           htmlScrollWidth: document.documentElement.scrollWidth,
