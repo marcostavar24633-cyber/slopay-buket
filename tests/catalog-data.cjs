@@ -21,15 +21,15 @@ assert.deepEqual(generated.map((item) => item.id), visible.map((item) => item.id
   'generated storefront items must match visible source products in order')
 
 for (const item of generated) {
-  assert.ok(fs.existsSync(path.join(root, 'public', item.img)), \`missing product image: \${item.id} -> \${item.img}\`)
-  assert.ok(fs.existsSync(path.join(root, 'public', item.thumb)), \`missing product thumbnail: \${item.id} -> \${item.thumb}\`)
+  assert.ok(fs.existsSync(path.join(root, 'public', item.img)), 'missing product image: ' + item.id + ' -> ' + item.img)
+  assert.ok(fs.existsSync(path.join(root, 'public', item.thumb)), 'missing product thumbnail: ' + item.id + ' -> ' + item.thumb)
   const sourceItem = source.find((candidate) => candidate.id === item.id)
-  assert.equal(item.price, sourceItem.price, \`price mismatch for \${item.id}\`)
-  assert.equal(item.cat, sourceItem.cat, \`category mismatch for \${item.id}\`)
+  assert.equal(item.price, sourceItem.price, 'price mismatch for ' + item.id)
+  assert.equal(item.cat, sourceItem.cat, 'category mismatch for ' + item.id)
 }
 
 assert.match(app, /\['snack', 'Снеки и закуски'\]/, 'quiz must offer the snack category as a taste preference')
 assert.doesNotMatch(app, /availability:\s*['"]https:\/\/schema\.org\/InStock['"]/,
   'product schema must not claim live stock when inventory is not tracked')
 
-console.log(\`Catalog integrity passed: \${source.length} source products, \${generated.length} visible products.\`)
+console.log('Catalog integrity passed: ' + source.length + ' source products, ' + generated.length + ' visible products.')
