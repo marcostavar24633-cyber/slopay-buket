@@ -272,6 +272,35 @@ const URL = process.env.URL || 'http://localhost:4173/'
     )
     await staleCartContext.close()
 
+    // A saved delivery date may become stale while the visitor is away.
+    const staleOrderContext = await browser.newContext()
+    const staleOrderPage = await staleOrderContext.newPage()
+    await staleOrderPage.addInitScript(() => {
+      localStorage.setItem('slopay-analytics-consent', 'rejected')
+      localStorage.setItem('sb-order', JSON.stringify({
+        date: '2000-01-01',
+        time: '18:00',
+        addr: 'Сохранённый адрес',
+        note: 'Сохранённая записка',
+        anon: true,
+      }))
+    })
+    await staleOrderPage.goto(URL, { waitUntil: 'domcontentloaded' })
+    await staleOrderPage.waitForFunction(() => !!document.querySelector('#o-date')?.min)
+    assert.equal(await staleOrderPage.locator('#o-date').inputValue(), '', 'прошедшая дата доставки должна сбрасываться')
+    assert.equal(await staleOrderPage.locator('#o-addr').inputValue(), 'Сохранённый адрес', 'очистка даты не должна удалять остальные поля заказа')
+    assert.equal(await staleOrderPage.locator('#o-anon').isChecked(), true, 'признак анонимной доставки должен сохраняться')
+    assert.equal(await staleOrderPage.evaluate(() => JSON.parse(localStorage.getItem('sb-order')).date), '', 'устаревшая дата должна быть удалена из локального черновика')
+    await staleOrderPage.evaluate(() => {
+      const order = JSON.parse(localStorage.getItem('sb-order'))
+      order.date = '2099-02-31'
+      localStorage.setItem('sb-order', JSON.stringify(order))
+    })
+    await staleOrderPage.reload({ waitUntil: 'domcontentloaded' })
+    await staleOrderPage.waitForFunction(() => !!document.querySelector('#o-date')?.min)
+    assert.equal(await staleOrderPage.locator('#o-date').inputValue(), '', 'несуществующая календарная дата должна сбрасываться')
+    await staleOrderContext.close()
+
     await context.close()
     console.log('CI smoke: главная, адаптивность, корзина, демо-админка и визуальный редактор — OK')
   } finally {
