@@ -1081,8 +1081,57 @@
     const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data); document.head.appendChild(s);
   }
 
+
+  /* ---------- Данные первого экрана и мост визуального редактора ---------- */
+  const EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
+  function applyHero(hero) {
+    if (!hero || typeof hero !== 'object') return;
+    const title = typeof hero.title === 'string' ? hero.title : '';
+    const accent = typeof hero.titleAccent === 'string' ? hero.titleAccent : '';
+    const h1 = $('#hero-title');
+    if (h1 && (title || accent)) {
+      h1.innerHTML = '<span class="line"><span>' + esc(title) + '</span></span>' +
+        (accent ? '<span class="line"><span><em class="gold">' + esc(accent) + '</em></span></span>' : '');
+    }
+    const lead = $('.hero__lead');
+    if (lead && typeof hero.subtitle === 'string') lead.textContent = hero.subtitle;
+    const cta = $('.hero__cta .btn--primary');
+    if (cta && typeof hero.quizButton === 'string') {
+      const label = document.createTextNode(hero.quizButton);
+      const icon = cta.querySelector('svg');
+      cta.replaceChildren(label);
+      if (icon) cta.appendChild(icon);
+    }
+  }
+  function initEditorBridge() {
+    applyHero(D.hero);
+    if (!EDIT_MODE || window.parent === window) return;
+    const targetOrigin = location.origin;
+    const send = (message) => window.parent.postMessage(message, targetOrigin);
+    const readDraft = () => {
+      try {
+        const draft = JSON.parse(sessionStorage.getItem('slopay-draft') || 'null');
+        if (draft && draft.hero) applyHero(draft.hero);
+      } catch { /* недоступный или повреждённый черновик — остаёмся на опубликованных данных */ }
+    };
+    readDraft();
+    send({ type: 'slopay:ready' });
+    addEventListener('message', (event) => {
+      if (event.source !== window.parent || event.origin !== targetOrigin) return;
+      const message = event.data;
+      if (!message || message.type !== 'slopay:live') return;
+      if (message.hero) applyHero(message.hero);
+    });
+    const hero = $('#top');
+    if (hero) hero.addEventListener('click', (event) => {
+      if (event.target.closest('a, button')) return;
+      send({ type: 'slopay:select', index: 'hero' });
+    });
+  }
+
   /* ---------- Старт ---------- */
   function boot() {
+    initEditorBridge();
     bindMessengers();
     initSeason();
     renderBlocks();
