@@ -277,13 +277,16 @@ const URL = process.env.URL || 'http://localhost:4173/'
     const staleOrderPage = await staleOrderContext.newPage()
     await staleOrderPage.addInitScript(() => {
       localStorage.setItem('slopay-analytics-consent', 'rejected')
-      localStorage.setItem('sb-order', JSON.stringify({
-        date: '2000-01-01',
-        time: '18:00',
-        addr: 'Сохранённый адрес',
-        note: 'Сохранённая записка',
-        anon: true,
-      }))
+      if (localStorage.getItem('__stale-order-fixture-seeded') !== 'yes') {
+        localStorage.setItem('__stale-order-fixture-seeded', 'yes')
+        localStorage.setItem('sb-order', JSON.stringify({
+          date: '2000-01-01',
+          time: '18:00',
+          addr: 'Сохранённый адрес',
+          note: 'Сохранённая записка',
+          anon: true,
+        }))
+      }
     })
     await staleOrderPage.goto(URL, { waitUntil: 'domcontentloaded' })
     await staleOrderPage.waitForFunction(() => !!document.querySelector('#o-date')?.min)
