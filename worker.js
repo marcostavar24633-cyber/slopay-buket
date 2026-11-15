@@ -150,7 +150,7 @@ async function handleApi(request, env, url) {
   if (!(await verifyAccess(request, env))) return json({ error: "Authentication required" }, 401);
 
   if (url.pathname === "/api/session" && request.method === "GET") {
-    return json({ authenticated: true });
+    return json({ authenticated: true, email: claims.email || null });
   }
   if (url.pathname === "/api/health" && request.method === "GET") {
     return json({ ok: true, service: "slopay-buket-admin-api" });
