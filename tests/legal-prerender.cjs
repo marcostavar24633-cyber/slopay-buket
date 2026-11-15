@@ -25,6 +25,13 @@ for (const [route, heading, content, ...requiredPhrases] of pages) {
     console.log('✓ ' + route + ': содержимое доступно в исходном HTML')
   }
 }
+// The order URL contains the prepared message; it must be excluded from outbound-link tracking.
+const orderLink = redesignHtml.match(/<a\\b[^>]*\\bid="send-tg"[^>]*>/)
+if (!orderLink || !/\\bym-disable-tracklink\\b/.test(orderLink[0])) {
+  console.error('✗ Метрика: ссылка заказа в Telegram должна быть исключена из отслеживания внешних переходов')
+  errors++
+}
+
 // The redesigned storefront enables Webvisor after analytics consent. Every free-text/order field must be masked.
 const redesignHtml = fs.readFileSync(path.join(__dirname, '..', 'redesign', 'index.html'), 'utf8')
 const sensitiveFieldIds = ['cf-name', 'cf-phone', 'cf-wish', 'cf-photo', 'o-date', 'o-time', 'o-addr', 'o-note']
