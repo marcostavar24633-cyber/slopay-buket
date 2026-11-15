@@ -137,7 +137,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     })
     assert.ok(deliveryThreshold.threshold > 0, 'в данных магазина должен быть задан порог бесплатной доставки')
     const freeDeliveryText = await page.locator('#free-text').innerText()
-    assert.equal(freeDeliveryText.replace(/\\D/g, ''), String(deliveryThreshold.expectedLeft), 'индикатор бесплатной доставки должен использовать порог из site.json')
+    assert.equal(freeDeliveryText.split('').filter((char) => char >= '0' && char <= '9').join(''), String(deliveryThreshold.expectedLeft), 'индикатор бесплатной доставки должен использовать порог из site.json')
     const expectedUlyanovskDate = await page.evaluate(() => {
       const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Ulyanovsk', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()).map((part) => [part.type, part.value]))
       return `${parts.year}-${parts.month}-${parts.day}`
