@@ -245,8 +245,35 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.ok(dims.inspectorHeight <= 800 * 0.4 + 2, 'панель свойств выше 40% экрана: ' + JSON.stringify(dims))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'админка не должна иметь горизонтальный скролл')
     assert.deepEqual(errors, [], 'ошибки JavaScript')
+    // Persisted cart drafts can outlive catalog changes or contain malformed quantities.
+    // Keep only current products with positive integer quantities and rewrite the browser draft.
+    const staleCartContext = await browser.newContext()
+    const staleCartPage = await staleCartContext.newPage()
+    await staleCartPage.addInitScript(() => {
+      localStorage.setItem('slopay-analytics-consent', 'rejected')
+      localStorage.setItem('sb-cart', JSON.stringify({
+        'yag-17': 2,
+        'removed-product': 4,
+        'k-36': 0,
+        'm-1': '3',
+        'sl-25': 1.5,
+      }))
+    })
+    await staleCartPage.goto(URL, { waitUntil: 'domcontentloaded' })
+    await staleCartPage.locator('#hits-list .add-btn').first().waitFor({ state: 'visible' })
+    await staleCartPage.locator('button.cart-btn').click()
+    await staleCartPage.locator('#cart-list .cart-item').waitFor()
+    assert.equal(await staleCartPage.locator('#cart-count').innerText(), '2', 'счётчик должен учитывать только валидные позиции')
+    assert.equal(await staleCartPage.locator('#cart-list .cart-item').count(), 1, 'устаревшие и некорректные позиции не должны отображаться')
+    assert.deepEqual(
+      await staleCartPage.evaluate(() => JSON.parse(localStorage.getItem('sb-cart'))),
+      { 'yag-17': 2 },
+      'локальная корзина должна быть очищена от удалённых товаров и некорректного количества'
+    )
+    await staleCartContext.close()
+
     await context.close()
-    console.log('CI smoke: главная, адаптивность, демо-админка и визуальный редактор — OK')
+    console.log('CI smoke: главная, адаптивность, корзина, демо-админка и визуальный редактор — OK')
   } finally {
     await browser.close()
   }
