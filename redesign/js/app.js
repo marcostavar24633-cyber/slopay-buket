@@ -747,7 +747,7 @@
   function renderBlocks() {
     // Категории
     $('#cats').innerHTML = Object.entries(CATS).map(([k, c]) => `
-      <a class="cat" href="#catalog" data-cat-link="${k}" data-cursor="view" data-tilt>
+      <a class="cat${c.imgs[1] ? ' cat--has-second' : ''}" href="#catalog" data-cat-link="${k}" data-cursor="view" data-tilt>
         <span class="cat__media reveal-img">
           <img src="${imgOf(c.imgs[0])}" alt="${c.name}" loading="lazy" decoding="async" width="1100" height="1100">
           ${c.imgs[1] ? `<img src="${imgOf(c.imgs[1])}" alt="" loading="lazy" decoding="async" width="1100" height="1100">` : ''}
