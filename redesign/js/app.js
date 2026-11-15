@@ -507,7 +507,7 @@
       Object.entries(this.form).forEach(([k, v]) => { const el = f.elements[k]; if (!el) return; el.type === 'checkbox' ? (el.checked = v) : (el.value = v); });
       f.addEventListener('input', () => {
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
-        store.set('sb-order', this.form); this.links();
+        store.set('sb-order', this.form);
       });
       const { y, m, d } = ulyNow();
       $('#o-date').min = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -518,7 +518,7 @@
         if (e.target.closest('[data-rm]')) this.qty(id, -Infinity);
       });
       $('#send-max').addEventListener('click', (e) => { e.preventDefault(); if (!this.count()) return toast('Добавьте букет в корзину'); sendMax(this.text()); });
-      $('#send-tg').addEventListener('click', (e) => { if (!this.count()) { e.preventDefault(); toast('Добавьте букет в корзину'); } else Effects.confetti(); });
+      $('#send-tg').addEventListener('click', () => { if (!this.count()) return toast('Добавьте букет в корзину'); goal('click_telegram'); Effects.confetti(); window.open(tgLink(this.text()), '_blank', 'noopener'); });
       this.render();
     },
     count() { return Object.values(this.items).reduce((a, b) => a + b, 0); },
@@ -553,7 +553,6 @@
         : '<b>Доставка по Новому городу — бесплатно</b>. В другие районы — по тарифу Яндекс Go.';
       $('#free-fill').style.transform = `scaleX(${Math.min(1, total / CONFIG.freeDeliveryFrom)})`;
       $('#free-bar').hidden = n === 0;
-      this.links();
     },
     text() {
       const f = this.form; const lines = ['Здравствуйте! Хочу заказать букет'];
@@ -567,7 +566,6 @@
       lines.push('Жду согласования состава и суммы.');
       return lines.join('\n');
     },
-    links() { $('#send-tg').href = tgLink(this.text()); },
   };
 
   /* ---------- Быстрый просмотр ---------- */
