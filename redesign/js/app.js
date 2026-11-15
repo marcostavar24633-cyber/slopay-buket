@@ -635,7 +635,7 @@
       { k: 'to', q: 'Кому дарим?', opts: [['her', 'Любимой'], ['him', 'Любимому'], ['mom', 'Маме'], ['friend', 'Другу или подруге'], ['team', 'Коллегам'], ['teacher', 'Учителю']] },
       { k: 'why', q: 'Какой повод?', opts: [['8m', '8 Марта'], ['14f', '14 Февраля'], ['bd', 'День рождения'], ['23f', '23 Февраля'], ['mday', 'День мамы'], ['ny', 'Новый год'], ['1s', '1 сентября'], ['just', 'Просто так']] },
       { k: 'budget', q: 'Какой бюджет?', opts: [['p1', 'до 3 000 ₽'], ['p2', '3 000–5 000 ₽'], ['p3', '5 000–8 000 ₽'], ['p4', 'от 8 000 ₽']] },
-      { k: 'taste', q: 'Что любит получатель?', hint: 'Можно выбрать несколько', multi: true, opts: [['berry', 'Ягоды и фрукты'], ['meat', 'Мясо и сыр'], ['sea', 'Раки и морепродукты'], ['dried', 'Сухофрукты и орехи'], ['sweet', 'Сладкое']] },
+      { k: 'taste', q: 'Что любит получатель?', hint: 'Можно выбрать несколько', multi: true, opts: [['berry', 'Ягоды и фрукты'], ['meat', 'Мясо и сыр'], ['sea', 'Раки и морепродукты'], ['dried', 'Сухофрукты и орехи'], ['sweet', 'Сладкое'], ['snack', 'Снеки и закуски']] },
       { k: 'ex', q: 'Что исключить?', hint: 'Можно выбрать несколько', multi: true, opts: [['nuts', 'Орехи'], ['sea', 'Морепродукты'], ['meat', 'Мясо'], ['choc', 'Шоколад и конфеты'], ['none', 'Ничего не исключать']] },
     ],
     init() {
@@ -1030,7 +1030,7 @@
       itemListElement: HITS.map((h, n) => { const i = BY_ID.get(h.id); return {
         '@type': 'ListItem', position: n + 1,
         item: { '@type': 'Product', name: i.name, description: h.desc, image: `${CONFIG.photoBase}${i.id}.jpg`, brand: { '@type': 'Brand', name: 'Слопай букет' },
-          offers: { '@type': 'Offer', price: i.price, priceCurrency: 'RUB', availability: 'https://schema.org/InStock', url: `${CONFIG.siteUrl}#catalog`, seller: { '@id': `${CONFIG.siteUrl}#business` } } },
+          offers: { '@type': 'Offer', price: i.price, priceCurrency: 'RUB', url: `${CONFIG.siteUrl}#catalog`, seller: { '@id': `${CONFIG.siteUrl}#business` } } },
       }; }),
     };
     const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data); document.head.appendChild(s);
