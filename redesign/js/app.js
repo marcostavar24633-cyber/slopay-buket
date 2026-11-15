@@ -127,8 +127,21 @@
   /** MAX не принимает текст в ссылке — копируем его в буфер и открываем чат. */
   function sendMax(text, fromLink) {
     if (!fromLink) goal('click_max');
-    copy(withSource(text)).then((ok) => toast(ok ? 'Текст скопирован — вставьте его в чат MAX' : 'Откройте чат MAX и опишите заказ'));
+    const orderText = withSource(text);
+    // Open the chat synchronously in the click handler to avoid popup blockers.
     window.open(CONFIG.maxUrl, '_blank', 'noopener');
+    copy(orderText).then((ok) => {
+      if (ok) {
+        toast('Текст скопирован — вставьте его в чат MAX');
+        return;
+      }
+      toast('Не удалось скопировать автоматически. Скопируйте заказ из открывшегося окна.');
+      // Keep the complete order recoverable even when clipboard access is denied.
+      window.prompt('Скопируйте текст заказа и вставьте его в MAX:', orderText);
+    }).catch(() => {
+      toast('Не удалось скопировать автоматически. Скопируйте заказ из открывшегося окна.');
+      window.prompt('Скопируйте текст заказа и вставьте его в MAX:', orderText);
+    });
   }
   function bindMessengers() {
     $$('[data-tg]').forEach((a) => { a.href = tgLink(MSG[a.dataset.msg] || MSG.default); });
