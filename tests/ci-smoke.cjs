@@ -126,6 +126,18 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await addToCart.click()
     await page.locator('button.cart-btn').click()
     await page.locator('#cart-list .cart-item').first().waitFor()
+    const deliveryThreshold = await page.evaluate(() => {
+      const { items, site } = window.SB_DATA
+      const cart = JSON.parse(localStorage.getItem('sb-cart') || '{}')
+      const total = Object.entries(cart).reduce((sum, [id, quantity]) => {
+        const product = items.find((item) => item.id === id)
+        return sum + (product?.price || 0) * quantity
+      }, 0)
+      return { threshold: Number(site.freeDeliveryFrom), expectedLeft: Number(site.freeDeliveryFrom) - total }
+    })
+    assert.ok(deliveryThreshold.threshold > 0, 'в данных магазина должен быть задан порог бесплатной доставки')
+    const freeDeliveryText = await page.locator('#free-text').innerText()
+    assert.equal(freeDeliveryText.replace(/\\D/g, ''), String(deliveryThreshold.expectedLeft), 'индикатор бесплатной доставки должен использовать порог из site.json')
     const expectedUlyanovskDate = await page.evaluate(() => {
       const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Ulyanovsk', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()).map((part) => [part.type, part.value]))
       return `${parts.year}-${parts.month}-${parts.day}`
