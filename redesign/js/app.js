@@ -819,7 +819,7 @@
       const text = `Здравствуйте! Хочу индивидуальный букет.\nИмя: ${$('#cf-name').value || '—'}\nТелефон: ${ph.value}\nПожелания: ${$('#cf-wish').value || '—'}${picked ? '\nФото-пример пришлю в чат.' : ''}`;
       // На телефоне с фото — системное «Поделиться»: фото и текст уйдут в выбранный мессенджер
       if (picked && navigator.canShare?.({ files: [picked] })) {
-        try { await navigator.share({ files: [picked], text: withSource(text) }); Effects.confetti(); toast('Фото и текст переданы в выбранное приложение. Проверьте отправку в чате.'); return; } catch { /* отменили */ }
+        try { await navigator.share({ files: [picked], text: withSource(text) }); Effects.confetti(); toast('Фото и текст переданы в выбранное приложение. Проверьте отправку в чате.'); return; } catch (error) { if (error?.name === 'AbortError') { toast('Отправка отменена'); return; } /* другая ошибка — предлагаем отправить текст без фото */ }
       }
       if (via === 'max') sendMax(text); else { goal('click_telegram'); window.open(tgLink(text), '_blank', 'noopener'); }
       Effects.confetti();
