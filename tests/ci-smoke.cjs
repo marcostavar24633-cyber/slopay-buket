@@ -153,6 +153,28 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.match(orderMessage, /Доставка анонимно/, 'в заказ должен попасть признак анонимной доставки')
     await cartPopup.close().catch(() => {})
 
+    // If both Clipboard API and execCommand fail, preserve the full order in a manual-copy fallback.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: () => Promise.reject(new Error('Clipboard denied')) },
+      })
+      document.execCommand = () => false
+      window.__slopayPromptText = null
+      window.prompt = (_message, value) => { window.__slopayPromptText = value; return null }
+    })
+    const maxPopupPromise = page.waitForEvent('popup')
+    await page.locator('#send-max').click()
+    const maxPopup = await maxPopupPromise
+    assert.ok(maxPopup.url().startsWith('https://max.ru/'), 'кнопка корзины должна открыть MAX: ' + maxPopup.url())
+    await page.waitForFunction(() => typeof window.__slopayPromptText === 'string')
+    const fallbackOrder = await page.evaluate(() => window.__slopayPromptText)
+    assert.match(fallbackOrder, /Хочу заказать букет/i, 'резервный текст должен содержать заказ')
+    assert.match(fallbackOrder, /Адрес: Тестовый адрес, 1/, 'резервный текст должен сохранять адрес')
+    assert.match(fallbackOrder, /Записка: «Тестовая записка»/, 'резервный текст должен сохранять записку')
+    assert.match(fallbackOrder, /Доставка анонимно/, 'резервный текст должен сохранять признак анонимной доставки')
+    await maxPopup.close().catch(() => {})
+
     // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
     await page.setViewportSize({ width: 360, height: 800 })
     if (!(await page.locator('#cart').evaluate((el) => el.classList.contains('is-open')))) {
@@ -271,6 +293,38 @@ const URL = process.env.URL || 'http://localhost:4173/'
       'локальная корзина должна быть очищена от удалённых товаров и некорректного количества'
     )
     await staleCartContext.close()
+
+    // A saved delivery date may become stale while the visitor is away.
+    const staleOrderContext = await browser.newContext()
+    const staleOrderPage = await staleOrderContext.newPage()
+    await staleOrderPage.addInitScript(() => {
+      localStorage.setItem('slopay-analytics-consent', 'rejected')
+      if (localStorage.getItem('__stale-order-fixture-seeded') !== 'yes') {
+        localStorage.setItem('__stale-order-fixture-seeded', 'yes')
+        localStorage.setItem('sb-order', JSON.stringify({
+          date: '2000-01-01',
+          time: '18:00',
+          addr: 'Сохранённый адрес',
+          note: 'Сохранённая записка',
+          anon: true,
+        }))
+      }
+    })
+    await staleOrderPage.goto(URL, { waitUntil: 'domcontentloaded' })
+    await staleOrderPage.waitForFunction(() => !!document.querySelector('#o-date')?.min)
+    assert.equal(await staleOrderPage.locator('#o-date').inputValue(), '', 'прошедшая дата доставки должна сбрасываться')
+    assert.equal(await staleOrderPage.locator('#o-addr').inputValue(), 'Сохранённый адрес', 'очистка даты не должна удалять остальные поля заказа')
+    assert.equal(await staleOrderPage.locator('#o-anon').isChecked(), true, 'признак анонимной доставки должен сохраняться')
+    assert.equal(await staleOrderPage.evaluate(() => JSON.parse(localStorage.getItem('sb-order')).date), '', 'устаревшая дата должна быть удалена из локального черновика')
+    await staleOrderPage.evaluate(() => {
+      const order = JSON.parse(localStorage.getItem('sb-order'))
+      order.date = '2099-02-31'
+      localStorage.setItem('sb-order', JSON.stringify(order))
+    })
+    await staleOrderPage.reload({ waitUntil: 'domcontentloaded' })
+    await staleOrderPage.waitForFunction(() => !!document.querySelector('#o-date')?.min)
+    assert.equal(await staleOrderPage.locator('#o-date').inputValue(), '', 'несуществующая календарная дата должна сбрасываться')
+    await staleOrderContext.close()
 
     await context.close()
     console.log('CI smoke: главная, адаптивность, корзина, демо-админка и визуальный редактор — OK')
