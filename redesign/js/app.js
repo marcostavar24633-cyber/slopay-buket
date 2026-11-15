@@ -509,7 +509,8 @@
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
         store.set('sb-order', this.form); this.links();
       });
-      $('#o-date').min = new Date().toISOString().slice(0, 10);
+      const { y, m, d } = ulyNow();
+      $('#o-date').min = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       $('#cart-list').addEventListener('click', (e) => {
         const li = e.target.closest('[data-id]'); if (!li) return; const id = li.dataset.id;
         if (e.target.closest('[data-inc]')) this.qty(id, 1);
@@ -819,11 +820,11 @@
       const text = `Здравствуйте! Хочу индивидуальный букет.\nИмя: ${$('#cf-name').value || '—'}\nТелефон: ${ph.value}\nПожелания: ${$('#cf-wish').value || '—'}${picked ? '\nФото-пример пришлю в чат.' : ''}`;
       // На телефоне с фото — системное «Поделиться»: фото и текст уйдут в выбранный мессенджер
       if (picked && navigator.canShare?.({ files: [picked] })) {
-        try { await navigator.share({ files: [picked], text: withSource(text) }); Effects.confetti(); toast('Готово! Мария ответит в течение 15 минут'); return; } catch { /* отменили */ }
+        try { await navigator.share({ files: [picked], text: withSource(text) }); Effects.confetti(); toast('Фото и текст переданы в выбранное приложение. Проверьте отправку в чате.'); return; } catch (error) { if (error?.name === 'AbortError') { toast('Отправка отменена'); return; } /* другая ошибка — предлагаем отправить текст без фото */ }
       }
       if (via === 'max') sendMax(text); else { goal('click_telegram'); window.open(tgLink(text), '_blank', 'noopener'); }
       Effects.confetti();
-      toast(picked ? 'Текст готов — прикрепите фото в чате' : 'Готово! Мария ответит в течение 15 минут');
+      toast(picked ? 'Текст готов — прикрепите фото в чате' : (via === 'max' ? 'Текст скопирован — откройте MAX и нажмите «Отправить»' : 'Сообщение подготовлено — нажмите «Отправить» в Telegram'));
     });
   }
 

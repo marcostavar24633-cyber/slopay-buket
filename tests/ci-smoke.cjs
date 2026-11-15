@@ -126,9 +126,25 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await addToCart.click()
     await page.locator('button.cart-btn').click()
     await page.locator('#cart-list .cart-item').first().waitFor()
+    const expectedUlyanovskDate = await page.evaluate(() => {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Ulyanovsk', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()).map((part) => [part.type, part.value]))
+      return `${parts.year}-${parts.month}-${parts.day}`
+    })
+    assert.equal(await page.locator('#o-date').getAttribute('min'), expectedUlyanovskDate, 'минимальная дата доставки должна соответствовать текущей дате Ульяновска, а не UTC')
+    await page.locator('#o-date').fill(expectedUlyanovskDate)
+    await page.locator('#o-time').fill('18:00')
+    await page.locator('#o-addr').fill('Тестовый адрес, 1')
+    await page.locator('#o-note').fill('Тестовая записка')
+    await page.locator('#o-anon').check()
     const orderLink = await page.locator('#send-tg').getAttribute('href')
     assert.ok(orderLink?.startsWith('https://t.me/'), 'ссылка заказа должна вести в Telegram')
-    assert.match(decodeURIComponent(orderLink), /Хочу заказать букет/i)
+    const orderMessage = decodeURIComponent(orderLink)
+    assert.match(orderMessage, /Хочу заказать букет/i)
+    assert.match(orderMessage, /Дата:/, 'в заказ должна попасть дата доставки')
+    assert.match(orderMessage, /Время: 18:00/, 'в заказ должно попасть время доставки')
+    assert.match(orderMessage, /Адрес: Тестовый адрес, 1/, 'в заказ должен попасть адрес')
+    assert.match(orderMessage, /Записка: «Тестовая записка»/, 'в заказ должен попасть текст записки')
+    assert.match(orderMessage, /Доставка анонимно/, 'в заказ должен попасть признак анонимной доставки')
     assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
 
     // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
@@ -164,11 +180,23 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await page.locator('#cf-wish').fill('Тестовая заявка')
     const popupPromise = page.waitForEvent('popup')
     await page.locator('#custom-form button[type="submit"][data-send="tg"]').click()
+    assert.match(await page.locator('#toast').innerText(), /нажмите «Отправить» в Telegram/, 'интерфейс не должен выдавать открытие мессенджера за отправленную заявку')
     const popup = await popupPromise
     await popup.waitForLoadState('domcontentloaded').catch(() => {})
     assert.ok(popup.url().startsWith('https://t.me/'), 'форма должна открыть Telegram: ' + popup.url())
     assert.ok(decodeURIComponent(popup.url()).includes('Тестовая заявка'), 'в ссылке должны быть пожелания')
     await popup.close().catch(() => {})
+
+    // Отмена системного меню «Поделиться» не должна неожиданно открывать Telegram.
+    await page.locator('#cf-photo').setInputFiles({ name: 'example.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWioAAAAASUVORK5CYII=', 'base64') })
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true })
+      Object.defineProperty(navigator, 'share', { configurable: true, value: () => Promise.reject(new DOMException('User cancelled', 'AbortError')) })
+    })
+    const pagesBeforeCancelledShare = page.context().pages().length
+    await page.locator('#custom-form button[type="submit"][data-send="tg"]').click()
+    await page.getByText('Отправка отменена').waitFor()
+    assert.equal(page.context().pages().length, pagesBeforeCancelledShare, 'отмена системного меню не должна открывать Telegram автоматически')
 
     await page.setViewportSize({ width: 1280, height: 900 })
 
