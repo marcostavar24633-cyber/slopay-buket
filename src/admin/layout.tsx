@@ -23,7 +23,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { auth, checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
+import { getUser, siteUrl } from './github'
 import { FILES, useStore } from './store'
 import { Btn } from './ui'
 
@@ -74,88 +74,42 @@ export function useTheme() {
   return { theme, toggle }
 }
 
-/* ───────── Вход ───────── */
-export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; onDemo: () => void }) {
-  const [token, setToken] = useState('')
-  const [remember, setRemember] = useState(true)
+/* ───────── Вход через Cloudflare Access ───────── */
+export function Login({ onLogin, onDemo }: { onLogin: () => void; onDemo: () => void }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const submit = async () => {
     setBusy(true)
     setErr('')
-    try {
-      const t = token.trim()
-      await getUser(t)
-      await checkRepo(t)
-      auth.set(t, remember)
-      onLogin(t)
-    } catch (e) {
-      setErr((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
+    try { await getUser(); onLogin() }
+    catch (e) { setErr((e as Error).message) }
+    finally { setBusy(false) }
   }
   return (
     <main className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center gap-3">
           <img src={siteUrl().replace(/[^/]*$/, '') + 'logo-256.webp'} alt="" width={48} height={48} className="h-12 w-12 rounded-full ring-1 ring-honey/30" />
-          <div>
-            <h1 className="font-display text-[24px] font-bold italic leading-none">Слопай букет</h1>
-            <p className="mt-1 text-[13px] text-muted">Панель управления сайтом</p>
-          </div>
+          <div><h1 className="font-display text-[24px] font-bold italic leading-none">Слопай букет</h1><p className="mt-1 text-[13px] text-muted">Панель управления сайтом</p></div>
         </div>
-        <form onSubmit={submit} className="rounded-3xl border border-line bg-surface p-5 md:p-6">
-          <label htmlFor="token" className="mb-1.5 flex items-center gap-2 text-[13px] font-bold text-ink-soft">
-            <KeyRound className="h-4 w-4" /> Ключ доступа GitHub
-          </label>
-          <input
-            id="token"
-            type="password"
-            autoComplete="current-password"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="github_pat_…"
-            className="h-12 w-full rounded-xl border border-line bg-cream px-3.5 text-[15px] outline-none focus:border-honey focus:ring-4 focus:ring-honey/15"
-          />
-          <label className="mt-3 flex cursor-pointer items-center gap-2 text-[13.5px] text-ink-soft">
-            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-[var(--color-honey)]" /> Запомнить на этом устройстве
-          </label>
-          {err && <p className="mt-3 rounded-xl bg-berry/10 px-3 py-2 text-[13.5px] text-berry">{err}</p>}
-          <Btn type="submit" variant="primary" className="mt-4 h-12 w-full" disabled={!token.trim() || busy} icon={busy ? <Loader2 className="animate-spin" /> : undefined}>
-            Войти
-          </Btn>
-          <details className="mt-4 text-[13.5px] text-ink-soft">
-            <summary className="cursor-pointer font-semibold text-honey-600">Где взять ключ? (один раз, 2 минуты)</summary>
-            <ol className="mt-2 list-decimal space-y-1.5 pl-5">
-              <li>
-                Откройте{' '}
-                <a href={TOKEN_URL} target="_blank" rel="noopener" className="font-semibold text-honey-600 underline">
-                  создание ключа на GitHub
-                </a>{' '}
-                (войдите в аккаунт {REPO.owner}).
-              </li>
-              <li>
-                «Repository access» → <b>Only select repositories</b> → <b>{REPO.name}</b>.
-              </li>
-              <li>
-                «Permissions» → <b>Contents: Read and write</b>, <b>Actions: Read-only</b> (для статуса обновления сайта).
-              </li>
-              <li>«Generate token» → скопируйте ключ и вставьте сюда.</li>
-            </ol>
-            <p className="mt-2 text-muted">Ключ хранится только в этом браузере и даёт доступ только к репозиторию сайта.</p>
-          </details>
-        </form>
-        <button onClick={onDemo} className="mt-4 w-full cursor-pointer text-center text-[13.5px] font-semibold text-muted underline-offset-4 hover:text-ink hover:underline">
-          Посмотреть без входа (демо, без сохранения)
-        </button>
+        <section className="rounded-3xl border border-line bg-surface p-5 md:p-6">
+          <div className="text-center">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-honey/15 text-honey-600"><KeyRound className="h-6 w-6" /></div>
+            <h2 className="text-lg font-bold text-ink">Защищённый вход</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">Доступ проверяется через Cloudflare Access. GitHub-ключ в браузере не требуется.</p>
+          </div>
+          {err && <p className="mt-4 rounded-xl bg-berry/10 px-3 py-2 text-[13.5px] text-berry">{err}</p>}
+          <Btn type="button" variant="primary" className="mt-5 h-12 w-full" disabled={busy} onClick={submit} icon={busy ? <Loader2 className="animate-spin" /> : undefined}>{busy ? 'Проверяем доступ…' : 'Проверить доступ'}</Btn>
+          <p className="mt-3 text-xs leading-5 text-muted">Если вход ещё не выполнен, Cloudflare Access должен показать страницу авторизации. После входа вернитесь сюда.</p>
+        </section>
+        <button onClick={onDemo} className="mt-4 w-full cursor-pointer text-center text-[13.5px] font-semibold text-muted underline-offset-4 hover:text-ink hover:underline">Посмотреть без входа (демо, без сохранения)</button>
       </div>
     </main>
   )
 }
 
 /* ───────── Боковое меню ───────── */
+
 function Sidebar({ route, go, open, onClose }: { route: Route; go: (r: Route) => void; open: boolean; onClose: () => void }) {
   const { logout, dirty } = useStore()
   const dirtyRoutes = new Set(
