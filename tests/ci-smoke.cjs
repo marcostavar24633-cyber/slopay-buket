@@ -171,6 +171,17 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.match(await page.locator('#toast').innerText(), /нажмите «Отправить» в Telegram/, 'интерфейс не должен выдавать открытие мессенджера за отправленную заявку')
     await popup.close().catch(() => {})
 
+    // Отмена системного меню «Поделиться» не должна неожиданно открывать Telegram.
+    await page.locator('#cf-photo').setInputFiles({ name: 'example.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWioAAAAASUVORK5CYII=', 'base64') })
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true })
+      Object.defineProperty(navigator, 'share', { configurable: true, value: () => Promise.reject(new DOMException('User cancelled', 'AbortError')) })
+    })
+    const pagesBeforeCancelledShare = page.context().pages().length
+    await page.locator('#custom-form button[type="submit"][data-send="tg"]').click()
+    await page.getByText('Отправка отменена').waitFor()
+    assert.equal(page.context().pages().length, pagesBeforeCancelledShare, 'отмена системного меню не должна открывать Telegram автоматически')
+
     await page.setViewportSize({ width: 1280, height: 900 })
 
     // Диалог квиза: фокус входит внутрь, Escape закрывает окно и возвращает фокус инициатору.
