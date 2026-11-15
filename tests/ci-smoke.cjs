@@ -168,6 +168,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await popup.waitForLoadState('domcontentloaded').catch(() => {})
     assert.ok(popup.url().startsWith('https://t.me/'), 'форма должна открыть Telegram: ' + popup.url())
     assert.ok(decodeURIComponent(popup.url()).includes('Тестовая заявка'), 'в ссылке должны быть пожелания')
+    assert.match(await page.locator('#toast').innerText(), /нажмите «Отправить» в Telegram/, 'интерфейс не должен выдавать открытие мессенджера за отправленную заявку')
     await popup.close().catch(() => {})
 
     await page.setViewportSize({ width: 1280, height: 900 })
