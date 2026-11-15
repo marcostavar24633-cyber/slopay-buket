@@ -212,6 +212,33 @@ async function handleApi(request, env, url) {
     return json({ ok: true, service: "slopay-buket-admin-api" });
   }
 
+  if (url.pathname === "/api/uploads" && request.method === "POST") {
+    const contentType = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+    if (contentType !== "image/webp") return json({ error: "Разрешена загрузка только изображений WebP." }, 415);
+    const declaredLength = Number(request.headers.get("Content-Length") || 0);
+    if (declaredLength > 8 * 1024 * 1024) return json({ error: "Изображение превышает лимит 8 МБ." }, 413);
+    const bytes = new Uint8Array(await request.arrayBuffer());
+    if (!bytes.length || bytes.length > 8 * 1024 * 1024) return json({ error: "Размер изображения должен быть от 1 байта до 8 МБ." }, 413);
+    const isWebp = bytes.length >= 12 &&
+      String.fromCharCode(...bytes.subarray(0, 4)) === "RIFF" &&
+      String.fromCharCode(...bytes.subarray(8, 12)) === "WEBP";
+    if (!isWebp) return json({ error: "Файл не прошёл проверку сигнатуры WebP." }, 415);
+    const name = crypto.randomUUID() + ".webp";
+    let binary = "";
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+    }
+    await github(`/repos/${GITHUB_REPO}/contents/public/img/uploads/${name}`, env, {
+      method: "PUT",
+      body: JSON.stringify({
+        message: "admin: upload image " + name,
+        content: btoa(binary),
+        branch: GITHUB_BRANCH,
+      }),
+    });
+    return json({ path: "/img/uploads/" + name });
+  }
+
   const match = url.pathname.match(/^\/api\/content\/([a-z]+)$/);
   if (!match) return json({ error: "Not found" }, 404);
   const key = match[1];
