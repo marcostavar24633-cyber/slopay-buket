@@ -14,6 +14,8 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await page.goto(URL, { waitUntil: 'domcontentloaded' })
     assert.match(await page.title(), /Слопай букет/i)
     assert.ok(await page.locator('h1').count(), 'главная содержит H1')
+    assert.equal(await page.locator('#cats [data-cat-link="snack"] .cat__media img').count(), 1,
+      'для категории «Снеки и закуски» без второго фотокадра не нужно дублировать одно и то же изображение')
 
     // Аналитика не должна загружаться до согласия; отказ сохраняется после перезагрузки.
     const analyticsRequests = []
