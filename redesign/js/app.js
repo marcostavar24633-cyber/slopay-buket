@@ -36,7 +36,7 @@
     avitoUrl: SITE.reviewsUrl || 'https://www.avito.ru/',
     siteUrl: 'https://xn--80acmogcvipsi.xn--p1ai/',
     photoBase: 'https://xn--80acmogcvipsi.xn--p1ai/tg/', // публичные JPG — Telegram покажет превью
-    freeDeliveryFrom: 8000,
+    freeDeliveryFrom: Number(SITE.freeDeliveryFrom) > 0 ? Number(SITE.freeDeliveryFrom) : 8000,
     corpDeadline: { month: 12, day: 5 },  // 5 декабря
     seasonFrom: { month: 10, day: 15 },   // плашку показываем с 15 октября
     tz: 'Europe/Ulyanovsk',
