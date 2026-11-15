@@ -136,16 +136,22 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await page.locator('#o-addr').fill('Тестовый адрес, 1')
     await page.locator('#o-note').fill('Тестовая записка')
     await page.locator('#o-anon').check()
-    const orderLink = await page.locator('#send-tg').getAttribute('href')
-    assert.ok(orderLink?.startsWith('https://t.me/'), 'ссылка заказа должна вести в Telegram')
-    const orderMessage = decodeURIComponent(orderLink)
+    assert.equal(await page.locator('#send-tg').evaluate((el) => el.tagName), 'BUTTON', 'заказ не должен хранить приватный текст в href DOM')
+    assert.equal(await page.locator('#send-tg').getAttribute('href'), null, 'у кнопки заказа не должно быть href с параметрами заказа')
+    assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
+    const cartPopupPromise = page.waitForEvent('popup')
+    await page.locator('#send-tg').click()
+    const cartPopup = await cartPopupPromise
+    await cartPopup.waitForLoadState('domcontentloaded').catch(() => {})
+    assert.ok(cartPopup.url().startsWith('https://t.me/'), 'кнопка корзины должна открыть Telegram: ' + cartPopup.url())
+    const orderMessage = decodeURIComponent(cartPopup.url())
     assert.match(orderMessage, /Хочу заказать букет/i)
     assert.match(orderMessage, /Дата:/, 'в заказ должна попасть дата доставки')
     assert.match(orderMessage, /Время: 18:00/, 'в заказ должно попасть время доставки')
     assert.match(orderMessage, /Адрес: Тестовый адрес, 1/, 'в заказ должен попасть адрес')
     assert.match(orderMessage, /Записка: «Тестовая записка»/, 'в заказ должен попасть текст записки')
     assert.match(orderMessage, /Доставка анонимно/, 'в заказ должен попасть признак анонимной доставки')
-    assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
+    await cartPopup.close().catch(() => {})
 
     // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
     await page.setViewportSize({ width: 360, height: 800 })
@@ -239,8 +245,35 @@ const URL = process.env.URL || 'http://localhost:4173/'
     assert.ok(dims.inspectorHeight <= 800 * 0.4 + 2, 'панель свойств выше 40% экрана: ' + JSON.stringify(dims))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'админка не должна иметь горизонтальный скролл')
     assert.deepEqual(errors, [], 'ошибки JavaScript')
+    // Persisted cart drafts can outlive catalog changes or contain malformed quantities.
+    // Keep only current products with positive integer quantities and rewrite the browser draft.
+    const staleCartContext = await browser.newContext()
+    const staleCartPage = await staleCartContext.newPage()
+    await staleCartPage.addInitScript(() => {
+      localStorage.setItem('slopay-analytics-consent', 'rejected')
+      localStorage.setItem('sb-cart', JSON.stringify({
+        'yag-17': 2,
+        'removed-product': 4,
+        'k-36': 0,
+        'm-1': '3',
+        'sl-25': 1.5,
+      }))
+    })
+    await staleCartPage.goto(URL, { waitUntil: 'domcontentloaded' })
+    await staleCartPage.locator('#hits-list .add-btn').first().waitFor({ state: 'visible' })
+    await staleCartPage.locator('button.cart-btn').click()
+    await staleCartPage.locator('#cart-list .cart-item').waitFor()
+    assert.equal(await staleCartPage.locator('#cart-count').innerText(), '2', 'счётчик должен учитывать только валидные позиции')
+    assert.equal(await staleCartPage.locator('#cart-list .cart-item').count(), 1, 'устаревшие и некорректные позиции не должны отображаться')
+    assert.deepEqual(
+      await staleCartPage.evaluate(() => JSON.parse(localStorage.getItem('sb-cart'))),
+      { 'yag-17': 2 },
+      'локальная корзина должна быть очищена от удалённых товаров и некорректного количества'
+    )
+    await staleCartContext.close()
+
     await context.close()
-    console.log('CI smoke: главная, адаптивность, демо-админка и визуальный редактор — OK')
+    console.log('CI smoke: главная, адаптивность, корзина, демо-админка и визуальный редактор — OK')
   } finally {
     await browser.close()
   }

@@ -502,12 +502,21 @@
   const Cart = {
     items: store.get('sb-cart', {}),
     form: store.get('sb-order', {}),
+    sanitizeItems() {
+      const stored = this.items;
+      const source = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+      this.items = Object.fromEntries(Object.entries(source).filter(([id, quantity]) =>
+        BY_ID.has(id) && Number.isSafeInteger(quantity) && quantity > 0
+      ));
+      if (JSON.stringify(stored) !== JSON.stringify(this.items)) store.set('sb-cart', this.items);
+    },
     init() {
+      this.sanitizeItems();
       const f = $('#cart-form');
       Object.entries(this.form).forEach(([k, v]) => { const el = f.elements[k]; if (!el) return; el.type === 'checkbox' ? (el.checked = v) : (el.value = v); });
       f.addEventListener('input', () => {
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
-        store.set('sb-order', this.form); this.links();
+        store.set('sb-order', this.form);
       });
       const { y, m, d } = ulyNow();
       $('#o-date').min = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -518,20 +527,26 @@
         if (e.target.closest('[data-rm]')) this.qty(id, -Infinity);
       });
       $('#send-max').addEventListener('click', (e) => { e.preventDefault(); if (!this.count()) return toast('Добавьте букет в корзину'); sendMax(this.text()); });
-      $('#send-tg').addEventListener('click', (e) => { if (!this.count()) { e.preventDefault(); toast('Добавьте букет в корзину'); } else Effects.confetti(); });
+      $('#send-tg').addEventListener('click', () => { if (!this.count()) return toast('Добавьте букет в корзину'); goal('click_telegram'); Effects.confetti(); window.open(tgLink(this.text()), '_blank', 'noopener'); });
       this.render();
     },
     count() { return Object.values(this.items).reduce((a, b) => a + b, 0); },
     total() { return Object.entries(this.items).reduce((a, [id, q]) => a + (BY_ID.get(id)?.price || 0) * q, 0); },
     save() { store.set('sb-cart', this.items); this.render(); },
     add(id, btn) {
-      this.items[id] = (this.items[id] || 0) + 1; this.save();
       const item = BY_ID.get(id);
+      if (!item) return;
+      this.items[id] = (this.items[id] || 0) + 1; this.save();
       Effects.fly(btn?.closest('.card, .hit, .qv, .res')?.querySelector('img') || null, item.thumb);
       if (btn?.classList.contains('add-btn')) { btn.classList.add('is-added'); setTimeout(() => btn.classList.remove('is-added'), 1200); }
       toast(`«${item.name}» в корзине`);
     },
-    qty(id, d) { const q = (this.items[id] || 0) + d; if (q <= 0) delete this.items[id]; else this.items[id] = q; this.save(); },
+    qty(id, d) {
+      if (!BY_ID.has(id)) { delete this.items[id]; this.save(); return; }
+      const q = (this.items[id] || 0) + d;
+      if (q <= 0) delete this.items[id]; else this.items[id] = q;
+      this.save();
+    },
     render() {
       const n = this.count(), total = this.total();
       const c = $('#cart-count'); c.textContent = n; c.dataset.n = n;
@@ -553,7 +568,6 @@
         : '<b>Доставка по Новому городу — бесплатно</b>. В другие районы — по тарифу Яндекс Go.';
       $('#free-fill').style.transform = `scaleX(${Math.min(1, total / CONFIG.freeDeliveryFrom)})`;
       $('#free-bar').hidden = n === 0;
-      this.links();
     },
     text() {
       const f = this.form; const lines = ['Здравствуйте! Хочу заказать букет'];
@@ -567,7 +581,6 @@
       lines.push('Жду согласования состава и суммы.');
       return lines.join('\n');
     },
-    links() { $('#send-tg').href = tgLink(this.text()); },
   };
 
   /* ---------- Быстрый просмотр ---------- */
