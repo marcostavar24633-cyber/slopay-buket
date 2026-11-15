@@ -10,6 +10,8 @@ const match = generatedText.match(/window\.SB_DATA = (\{[\s\S]*\});\s*$/)
 assert.ok(match, 'generated storefront data must expose a JSON payload')
 const generated = JSON.parse(match[1]).items
 const app = fs.readFileSync(path.join(root, 'redesign/js/app.js'), 'utf8')
+const storefront = fs.readFileSync(path.join(root, 'redesign/index.html'), 'utf8')
+const docs = fs.readFileSync(path.join(root, 'redesign/README.md'), 'utf8')
 
 const ids = source.map((item) => item.id)
 assert.equal(new Set(ids).size, ids.length, 'product IDs must be unique')
@@ -31,5 +33,8 @@ for (const item of generated) {
 assert.match(app, /\['snack', 'Снеки и закуски'\]/, 'quiz must offer the snack category as a taste preference')
 assert.doesNotMatch(app, /availability:\s*['"]https:\/\/schema\.org\/InStock['"]/,
   'product schema must not claim live stock when inventory is not tracked')
+
+assert.match(storefront, /Шесть вкусов/, 'storefront category heading must reflect six categories')
+assert.match(docs, /Mega-menu «Каталог»: 6 категорий/, 'redesign documentation must reflect six categories')
 
 console.log('Catalog integrity passed: ' + source.length + ' source products, ' + generated.length + ' visible products.')
