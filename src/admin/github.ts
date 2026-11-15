@@ -17,7 +17,32 @@ export async function getUser(_unused?:string):Promise<User>{await getSession();
 export async function checkRepo(_unused?:string){await getSession()}
 export async function readFile<T>(_unused:string,path:string):Promise<{data:T;sha:string}>{const key=KEY_BY_PATH[path];if(!key)throw new ApiError(400,'Файл не разрешён.');return api('/api/content/'+key)}
 export async function writeFile(_unused:string,path:string,data:unknown,sha:string|undefined,_message:string):Promise<string>{const key=KEY_BY_PATH[path];if(!key)throw new ApiError(400,'Файл не разрешён.');if(!sha)throw new ApiError(409,'Нет SHA исходной версии. Обновите страницу.');const r=await api<{sha:string|null}>('/api/content/'+key,{method:'PUT',body:JSON.stringify({data,sha})});if(!r.sha)throw new ApiError(502,'Сервер не вернул SHA сохранённой версии.');return r.sha}
-export async function uploadImage(_unused:string,_file:File):Promise<string>{throw new ApiError(501,'Загрузка фото пока не подключена к защищённому API.')}
+export async function uploadImage(_unused:string,file:File):Promise<string>{
+ const allowed=['image/jpeg','image/png','image/webp','image/gif']
+ if(!allowed.includes(file.type))throw new Error('Поддерживаются JPG, PNG, WebP и GIF.')
+ if(file.size<=0||file.size>15*1024*1024)throw new Error('Размер исходного фото должен быть от 1 байта до 15 МБ.')
+ let bitmap:ImageBitmap
+ try{bitmap=await createImageBitmap(file)}catch{throw new Error('Не удалось открыть изображение. Проверьте файл.')}
+ let blob:Blob
+ try{
+  const pixels=bitmap.width*bitmap.height
+  if(!bitmap.width||!bitmap.height||bitmap.width>12000||bitmap.height>12000||pixels>40000000)throw new Error('Слишком большое разрешение. Максимум 40 мегапикселей и 12 000 px по стороне.')
+  const scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height))
+  const canvas=document.createElement('canvas')
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale))
+  canvas.height=Math.max(1,Math.round(bitmap.height*scale))
+  const context=canvas.getContext('2d')
+  if(!context)throw new Error('Браузер не смог подготовить изображение.')
+  context.drawImage(bitmap,0,0,canvas.width,canvas.height)
+  blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Не удалось сжать изображение.')),'image/webp',0.85))
+ }finally{bitmap.close()}
+ if(blob.type!=='image/webp')throw new Error('Браузер не поддерживает сохранение фото в WebP.')
+ if(blob.size>8*1024*1024)throw new Error('Сжатое изображение превышает 8 МБ.')
+ const response=await fetch('/api/uploads',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'image/webp'},body:blob})
+ const result=await response.json().catch(()=>({})) as {path?:string;error?:string}
+ if(!response.ok||!result.path)throw new ApiError(response.status,result.error||'Не удалось загрузить изображение.')
+ return result.path
+}
 export async function getDeploys(_unused:string):Promise<Deploy[]>{throw new ApiError(501,'Статус публикаций ещё не подключён к API.')}
 export const auth={get:():string|null=>null,set:(_token:string,_remember:boolean)=>undefined,clear:()=>undefined}
 export function siteUrl(query=''){const path=location.pathname;if(/admin\.html$/.test(path))return path.replace(/admin\.html$/,'index.html')+query;return path.replace(/admin\/(index\.html)?$/,'')+query}
