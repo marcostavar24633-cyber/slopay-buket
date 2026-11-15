@@ -3,7 +3,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const root = path.resolve(process.argv[2] || 'dist')
 const pages = [
-  ['privacy/', 'Политика обработки персональных данных', 'Яндекс Метрика', 'локальном хранилище браузера', 'не отправляет содержимое корзины на собственный сервер'],
+  ['privacy/', 'Политика обработки персональных данных', 'Яндекс Метрика', 'локальном хранилище браузера', 'не отправляет содержимое корзины на собственный сервер', 'Вебвизора', 'ym-disable-keys'],
   ['oferta/', 'Публичная оферта', 'Оформление и оплата'],
 ]
 let errors = 0
@@ -23,6 +23,16 @@ for (const [route, heading, content, ...requiredPhrases] of pages) {
     errors++
   } else {
     console.log('✓ ' + route + ': содержимое доступно в исходном HTML')
+  }
+}
+// The redesigned storefront enables Webvisor after analytics consent. Every free-text/order field must be masked.
+const redesignHtml = fs.readFileSync(path.join(__dirname, '..', 'redesign', 'index.html'), 'utf8')
+const sensitiveFieldIds = ['cf-name', 'cf-phone', 'cf-wish', 'cf-photo', 'o-date', 'o-time', 'o-addr', 'o-note']
+for (const id of sensitiveFieldIds) {
+  const field = redesignHtml.match(new RegExp(`<(?:input|textarea)\\b[^>]*\\bid="${id}"[^>]*>`))
+  if (!field || !/class="[^"]*\\bym-disable-keys\\b[^"]*"/.test(field[0])) {
+    console.error('✗ Webvisor: поле ' + id + ' не защищено классом ym-disable-keys')
+    errors++
   }
 }
 if (errors) process.exit(1)
