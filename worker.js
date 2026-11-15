@@ -88,12 +88,13 @@ async function verifyAccess(request, env) {
     ["verify"],
   );
   const signed = new TextEncoder().encode(parts[0] + "." + parts[1]);
-  return crypto.subtle.verify(
+  const valid = await crypto.subtle.verify(
     "RSASSA-PKCS1-v1_5",
     key,
     b64urlDecode(parts[2]),
     signed,
   );
+  return valid ? claims : null;
 }
 
 function sameOrigin(request) {
@@ -145,9 +146,64 @@ function encodeGitHubContent(value) {
   return btoa(binary);
 }
 
+
+function isObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function isString(value) { return typeof value === "string"; }
+function isOptionalBoolean(value) { return value === undefined || typeof value === "boolean"; }
+function isOptionalString(value) { return value === undefined || typeof value === "string"; }
+function validProduct(item) {
+  return isObject(item) &&
+    isString(item.id) && item.id.length > 0 &&
+    isString(item.cat) && isString(item.name) && isString(item.desc) &&
+    Number.isFinite(item.price) && item.price >= 0 &&
+    isString(item.image) && isOptionalBoolean(item.show) &&
+    isOptionalBoolean(item.hit) && isOptionalBoolean(item.hitLabel) &&
+    (item.hitOrder === undefined || (Number.isInteger(item.hitOrder) && item.hitOrder > 0));
+}
+function validBlock(block) {
+  if (!isObject(block) || !isString(block.type)) return false;
+  if (!isOptionalBoolean(block.show)) return false;
+  if (block.style !== undefined && !isObject(block.style)) return false;
+  const stringFields = ["eyebrow", "title", "sub", "body", "image"];
+  if (stringFields.some((key) => !isOptionalString(block[key]))) return false;
+  if (block.type === "builtin") return isString(block.section);
+  if (block.type === "text") return isOptionalString(block.cta) && (block.center === undefined || typeof block.center === "boolean");
+  if (block.type === "imageText") return isOptionalString(block.cta) && (block.imageRight === undefined || typeof block.imageRight === "boolean");
+  if (block.type === "banner") return isOptionalString(block.cta);
+  if (block.type === "gallery") return block.images === undefined || (Array.isArray(block.images) && block.images.every((x) => isObject(x) && isString(x.image) && isOptionalString(x.caption)));
+  if (block.type === "cards") return block.cards === undefined || (Array.isArray(block.cards) && block.cards.every((x) => isObject(x) && isString(x.title) && isOptionalString(x.icon) && isOptionalString(x.text)));
+  return false;
+}
+export function validateContent(key, data) {
+  if (!isObject(data)) return "Корень данных должен быть JSON-объектом.";
+  const fail = "Структура данных не соответствует ожидаемому формату раздела: " + key;
+  if (key === "site") {
+    const strings = ["brand","tagline","city","seoTitle","seoDescription","phone","maxUrl","vk","reviewsUrl","reviewsSource","rating","address","hours","responseNote","masterName","corpDeadline","ownerName","inn","email"];
+    if (strings.some((k) => data[k] !== undefined && !isString(data[k]))) return fail;
+    if (["reviewsCount","sinceYear","freeDeliveryFrom"].some((k) => data[k] !== undefined && (!Number.isFinite(data[k]) || data[k] < 0))) return fail;
+    return null;
+  }
+  if (key === "hero") return ["title","titleAccent","subtitle","quizButton","photoProduct"].every((k) => isString(data[k]));
+  if (key === "products") return Array.isArray(data.items) && data.items.every(validProduct) ? null : fail;
+  if (key === "reviews") {
+    const reviewOk = (x) => isObject(x) && ["name","date","item","text"].every((k) => isString(x[k])) && isOptionalString(x.tag);
+    const quoteOk = (x) => isObject(x) && ["name","item","text"].every((k) => isString(x[k]));
+    return Array.isArray(data.reviews) && data.reviews.every(reviewOk) && Array.isArray(data.quotes) && data.quotes.every(quoteOk) ? null : fail;
+  }
+  if (key === "faq") return Array.isArray(data.items) && data.items.every((x) => isObject(x) && isString(x.q) && isString(x.a)) ? null : fail;
+  if (key === "occasions") return Array.isArray(data.items) && data.items.every((x) => isObject(x) && ["title","text","image","target"].every((k) => isString(x[k]))) ? null : fail;
+  if (key === "seasons") return Array.isArray(data.seasons) && data.seasons.every((x) => isObject(x) && ["from","until","text","href"].every((k) => isString(x[k]))) ? null : fail;
+  if (key === "messages") return Object.values(data).every(isString) ? null : fail;
+  if (key === "page") return Array.isArray(data.blocks) && data.blocks.every(validBlock) ? null : fail;
+  return "Неизвестный раздел.";
+}
+
 async function handleApi(request, env, url) {
   if (!sameOrigin(request)) return json({ error: "Origin not allowed" }, 403);
-  if (!(await verifyAccess(request, env))) return json({ error: "Authentication required" }, 401);
+  const claims = await verifyAccess(request, env);
+  if (!claims) return json({ error: "Authentication required" }, 401);
 
   if (url.pathname === "/api/session" && request.method === "GET") {
     return json({ authenticated: true, email: claims.email || null });
@@ -189,10 +245,8 @@ async function handleApi(request, env, url) {
       return json({ error: "Expected data and current sha" }, 400);
     }
 
-    // Require an object at the root; schema-level validation is added per content key in the next stage.
-    if (Array.isArray(body.data) || body.data === null || typeof body.data !== "object") {
-      return json({ error: "Content root must be a JSON object" }, 400);
-    }
+    const validationError = validateContent(key, body.data);
+    if (validationError) return json({ error: validationError }, 400);
 
     try {
       const result = await github(`/repos/${GITHUB_REPO}/contents/${path}`, env, {
