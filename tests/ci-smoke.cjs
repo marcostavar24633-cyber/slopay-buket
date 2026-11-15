@@ -14,8 +14,14 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await page.goto(URL, { waitUntil: 'domcontentloaded' })
     assert.match(await page.title(), /Слопай букет/i)
     assert.ok(await page.locator('h1').count(), 'главная содержит H1')
-    assert.equal(await page.locator('#cats [data-cat-link="snack"] .cat__media img').count(), 1,
+    const snackCategoryCard = page.locator('#cats [data-cat-link="snack"]')
+    assert.equal(await snackCategoryCard.locator('.cat__media img').count(), 1,
       'для категории «Снеки и закуски» без второго фотокадра не нужно дублировать одно и то же изображение')
+    assert.ok(!(await snackCategoryCard.getAttribute('class')).includes('cat--has-second'),
+      'карточка с одним фото не должна включать переключение на второй кадр')
+    await snackCategoryCard.hover()
+    assert.equal(await snackCategoryCard.locator('.cat__media img').evaluate((img) => getComputedStyle(img).opacity), '1',
+      'единственное изображение категории должно оставаться видимым при наведении')
 
     // Аналитика не должна загружаться до согласия; отказ сохраняется после перезагрузки.
     const analyticsRequests = []
