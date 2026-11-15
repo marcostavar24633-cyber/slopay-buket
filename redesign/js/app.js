@@ -823,7 +823,7 @@
       }
       if (via === 'max') sendMax(text); else { goal('click_telegram'); window.open(tgLink(text), '_blank', 'noopener'); }
       Effects.confetti();
-      toast(picked ? 'Текст готов — прикрепите фото в чате' : 'Готово! Мария ответит в течение 15 минут');
+      toast(picked ? 'Текст готов — прикрепите фото в чате' : (via === 'max' ? 'Текст скопирован — откройте MAX и нажмите «Отправить»' : 'Сообщение подготовлено — нажмите «Отправить» в Telegram'));
     });
   }
 
