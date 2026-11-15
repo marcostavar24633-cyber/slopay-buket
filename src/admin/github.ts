@@ -43,7 +43,7 @@ export async function uploadImage(_unused:string,file:File):Promise<string>{
  if(!response.ok||!result.path)throw new ApiError(response.status,result.error||'Не удалось загрузить изображение.')
  return result.path
 }
-export async function getDeploys(_unused:string):Promise<Deploy[]>{throw new ApiError(501,'Статус публикаций ещё не подключён к API.')}
+export async function getDeploys(_unused:string):Promise<Deploy[]>{const r=await api<{deployments:Deploy[]}>('/api/deploys');return Array.isArray(r.deployments)?r.deployments:[]}
 export const auth={get:():string|null=>null,set:(_token:string,_remember:boolean)=>undefined,clear:()=>undefined}
 export function siteUrl(query=''){const path=location.pathname;if(/admin\.html$/.test(path))return path.replace(/admin\.html$/,'index.html')+query;return path.replace(/admin\/(index\.html)?$/,'')+query}
 export const msgTarget=()=>location.origin==='null'?'*':location.origin
