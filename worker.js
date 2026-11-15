@@ -13,7 +13,7 @@ const CONTENT_FILES = Object.freeze({
 const MAX_JSON_BYTES = 1024 * 1024;
 const GITHUB_API = "https://api.github.com";
 const GITHUB_REPO = "marcostavar24633-cyber/slopay-buket";
-const GITHUB_BRANCH = "main";
+const GITHUB_BRANCH = "feature/admin-pro-foundation";
 let jwksCache = { expires: 0, keys: null };
 
 function json(data, status = 200, extra = {}) {
