@@ -32,7 +32,7 @@ window.SB_DATA = {
    "img": "img/real/sea/m-1.webp",
    "thumb": "img/real/sea/thumbs/m-1.webp",
    "hit": true,
-   "hitOrder": 3
+   "hitOrder": 5
   },
   {
    "id": "suh-1",
@@ -384,7 +384,7 @@ window.SB_DATA = {
    "img": "img/real/dried/suh-11.webp",
    "thumb": "img/real/dried/thumbs/suh-11.webp",
    "hit": true,
-   "hitOrder": 4
+   "hitOrder": 7
   },
   {
    "id": "sl-10",
@@ -592,8 +592,8 @@ window.SB_DATA = {
    "price": 2000,
    "img": "img/real/meat/k-17.webp",
    "thumb": "img/real/meat/thumbs/k-17.webp",
-   "hit": false,
-   "hitOrder": 99
+   "hit": true,
+   "hitOrder": 4
   },
   {
    "id": "m-14",
@@ -603,8 +603,8 @@ window.SB_DATA = {
    "price": 2900,
    "img": "img/real/sea/m-14.webp",
    "thumb": "img/real/sea/thumbs/m-14.webp",
-   "hit": false,
-   "hitOrder": 99
+   "hit": true,
+   "hitOrder": 6
   },
   {
    "id": "sl-16",
@@ -735,8 +735,8 @@ window.SB_DATA = {
    "price": 2400,
    "img": "img/real/dried/suh-20.webp",
    "thumb": "img/real/dried/thumbs/suh-20.webp",
-   "hit": false,
-   "hitOrder": 99
+   "hit": true,
+   "hitOrder": 8
   },
   {
    "id": "sl-20",
@@ -790,8 +790,8 @@ window.SB_DATA = {
    "price": 1700,
    "img": "img/real/sweet/sl-21.webp",
    "thumb": "img/real/sweet/thumbs/sl-21.webp",
-   "hit": false,
-   "hitOrder": 99
+   "hit": true,
+   "hitOrder": 10
   },
   {
    "id": "yag-19",
@@ -856,8 +856,8 @@ window.SB_DATA = {
    "price": 4200,
    "img": "img/real/berry/yag-20.webp",
    "thumb": "img/real/berry/thumbs/yag-20.webp",
-   "hit": false,
-   "hitOrder": 99
+   "hit": true,
+   "hitOrder": 2
   },
   {
    "id": "k-23",
@@ -1000,7 +1000,7 @@ window.SB_DATA = {
    "img": "img/real/sweet/sl-25.webp",
    "thumb": "img/real/sweet/thumbs/sl-25.webp",
    "hit": true,
-   "hitOrder": 5
+   "hitOrder": 9
   },
   {
    "id": "yag-23",
@@ -1330,7 +1330,7 @@ window.SB_DATA = {
    "img": "img/real/meat/k-36.webp",
    "thumb": "img/real/meat/thumbs/k-36.webp",
    "hit": true,
-   "hitOrder": 2
+   "hitOrder": 3
   },
   {
    "id": "m-33",
