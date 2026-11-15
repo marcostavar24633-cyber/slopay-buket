@@ -185,7 +185,7 @@ export function validateContent(key, data) {
     if (["reviewsCount","sinceYear","freeDeliveryFrom"].some((k) => data[k] !== undefined && (!Number.isFinite(data[k]) || data[k] < 0))) return fail;
     return null;
   }
-  if (key === "hero") return ["title","titleAccent","subtitle","quizButton","photoProduct"].every((k) => isString(data[k]));
+  if (key === "hero") return ["title","titleAccent","subtitle","quizButton","photoProduct"].every((k) => isString(data[k])) ? null : fail;
   if (key === "products") return Array.isArray(data.items) && data.items.every(validProduct) ? null : fail;
   if (key === "reviews") {
     const reviewOk = (x) => isObject(x) && ["name","date","item","text"].every((k) => isString(x[k])) && isOptionalString(x.tag);
