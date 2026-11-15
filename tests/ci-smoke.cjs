@@ -265,7 +265,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await frame.waitFor({ state: 'visible' })
     await page.waitForFunction(() => {
       const f = document.querySelector('iframe')
-      return !!f && f.src.includes('editor-preview.html?edit=1') && !!f.contentDocument?.querySelector('[data-bi]')
+      return !!f && new URL(f.src).searchParams.get('edit') === '1' && !!f.contentDocument?.querySelector('#top') && !!f.contentDocument?.querySelector('#hero-title')
     }, null, { timeout: 20000 })
 
     await page.getByRole('group', { name: 'Размер экрана' }).getByRole('button').nth(1).click()
