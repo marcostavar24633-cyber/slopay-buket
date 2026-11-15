@@ -502,7 +502,16 @@
   const Cart = {
     items: store.get('sb-cart', {}),
     form: store.get('sb-order', {}),
+    sanitizeItems() {
+      const stored = this.items;
+      const source = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+      this.items = Object.fromEntries(Object.entries(source).filter(([id, quantity]) =>
+        BY_ID.has(id) && Number.isSafeInteger(quantity) && quantity > 0
+      ));
+      if (JSON.stringify(stored) !== JSON.stringify(this.items)) store.set('sb-cart', this.items);
+    },
     init() {
+      this.sanitizeItems();
       const f = $('#cart-form');
       Object.entries(this.form).forEach(([k, v]) => { const el = f.elements[k]; if (!el) return; el.type === 'checkbox' ? (el.checked = v) : (el.value = v); });
       f.addEventListener('input', () => {
@@ -525,13 +534,19 @@
     total() { return Object.entries(this.items).reduce((a, [id, q]) => a + (BY_ID.get(id)?.price || 0) * q, 0); },
     save() { store.set('sb-cart', this.items); this.render(); },
     add(id, btn) {
-      this.items[id] = (this.items[id] || 0) + 1; this.save();
       const item = BY_ID.get(id);
+      if (!item) return;
+      this.items[id] = (this.items[id] || 0) + 1; this.save();
       Effects.fly(btn?.closest('.card, .hit, .qv, .res')?.querySelector('img') || null, item.thumb);
       if (btn?.classList.contains('add-btn')) { btn.classList.add('is-added'); setTimeout(() => btn.classList.remove('is-added'), 1200); }
       toast(`«${item.name}» в корзине`);
     },
-    qty(id, d) { const q = (this.items[id] || 0) + d; if (q <= 0) delete this.items[id]; else this.items[id] = q; this.save(); },
+    qty(id, d) {
+      if (!BY_ID.has(id)) { delete this.items[id]; this.save(); return; }
+      const q = (this.items[id] || 0) + d;
+      if (q <= 0) delete this.items[id]; else this.items[id] = q;
+      this.save();
+    },
     render() {
       const n = this.count(), total = this.total();
       const c = $('#cart-count'); c.textContent = n; c.dataset.n = n;
