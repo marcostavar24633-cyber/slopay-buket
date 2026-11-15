@@ -131,9 +131,20 @@ const URL = process.env.URL || 'http://localhost:4173/'
       return `${parts.year}-${parts.month}-${parts.day}`
     })
     assert.equal(await page.locator('#o-date').getAttribute('min'), expectedUlyanovskDate, 'минимальная дата доставки должна соответствовать текущей дате Ульяновска, а не UTC')
+    await page.locator('#o-date').fill(expectedUlyanovskDate)
+    await page.locator('#o-time').fill('18:00')
+    await page.locator('#o-addr').fill('Тестовый адрес, 1')
+    await page.locator('#o-note').fill('Тестовая записка')
+    await page.locator('#o-anon').check()
     const orderLink = await page.locator('#send-tg').getAttribute('href')
     assert.ok(orderLink?.startsWith('https://t.me/'), 'ссылка заказа должна вести в Telegram')
-    assert.match(decodeURIComponent(orderLink), /Хочу заказать букет/i)
+    const orderMessage = decodeURIComponent(orderLink)
+    assert.match(orderMessage, /Хочу заказать букет/i)
+    assert.match(orderMessage, /Дата:/, 'в заказ должна попасть дата доставки')
+    assert.match(orderMessage, /Время: 18:00/, 'в заказ должно попасть время доставки')
+    assert.match(orderMessage, /Адрес: Тестовый адрес, 1/, 'в заказ должен попасть адрес')
+    assert.match(orderMessage, /Записка: «Тестовая записка»/, 'в заказ должен попасть текст записки')
+    assert.match(orderMessage, /Доставка анонимно/, 'в заказ должен попасть признак анонимной доставки')
     assert.ok(await page.locator('#cart-total').innerText().then((v) => !/0 ₽/.test(v)), 'итог заказа должен обновиться')
 
     // Мобильная корзина: панель и обе кнопки отправки остаются в пределах экрана.
