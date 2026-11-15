@@ -16,7 +16,8 @@
     "photos": "node scripts/photos.mjs",
     "gallery": "node scripts/build-gallery.mjs",
     "tg-photos": "node scripts/tg-photos.mjs",
-    "test:ci": "node tests/ci-smoke.cjs"
+    "test:ci": "npm run test:catalog && node tests/ci-smoke.cjs",
+    "test:catalog": "node tests/catalog-data.cjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.6",
