@@ -704,7 +704,7 @@
       <a class="cat" href="#catalog" data-cat-link="${k}" data-cursor="view" data-tilt>
         <span class="cat__media reveal-img">
           <img src="${imgOf(c.imgs[0])}" alt="${c.name}" loading="lazy" decoding="async" width="1100" height="1100">
-          <img src="${imgOf(c.imgs[1])}" alt="" loading="lazy" decoding="async" width="1100" height="1100">
+          <img src="${imgOf(c.imgs[1]) || imgOf(c.imgs[0])}" alt="" loading="lazy" decoding="async" width="1100" height="1100">
         </span>
         <span class="cat__count">${c.count} ${plural(c.count, ['работа', 'работы', 'работ'])}</span>
         <span class="cat__body">
