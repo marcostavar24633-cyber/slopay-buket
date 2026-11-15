@@ -126,6 +126,11 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await addToCart.click()
     await page.locator('button.cart-btn').click()
     await page.locator('#cart-list .cart-item').first().waitFor()
+    const expectedUlyanovskDate = await page.evaluate(() => {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Ulyanovsk', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()).map((part) => [part.type, part.value]))
+      return `${parts.year}-${parts.month}-${parts.day}`
+    })
+    assert.equal(await page.locator('#o-date').getAttribute('min'), expectedUlyanovskDate, 'минимальная дата доставки должна соответствовать текущей дате Ульяновска, а не UTC')
     const orderLink = await page.locator('#send-tg').getAttribute('href')
     assert.ok(orderLink?.startsWith('https://t.me/'), 'ссылка заказа должна вести в Telegram')
     assert.match(decodeURIComponent(orderLink), /Хочу заказать букет/i)
