@@ -30,7 +30,7 @@ const redesignHtml = fs.readFileSync(path.join(__dirname, '..', 'redesign', 'ind
 const sensitiveFieldIds = ['cf-name', 'cf-phone', 'cf-wish', 'cf-photo', 'o-date', 'o-time', 'o-addr', 'o-note']
 for (const id of sensitiveFieldIds) {
   const field = redesignHtml.match(new RegExp(`<(?:input|textarea)\\b[^>]*\\bid="${id}"[^>]*>`))
-  if (!field || !/class="[^"]*\\bym-disable-keys\\b[^"]*"/.test(field[0])) {
+  if (!field || !/class="[^"]*\bym-disable-keys\b[^"]*"/.test(field[0])) {
     console.error('✗ Webvisor: поле ' + id + ' не защищено классом ym-disable-keys')
     errors++
   }
