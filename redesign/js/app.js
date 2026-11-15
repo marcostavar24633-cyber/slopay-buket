@@ -510,16 +510,35 @@
       ));
       if (JSON.stringify(stored) !== JSON.stringify(this.items)) store.set('sb-cart', this.items);
     },
+    sanitizeForm(minDate) {
+      const stored = this.form;
+      const source = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+      this.form = { ...source };
+      const value = this.form.date;
+      const match = typeof value === 'string' && /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+      if (value) {
+        let valid = !!match;
+        if (match) {
+          const [year, month, day] = match.slice(1).map(Number);
+          const parsed = new Date(Date.UTC(year, month - 1, day));
+          valid = parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+        }
+        if (!valid || value < minDate) this.form.date = '';
+      }
+      if (JSON.stringify(stored) !== JSON.stringify(this.form)) store.set('sb-order', this.form);
+    },
     init() {
       this.sanitizeItems();
       const f = $('#cart-form');
+      const { y, m, d } = ulyNow();
+      const minDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      $('#o-date').min = minDate;
+      this.sanitizeForm(minDate);
       Object.entries(this.form).forEach(([k, v]) => { const el = f.elements[k]; if (!el) return; el.type === 'checkbox' ? (el.checked = v) : (el.value = v); });
       f.addEventListener('input', () => {
         this.form = Object.fromEntries([...f.elements].filter((e) => e.name).map((e) => [e.name, e.type === 'checkbox' ? e.checked : e.value]));
         store.set('sb-order', this.form);
       });
-      const { y, m, d } = ulyNow();
-      $('#o-date').min = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       $('#cart-list').addEventListener('click', (e) => {
         const li = e.target.closest('[data-id]'); if (!li) return; const id = li.dataset.id;
         if (e.target.closest('[data-inc]')) this.qty(id, 1);
