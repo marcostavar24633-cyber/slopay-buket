@@ -27,10 +27,10 @@ for (const [route, heading, content, ...requiredPhrases] of pages) {
 }
 // The redesigned storefront enables Webvisor after analytics consent. Every free-text/order field must be masked.
 const redesignHtml = fs.readFileSync(path.join(__dirname, '..', 'redesign', 'index.html'), 'utf8')
-// The order URL contains the prepared message; it must be excluded from outbound-link tracking.
-const orderLink = redesignHtml.match(/<a\b[^>]*\bid="send-tg"[^>]*>/)
-if (!orderLink || !/\bym-disable-tracklink\b/.test(orderLink[0])) {
-  console.error('✗ Метрика: ссылка заказа в Telegram должна быть исключена из отслеживания внешних переходов')
+// Order content must never be embedded in a page href; it is built only on the click handler.
+const orderButton = redesignHtml.match(/<button\b[^>]*\bid="send-tg"[^>]*>/)
+if (!orderButton || /\bhref=/.test(orderButton[0])) {
+  console.error('✗ Конфиденциальность: отправка заказа должна быть кнопкой без href')
   errors++
 }
 
