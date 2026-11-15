@@ -32,7 +32,7 @@
       "show": true,
       "hit": true,
       "hitLabel": true,
-      "hitOrder": 3
+      "hitOrder": 5
     },
     {
       "id": "suh-1",
@@ -572,7 +572,7 @@
       "show": true,
       "hit": true,
       "hitLabel": false,
-      "hitOrder": 4
+      "hitOrder": 7
     },
     {
       "id": "sl-10",
@@ -824,8 +824,9 @@
       "price": 2000,
       "image": "/img/real/meat/k-17.webp",
       "show": true,
-      "hit": false,
-      "hitLabel": false
+      "hit": true,
+      "hitLabel": false,
+      "hitOrder": 4
     },
     {
       "id": "m-14",
@@ -835,8 +836,9 @@
       "price": 2900,
       "image": "/img/real/sea/m-14.webp",
       "show": true,
-      "hit": false,
-      "hitLabel": false
+      "hit": true,
+      "hitLabel": false,
+      "hitOrder": 6
     },
     {
       "id": "suh-16",
@@ -1012,8 +1014,9 @@
       "price": 2400,
       "image": "/img/real/dried/suh-20.webp",
       "show": true,
-      "hit": false,
-      "hitLabel": false
+      "hit": true,
+      "hitLabel": false,
+      "hitOrder": 8
     },
     {
       "id": "sl-20",
@@ -1078,8 +1081,9 @@
       "price": 1700,
       "image": "/img/real/sweet/sl-21.webp",
       "show": true,
-      "hit": false,
-      "hitLabel": false
+      "hit": true,
+      "hitLabel": false,
+      "hitOrder": 10
     },
     {
       "id": "yag-19",
@@ -1144,8 +1148,9 @@
       "price": 4200,
       "image": "/img/real/berry/yag-20.webp",
       "show": true,
-      "hit": false,
-      "hitLabel": false
+      "hit": true,
+      "hitLabel": false,
+      "hitOrder": 2
     },
     {
       "id": "k-23",
@@ -1300,7 +1305,7 @@
       "show": true,
       "hit": true,
       "hitLabel": false,
-      "hitOrder": 5
+      "hitOrder": 9
     },
     {
       "id": "yag-23",
@@ -1719,7 +1724,7 @@
       "show": true,
       "hit": true,
       "hitLabel": true,
-      "hitOrder": 2
+      "hitOrder": 3
     },
     {
       "id": "m-33",
