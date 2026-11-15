@@ -212,6 +212,24 @@ async function handleApi(request, env, url) {
     return json({ ok: true, service: "slopay-buket-admin-api" });
   }
 
+  if (url.pathname === "/api/deploys" && request.method === "GET") {
+    const runs = await github(
+      `/repos/${GITHUB_REPO}/actions/runs?branch=${encodeURIComponent(GITHUB_BRANCH)}&per_page=10`,
+      env,
+    );
+    const deployments = Array.isArray(runs.workflow_runs) ? runs.workflow_runs : [];
+    return json({
+      deployments: deployments.map((run) => ({
+        id: run.id,
+        status: run.status,
+        conclusion: run.conclusion || null,
+        created_at: run.created_at,
+        title: run.display_title || run.name || `Запуск #${run.run_number}`,
+        url: run.html_url,
+      })),
+    });
+  }
+
   if (url.pathname === "/api/uploads" && request.method === "POST") {
     const contentType = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
     if (contentType !== "image/webp") return json({ error: "Разрешена загрузка только изображений WebP." }, 415);
