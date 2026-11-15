@@ -33,3 +33,30 @@ test("admin API rejects cross-origin requests", async () => {
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), { error: "Origin not allowed" });
 });
+
+import { validateContent } from "../worker.js";
+
+test("content validators accept the current content formats", () => {
+  const fixtures = {
+    site: { brand: "Brand", city: "City", reviewsCount: 1 },
+    hero: { title: "Title", titleAccent: "Accent", subtitle: "Text", quizButton: "CTA", photoProduct: "item-1" },
+    products: { items: [{ id: "p-1", cat: "berry", name: "Name", desc: "Description", price: 100, image: "/img/p.webp", show: true, hit: false, hitLabel: false }] },
+    reviews: { reviews: [{ name: "A", date: "Today", item: "Gift", text: "Good" }], quotes: [{ name: "A", item: "Gift", text: "Good" }] },
+    faq: { items: [{ q: "Question", a: "Answer" }] },
+    occasions: { items: [{ title: "Holiday", text: "Text", image: "/img/a.webp", target: "berry" }] },
+    seasons: { seasons: [{ from: "2026-01-01", until: "2026-01-02", text: "Text", href: "#catalog" }] },
+    messages: { header: "Hello", order: "Order" },
+    page: { blocks: [{ type: "builtin", section: "catalog", show: true }, { type: "text", title: "Title", body: "Body" }] },
+  };
+  for (const [key, data] of Object.entries(fixtures)) {
+    assert.equal(validateContent(key, data), null, key + " should be accepted");
+  }
+});
+
+test("content validators reject malformed records and unknown block types", () => {
+  assert.match(validateContent("products", { items: [{ id: "p-1", price: "100" }] }), /Структура данных/);
+  assert.match(validateContent("reviews", { reviews: [{ name: 3 }], quotes: [] }), /Структура данных/);
+  assert.match(validateContent("page", { blocks: [{ type: "script", body: "bad" }] }), /Структура данных/);
+  assert.match(validateContent("messages", { header: 123 }), /Структура данных/);
+  assert.match(validateContent("unknown", {}), /Неизвестный раздел/);
+});
