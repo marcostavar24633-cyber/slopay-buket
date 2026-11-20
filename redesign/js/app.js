@@ -57,7 +57,7 @@
     sea:   { name: 'Раки и морепродукты', short: 'Раки', who: 'him', imgs: ['m-1', 'm-5'] },
     dried: { name: 'Сухофрукты и орехи', short: 'Сухофрукты', who: 'her', imgs: ['suh-11', 'suh-19'] },
     sweet: { name: 'Сладкие боксы', short: 'Сладкие', who: 'her', imgs: ['sl-25', 'sl-5'] },
-    snack: { name: 'Снеки и закуски', short: 'Снеки', who: 'him', imgs: ['sn-3', 'sn-3'] },
+    snack: { name: 'Снеки и закуски', short: 'Снеки', who: 'him', imgs: ['sn-3'] },
   };
   /* Хиты — из админки (content/products.json): отметка «Хит» и «Порядок в хитах», как в прежней версии сайта.
      Подписи к карточкам — короткие формулировки из ТЗ; для остальных хитов — состав из каталога. */
@@ -752,10 +752,10 @@
   function renderBlocks() {
     // Категории
     $('#cats').innerHTML = Object.entries(CATS).map(([k, c]) => `
-      <a class="cat" href="#catalog" data-cat-link="${k}" data-cursor="view" data-tilt>
+      <a class="cat${c.imgs[1] ? ' cat--has-second' : ''}" href="#catalog" data-cat-link="${k}" data-cursor="view" data-tilt>
         <span class="cat__media reveal-img">
           <img src="${imgOf(c.imgs[0])}" alt="${c.name}" loading="lazy" decoding="async" width="1100" height="1100">
-          <img src="${imgOf(c.imgs[1]) || imgOf(c.imgs[0])}" alt="" loading="lazy" decoding="async" width="1100" height="1100">
+          ${c.imgs[1] ? `<img src="${imgOf(c.imgs[1])}" alt="" loading="lazy" decoding="async" width="1100" height="1100">` : ''}
         </span>
         <span class="cat__count">${c.count} ${plural(c.count, ['работа', 'работы', 'работ'])}</span>
         <span class="cat__body">
