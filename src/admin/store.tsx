@@ -172,7 +172,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   }, [deploys, refreshDeploys])
 
   const publish = async () => {
-    if (!token) return toast('Демо-режим: чтобы сохранять, войдите через GitHub-токен.', 'info')
+    if (!token) return toast('Демо-режим: сохранение отключено. Войдите через Cloudflare Access.', 'info')
     setPublishing(true)
     try {
       for (const k of dirty) {
@@ -180,7 +180,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
         saved.current[k] = JSON.stringify(data[k])
       }
       setData((d) => ({ ...d })) // пересчитать dirty
-      toast('Сохранено. Сайт обновится через 1–2 минуты.')
+      toast('Изменения сохранены в тестовую ветку. Для публикации потребуется отдельный выпуск в main.')
       setTimeout(refreshDeploys, 6000)
     } catch (e) {
       toast((e as Error).message, 'error')
@@ -213,6 +213,6 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 export function previewSrc(src: string) {
   if (!src) return ''
   if (/^(blob:|https?:|data:)/.test(src)) return src
-  if (src.startsWith('/img/uploads/')) return `https://raw.githubusercontent.com/marcostavar24633-cyber/slopay-buket/main/public${src}`
+  if (src.startsWith('/img/uploads/')) return `https://raw.githubusercontent.com/marcostavar24633-cyber/slopay-buket/feature/admin-pro-foundation/public${src}`
   return src
 }
