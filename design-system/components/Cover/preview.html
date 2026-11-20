@@ -1,0 +1,40 @@
+<!-- @dsCard height=320 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cover</title>
+<style>
+  html, body { margin: 0; background: var(--color-cream); }
+  .cv { position: relative; width: 960px; height: 320px; overflow: hidden; background: var(--color-cream); }
+  svg { position: absolute; inset: 0; }
+  .honey { fill: var(--color-honey); }
+  .berry { fill: var(--color-berry); }
+  .leaf { fill: var(--color-leaf); }
+  .ink { fill: var(--color-ink); }
+  .accent { fill: var(--color-honey-600); }
+  .seed { fill: var(--color-cream); }
+  .r3 { rx: var(--radius-3xl); ry: var(--radius-3xl); }
+  .name { position: absolute; left: 40px; bottom: 32px; width: 440px; }
+  .name h1 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; font-size: 104px; line-height: 0.95; color: var(--color-ink); }
+  .name p { margin: 16px 0 0; font-family: var(--font-sans); font-size: 14px; line-height: 20px; color: var(--color-muted); }
+</style></head>
+<body>
+<div class="cv">
+  <svg width="960" height="320" viewBox="0 0 960 320" aria-hidden="true">
+    <!-- blocks: color-honey slab 192×284 (radius-3xl), color-berry disc r64, color-leaf block 192×144 (radius-3xl), color-ink pill 240×48, color-honey-600 disc r20
+         arrangement: one tall gold slab bleeding off the top with satellites, leaf block bleeding off the right and bottom edges
+         pattern: literal motif — strawberry seeds: a staggered grid of 35 small discs cut out of the gold slab in the ground colour; the brand's signature is berries on gold
+         scales: pitch space-8 (32px), offsets space-4 (16px), corners radius-3xl and radius-full -->
+    <rect class="honey r3" x="560" y="-28" width="192" height="284"/>
+    <circle class="seed" cx="584" cy="24" r="4"/><circle class="seed" cx="600" cy="56" r="4"/><circle class="seed" cx="584" cy="88" r="4"/><circle class="seed" cx="600" cy="120" r="4"/><circle class="seed" cx="584" cy="152" r="4"/><circle class="seed" cx="600" cy="184" r="4"/><circle class="seed" cx="584" cy="216" r="4"/><circle class="seed" cx="616" cy="24" r="4"/><circle class="seed" cx="632" cy="56" r="4"/><circle class="seed" cx="616" cy="88" r="4"/><circle class="seed" cx="632" cy="120" r="4"/><circle class="seed" cx="616" cy="152" r="4"/><circle class="seed" cx="632" cy="184" r="4"/><circle class="seed" cx="616" cy="216" r="4"/><circle class="seed" cx="648" cy="24" r="4"/><circle class="seed" cx="664" cy="56" r="4"/><circle class="seed" cx="648" cy="88" r="4"/><circle class="seed" cx="664" cy="120" r="4"/><circle class="seed" cx="648" cy="152" r="4"/><circle class="seed" cx="664" cy="184" r="4"/><circle class="seed" cx="648" cy="216" r="4"/><circle class="seed" cx="680" cy="24" r="4"/><circle class="seed" cx="696" cy="56" r="4"/><circle class="seed" cx="680" cy="88" r="4"/><circle class="seed" cx="696" cy="120" r="4"/><circle class="seed" cx="680" cy="152" r="4"/><circle class="seed" cx="696" cy="184" r="4"/><circle class="seed" cx="680" cy="216" r="4"/><circle class="seed" cx="712" cy="24" r="4"/><circle class="seed" cx="728" cy="56" r="4"/><circle class="seed" cx="712" cy="88" r="4"/><circle class="seed" cx="728" cy="120" r="4"/><circle class="seed" cx="712" cy="152" r="4"/><circle class="seed" cx="728" cy="184" r="4"/><circle class="seed" cx="712" cy="216" r="4"/>
+    <circle class="berry" cx="840" cy="88" r="64"/>
+    <circle class="accent" cx="928" cy="196" r="20"/>
+    <rect class="leaf r3" x="784" y="240" width="208" height="112"/>
+    <rect class="ink" x="496" y="272" width="240" height="48" rx="24" ry="24"/>
+  </svg>
+  <div class="name">
+    <h1>Слопай букет</h1>
+    <p>Фудфлористика · съедобные букеты в Ульяновске</p>
+  </div>
+</div>
+</body>
+</html>
