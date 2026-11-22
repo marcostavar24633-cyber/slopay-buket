@@ -36,7 +36,7 @@ const max = Math.max(...Object.values(items).map((v) => v.length))
 for (let i = 0; i < max; i++)
   for (const [k] of CATS) {
     const x = items[k][i]
-    if (x) lines.push(`  { cat: '${k}', src: '${x.src}', thumb: '${x.src.replace(`/real/${k}/`, `/real/${k}/thumbs/`)}', w: ${x.width}, h: ${x.height} },`)
+    if (x) lines.push(`  { cat: '${k}', src: '${x.src}', thumb: '${x.src.replace(/[^/]+$/, (file) => 'thumbs/' + file)}', w: ${x.width}, h: ${x.height} },`)
   }
 lines.push(']', '', '/** Скриншоты реальных отзывов с Авито (без дублей и обрезанных). */', 'export const REVIEW_SHOTS: { src: string; w: number; h: number }[] = [')
 for (const x of load('reviews')) lines.push(`  { src: '${x.src}', w: ${x.width}, h: ${x.height} },`)

@@ -9,6 +9,7 @@ import { Badge, Btn, Confirm, Empty, FilterSelect, IconBtn, ImageField, Modal, P
 
 const CATS = GALLERY_CATS.filter((c) => c.key !== 'all').map((c) => ({ value: c.key as string, label: c.label }))
 const catLabel = (k: string) => CATS.find((c) => c.value === k)?.label ?? k
+const isCatalogPhoto = (src: string) => /^[/]img[/]unsorted[/]/.test(src)
 const PER_PAGE = 20
 
 type Status = 'all' | 'shown' | 'hidden' | 'hit'
@@ -53,7 +54,15 @@ export function Products({ params }: { params: URLSearchParams }) {
     setEdit(null)
   }
   const patch = (p: Partial<Product>) => setEdit((e) => (e ? { ...e, item: { ...e.item, ...p } } : e))
-  const valid = !!edit && edit.item.name.trim() && Number(edit.item.price) > 0 && edit.item.image
+  const valid = !!edit && edit.item.name.trim() && Number(edit.item.price) > 0 && (edit.item.show === false || isCatalogPhoto(edit.item.image) || edit.item.image.startsWith('blob:'))
+  const toggleVisibility = (item: Product, index: number) => {
+    const show = item.show === false
+    if (show && !isCatalogPhoto(item.image)) {
+      setEdit({ index, item: { ...item, show } })
+      return
+    }
+    set('products', (draft) => void (draft.items[index].show = show))
+  }
 
   return (
     <>
@@ -118,7 +127,7 @@ export function Products({ params }: { params: URLSearchParams }) {
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="flex justify-end gap-1">
-                      <IconBtn label={p.show !== false ? 'Скрыть с сайта' : 'Показать на сайте'} onClick={() => set('products', (d) => void (d.items[index].show = p.show === false))}>
+                      <IconBtn label={p.show !== false ? 'Скрыть с сайта' : 'Показать на сайте'} onClick={() => toggleVisibility(p, index)}>
                         {p.show !== false ? <EyeOff /> : <Eye />}
                       </IconBtn>
                       <IconBtn label="Редактировать" onClick={() => setEdit({ index, item: { ...p } })}>
@@ -183,7 +192,7 @@ export function Products({ params }: { params: URLSearchParams }) {
         {edit && (
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <ImageField label="Фото *" value={edit.item.image} onChange={(image) => patch({ image })} />
+              <ImageField label="Фото *" folder="unsorted" hint="Для публикации загрузите фото или укажите путь к файлу из unsorted." value={edit.item.image} onChange={(image) => patch({ image })} />
             </div>
             <TextInput label="Название *" value={edit.item.name} onChange={(name) => patch({ name })} placeholder="Например: Клубничное сердце" />
             <TextInput label="Цена от, ₽ *" type="number" inputMode="numeric" min={0} step={100} value={edit.item.price} onChange={(v) => patch({ price: Number(v) })} />

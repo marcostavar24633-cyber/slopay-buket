@@ -45,7 +45,7 @@ from html import escape as escape_html
 
 site = json.loads((root / 'content' / 'site.json').read_text(encoding='utf-8'))
 products = json.loads((root / 'content' / 'products.json').read_text(encoding='utf-8'))['items']
-visible = [p for p in products if p.get('show') is not False]
+visible = [p for p in products if p.get('show') is not False and (p.get('image') or '').startswith('/img/unsorted/')]
 prices = [int(p['price']) for p in visible if int(p.get('price') or 0) > 0]
 
 def replace_one(source, pattern, value, label):
@@ -59,6 +59,7 @@ def replace_one(source, pattern, value, label):
         sys.exit(f'Не удалось обновить {label} в redesign/index.html')
     return updated
 
+html = replace_one(html, r'(<li><b>)\d+\+(</b><span>реальных работ в каталоге</span>)', len(visible), 'число работ в каталоге')
 html = replace_one(html, r'(<title>)[^<]*(</title>)', site.get('seoTitle') or site['brand'], 'title')
 html = replace_one(html, r'(<meta name="description" content=")[^"]*(")', site.get('seoDescription') or '', 'description')
 html = replace_one(html, r'(<meta property="og:title" content=")[^"]*(")', site.get('seoTitle') or site['brand'], 'og:title')

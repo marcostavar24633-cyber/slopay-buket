@@ -8,14 +8,18 @@ reviews = json.load(open(root / 'content/reviews.json', encoding='utf-8'))
 site = json.load(open(root / 'content/site.json', encoding='utf-8'))
 out = []
 for p in items:
-    if p.get('show') is False or not p.get('image'):
+    img = p.get('image') or ''
+    if p.get('show') is False or not img.startswith('/img/unsorted/'):
         continue
-    img = p['image']                      # /img/real/berry/yag-1.webp
-    cat = img.split('/')[3]
+    img = img.lstrip('/')
+    folder, filename = img.rsplit('/', 1)
+    thumb = f'{folder}/thumbs/{filename}'
+    if not (root / 'public' / thumb).is_file():
+        thumb = img
     cat = p['cat'] if p['cat'] in ('berry', 'meat', 'sea', 'dried', 'sweet', 'snack') else 'meat'
     out.append({
         'id': p['id'], 'cat': cat, 'name': p['name'], 'desc': p['desc'], 'price': int(p['price']),
-        'img': img.lstrip('/'), 'thumb': img.lstrip('/').replace('/' + img.split('/')[3] + '/', '/' + img.split('/')[3] + '/thumbs/'),
+        'img': img, 'thumb': thumb,
         'hit': bool(p.get('hit')), 'hitOrder': p.get('hitOrder', 99),
     })
 js = '/* Сгенерировано redesign/tools/build-data.py из content/*.json — не править руками */\n'

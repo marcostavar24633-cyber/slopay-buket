@@ -195,7 +195,7 @@ export function Confirm({ text, onYes, onClose }: { text: string | null; onYes: 
 }
 
 /* ───────── Фото: превью, загрузка, путь ───────── */
-export function ImageField({ label, value, onChange, hint }: { label: string; value: string | undefined; onChange: (v: string) => void; hint?: string }) {
+export function ImageField({ label, value, onChange, hint, folder }: { label: string; value: string | undefined; onChange: (v: string) => void; hint?: string; folder?: 'uploads' | 'unsorted' }) {
   const { upload, toast } = useStore()
   const [busy, setBusy] = useState(false)
   const input = useRef<HTMLInputElement>(null)
@@ -205,7 +205,7 @@ export function ImageField({ label, value, onChange, hint }: { label: string; va
     if (!allowedTypes.includes(f.type)) return toast('Поддерживаются только JPG, PNG, WebP и GIF. HEIC, SVG и другие форматы не принимаются.', 'error')
     setBusy(true)
     try {
-      onChange(await upload(f))
+      onChange(await upload(f, folder))
     } catch (e) {
       toast((e as Error).message, 'error')
     } finally {

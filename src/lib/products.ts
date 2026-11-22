@@ -34,17 +34,12 @@ const CATS = new Set(Object.keys(CAT_LABEL))
  * Работы каталога — из админки (content/products.json): название, состав, цена, «показывать», «хит».
  * Фото с алкоголем и дубликаты там отмечены «не показывать».
  */
-const visible: Item[] = PRODUCTS_DATA.filter((p) => p.show !== false && p.image && CATS.has(p.cat)).map((p) => {
+export const ITEMS: Item[] = PRODUCTS_DATA.filter((p) => p.show !== false && /^[/]img[/]unsorted[/]/.test(p.image) && CATS.has(p.cat)).map((p) => {
   const cat = p.cat as GalleryCat
   const m = META.get(p.image)
   const photo: GalleryPhoto = m ? { ...m, cat } : { cat, src: p.image, thumb: p.image, w: 1000, h: 1000 }
   return { ...photo, id: p.id, name: p.name, title: CAT_LABEL[cat], desc: p.desc, price: Number(p.price) || 0, recipients: recipientsOf(cat) }
 })
-/** Если в категории осталось меньше 2 работ — переносим их в «Мясные». */
-const small = new Set(
-  [...new Set(visible.map((i) => i.cat))].filter((c) => visible.filter((i) => i.cat === c).length < 2),
-)
-export const ITEMS: Item[] = visible.map((i) => (small.has(i.cat) ? { ...i, cat: 'meat' as GalleryCat } : i))
 export const itemsOf = (cat: GalleryCat) => ITEMS.filter((i) => i.cat === cat)
 export const itemBySrc = (src: string) => ITEMS.find((i) => i.src === src)
 export const minPriceOf = (cat: GalleryCat) => Math.min(...itemsOf(cat).map((i) => i.price))

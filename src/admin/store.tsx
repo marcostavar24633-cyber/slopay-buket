@@ -64,7 +64,7 @@ type Store = {
   discard: () => void
   publish: () => Promise<void>
   publishing: boolean
-  upload: (file: File) => Promise<string>
+  upload: (file: File, folder?: 'uploads' | 'unsorted') => Promise<string>
   deploys: Deploy[]
   deployError: string | null
   refreshDeploys: () => void
@@ -189,12 +189,12 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
     }
   }
 
-  const upload = async (file: File) => {
+  const upload = async (file: File, folder?: 'uploads' | 'unsorted') => {
     if (!token) {
       toast('Демо-режим: фото показано только у вас и не сохранится.', 'info')
       return URL.createObjectURL(file)
     }
-    const path = await uploadImage(token, file)
+    const path = await uploadImage(token, file, folder)
     toast('Фото загружено')
     return path
   }
@@ -213,6 +213,6 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 export function previewSrc(src: string) {
   if (!src) return ''
   if (/^(blob:|https?:|data:)/.test(src)) return src
-  if (src.startsWith('/img/uploads/')) return `https://raw.githubusercontent.com/marcostavar24633-cyber/slopay-buket/main/public${src}`
+  if (/^[/]img[/](?:uploads|unsorted)[/]/.test(src)) return `https://raw.githubusercontent.com/marcostavar24633-cyber/slopay-buket/main/public${src}`
   return src
 }

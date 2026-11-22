@@ -148,10 +148,10 @@ export async function writeFile(token: string, path: string, data: unknown, sha:
 }
 
 /**
- * Загрузить фото: сжимаем в браузере до 1600 px (WebP, ~150–300 КБ) и кладём в public/img/uploads/.
- * Возвращает путь для сайта: /img/uploads/…webp (появится на сайте после пересборки).
+ * Загрузить фото: сжимаем в браузере до 1600 px (WebP, ~150–300 КБ) и кладём в public/img/uploads/ или public/img/unsorted/.
+ * Возвращает путь для сайта: /img/…webp (появится на сайте после пересборки).
  */
-export async function uploadImage(token: string, file: File): Promise<string> {
+export async function uploadImage(token: string, file: File, folder: 'uploads' | 'unsorted' = 'uploads'): Promise<string> {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (!allowedTypes.includes(file.type)) {
     throw new Error('Поддерживаются только JPG, PNG, WebP и GIF. SVG и другие форматы не принимаются.')
@@ -168,11 +168,11 @@ export async function uploadImage(token: string, file: File): Promise<string> {
   const buf = new Uint8Array(await blob.arrayBuffer())
   let bin = ''
   for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000))
-  await gh(token, `/repos/${REPO.owner}/${REPO.name}/contents/public/img/uploads/${name}`, {
+  await gh(token, `/repos/${REPO.owner}/${REPO.name}/contents/public/img/${folder}/${name}`, {
     method: 'PUT',
     body: JSON.stringify({ message: `Админка: фото ${name}`, content: btoa(bin), branch: REPO.branch }),
   })
-  return `/img/uploads/${name}`
+  return `/img/${folder}/${name}`
 }
 
 async function compress(file: File, max = 1600): Promise<Blob> {

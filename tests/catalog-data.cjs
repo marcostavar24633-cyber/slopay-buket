@@ -23,6 +23,8 @@ assert.deepEqual(generated.map((item) => item.id), visible.map((item) => item.id
   'generated storefront items must match visible source products in order')
 
 for (const item of generated) {
+  assert.ok(item.img.startsWith('img/unsorted/'), 'catalog photo outside unsorted: ' + item.id)
+  assert.ok(item.thumb.startsWith('img/unsorted/'), 'catalog thumbnail outside unsorted: ' + item.id)
   assert.ok(fs.existsSync(path.join(root, 'public', item.img)), 'missing product image: ' + item.id + ' -> ' + item.img)
   assert.ok(fs.existsSync(path.join(root, 'public', item.thumb)), 'missing product thumbnail: ' + item.id + ' -> ' + item.thumb)
   const sourceItem = source.find((candidate) => candidate.id === item.id)
