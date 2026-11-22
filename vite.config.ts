@@ -109,11 +109,14 @@ function seo(): Plugin {
       for (const c of categoryDefs) {
         const group = products.filter((p: any) => p.cat === c.key)
         const cards = group.map((p: any) => {
-          const image = `${base}${String(p.image).replace(/^\//, '')}`
+          const imagePath = String(p.image).replace(/^\//, '')
+          const thumbnailPath = path.posix.join(path.posix.dirname(imagePath), 'thumbs', path.posix.basename(imagePath))
+          const image = `${base}${imagePath}`
+          const thumbnail = fs.existsSync(path.resolve(__dirname, 'public', thumbnailPath)) ? `${base}${thumbnailPath}` : image
           return `<article class="product">
-            <a class="photo" href="${escapeHtml(image)}" aria-label="Посмотреть фото: ${escapeHtml(p.name)}"><img src="${escapeHtml(image)}" alt="${escapeHtml(p.name)} — ${escapeHtml(p.desc)}" loading="lazy" decoding="async" width="640" height="640"></a>
-            <div class="pad"><p class="eyebrow">Работа мастерской</p><h2>${escapeHtml(p.name)}</h2><p class="desc">${escapeHtml(p.desc)}</p>
-              <div class="buy"><strong>${Number(p.price).toLocaleString('ru-RU')} ₽</strong><a class="order" href="${escapeHtml(siteData.maxUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Уточнить наличие: ${escapeHtml(p.name)}">Уточнить наличие</a></div>
+            <a class="photo" href="${escapeHtml(image)}" aria-label="Посмотреть фото: ${escapeHtml(p.name)}"><img src="${escapeHtml(thumbnail)}" alt="${escapeHtml(p.name)} — ${escapeHtml(p.desc)}" loading="lazy" decoding="async" width="440" height="440"></a>
+            <div class="pad"><p class="eyebrow">${escapeHtml(c.h1)}</p><h2>${escapeHtml(p.name)}</h2><p class="desc">${escapeHtml(p.desc)}</p>
+              <div class="buy"><strong>от ${Number(p.price).toLocaleString('ru-RU')} ₽</strong><a class="order" href="${escapeHtml(siteData.maxUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Уточнить наличие: ${escapeHtml(p.name)}">Уточнить наличие</a></div>
             </div>
           </article>`
         }).join('')

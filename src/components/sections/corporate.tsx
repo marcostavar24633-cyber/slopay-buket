@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { ParallaxImage } from '@/components/aceternity/parallax'
 import { CalendarClock, Download, Gift, Megaphone, Truck } from 'lucide-react'
 import { Spotlight } from '@/components/aceternity/spotlight'
 import { BlurFade } from '@/components/magicui/blur-fade'
@@ -8,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { SITE } from '@/lib/config'
 import { goal } from '@/lib/analytics'
+import { ITEMS } from '@/lib/products'
+import { rub } from '@/lib/utils'
 
 const PAINS = [
   { icon: Megaphone, t: 'Надоели ежедневники и кружки', d: 'Съедобный подарок запоминают, фотографируют и с удовольствием съедают всей командой.' },
@@ -17,9 +18,9 @@ const PAINS = [
 ]
 
 const FORMATS = [
-  { t: 'Сладкая коробочка', p: 'от 1 290 ₽' },
-  { t: 'Ягодная коробочка', p: 'от 1 690 ₽' },
-  { t: 'Коробочка с сухофруктами', p: 'от 1 490 ₽' },
+  { t: 'Сладкая коробочка', id: 'sl-22' },
+  { t: 'Ягодная коробочка', id: 'yag-1' },
+  { t: 'Коробочка с сухофруктами', id: 'suh-5' },
 ]
 
 
@@ -81,22 +82,19 @@ export function Corporate() {
               ))}
             </div>
 
-            <div className="relative mt-5 overflow-hidden rounded-3xl">
-              <ParallaxImage src="/img/real/sweet/sl-22.webp" alt="Сладкий бокс — работа мастерской" className="aspect-[16/9]" />
-              <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
-                {['Компактные коробочки', 'единый стиль', 'на любое количество'].map((t) => (
-                  <span key={t} className="rounded-full bg-black/60 px-3 py-1 text-[12px] font-bold backdrop-blur">{t}</span>
-                ))}
-              </div>
-            </div>
-
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {FORMATS.map((f) => (
-                <div key={f.t} className="rounded-2xl border border-white/10 p-4">
-                  <p className="text-[13px] text-white/60">{f.t}</p>
-                  <p className="mt-1 text-xl font-extrabold text-honey">{f.p}</p>
-                </div>
-              ))}
+              {FORMATS.map(({ id, t }) => {
+                const item = ITEMS.find((product) => product.id === id)
+                return (
+                  <div key={id} className="overflow-hidden rounded-2xl border border-white/10">
+                    {item && <img src={item.thumb} alt={t} loading="lazy" decoding="async" width={440} height={440} className="aspect-square w-full bg-white/[0.04] object-contain" />}
+                    <div className="p-4">
+                      <p className="text-[13px] text-white/60">{t}</p>
+                      <p className="mt-1 text-xl font-extrabold text-honey">{item ? `от ${rub(item.price)}` : 'Цена по запросу'}</p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
             <p className="mt-4 text-[14px] font-semibold text-white/75">
               Скидка за объём: <span className="text-honey">от 10 шт. — −10%</span>, <span className="text-honey">от 20 шт. — −15%</span>

@@ -60,6 +60,10 @@ def replace_one(source, pattern, value, label):
     return updated
 
 html = replace_one(html, r'(<li><b>)\d+\+(</b><span>реальных работ в каталоге</span>)', len(visible), 'число работ в каталоге')
+meat_prices = [int(p['price']) for p in visible if p.get('cat') == 'meat' and int(p.get('price') or 0) > 0]
+if meat_prices:
+    meat_min = f'{min(meat_prices):,}'.replace(',', ' ')
+    html = replace_one(html, r'(<dt>Мясной букет</dt><dd>)()(съедается в тот же вечер</dd>)', f'от {meat_min} ₽ · ', 'цена мясного букета')
 html = replace_one(html, r'(<title>)[^<]*(</title>)', site.get('seoTitle') or site['brand'], 'title')
 html = replace_one(html, r'(<meta name="description" content=")[^"]*(")', site.get('seoDescription') or '', 'description')
 html = replace_one(html, r'(<meta property="og:title" content=")[^"]*(")', site.get('seoTitle') or site['brand'], 'og:title')

@@ -5,13 +5,15 @@ import { BlurFade } from '@/components/magicui/blur-fade'
 import { Button } from '@/components/ui/button'
 import { goal } from '@/lib/analytics'
 import { useUI } from '@/lib/ui-store'
+import { minPriceOf } from '@/lib/products'
+import { rub } from '@/lib/utils'
 
 const ROWS = [
   ['Вянут через 3–5 дней и отправляются в мусор', 'Съедается в тот же вечер — ничего не пропадает'],
   ['Один из десятка букетов на празднике', 'Все гости фотографируют и спрашивают «где заказывали?»'],
   ['Мужчине дарить неловко', 'Мясо, сыр и снеки — идеальный мужской подарок'],
   ['Нужна ваза, вода, уход', 'Готовый стол на компанию — открыл и угощаешь'],
-  ['25 роз в Ульяновске — от 4 500 ₽', 'От 2 000 ₽ — и подарок, и угощение для всей компании'],
+  ['25 роз в Ульяновске — от 4 500 ₽', `От ${rub(minPriceOf('meat'))} — и подарок, и угощение для всей компании`],
 ]
 
 export function Why() {
