@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react'
-import { CalendarClock, Download, Gift, Megaphone, Truck } from 'lucide-react'
+import { CalendarClock, Gift, Megaphone, Truck } from 'lucide-react'
 import { Spotlight } from '@/components/aceternity/spotlight'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { Chips } from '@/components/ui/chips'
 import { Input } from '@/components/ui/input'
 import { MessengerButtons } from '@/components/shared/messenger-buttons'
 import { SITE } from '@/lib/config'
-import { goal } from '@/lib/analytics'
-import { ITEMS } from '@/lib/products'
-import { rub } from '@/lib/utils'
 
 const PAINS = [
   { icon: Megaphone, t: 'Надоели ежедневники и кружки', d: 'Съедобный подарок запоминают, фотографируют и с удовольствием съедают всей командой.' },
@@ -16,13 +13,6 @@ const PAINS = [
   { icon: Truck, t: 'Нет времени заниматься', d: 'Берём всё на себя: соберём, упакуем и привезём в офис к нужной дате.' },
   { icon: CalendarClock, t: 'Боюсь, что в праздник не успеют', d: 'Фиксируем дату по предоплате 30% и заранее бронируем её под вас.' },
 ]
-
-const FORMATS = [
-  { t: 'Сладкая коробочка', id: 'sl-22' },
-  { t: 'Ягодная коробочка', id: 'yag-1' },
-  { t: 'Коробочка с сухофруктами', id: 'suh-5' },
-]
-
 
 const QTY = [
   { key: '5-10', label: '5–10' },
@@ -66,7 +56,7 @@ export function Corporate() {
             Корпоративные подарки, которые <span className="italic text-gold">не отправятся в ящик стола</span>
           </h1>
           <p className="mt-4 text-[16px] text-white/65 md:text-lg">
-            Небольшие съедобные подарки в коробочках — для сотрудников, клиентов и партнёров.
+            Соберём съедобные подарки для сотрудников, клиентов и партнёров. Состав, оформление и стоимость согласуем с вами.
           </p>
         </BlurFade>
 
@@ -82,20 +72,6 @@ export function Corporate() {
               ))}
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {FORMATS.map(({ id, t }) => {
-                const item = ITEMS.find((product) => product.id === id)
-                return (
-                  <div key={id} className="overflow-hidden rounded-2xl border border-white/10">
-                    {item && <img src={item.thumb} alt={t} loading="lazy" decoding="async" width={440} height={440} className="aspect-square w-full bg-white/[0.04] object-contain" />}
-                    <div className="p-4">
-                      <p className="text-[13px] text-white/60">{t}</p>
-                      <p className="mt-1 text-xl font-extrabold text-honey">{item ? `от ${rub(item.price)}` : 'Цена по запросу'}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
             <p className="mt-4 text-[14px] font-semibold text-white/75">
               Скидка за объём: <span className="text-honey">от 10 шт. — −10%</span>, <span className="text-honey">от 20 шт. — −15%</span>
             </p>
@@ -114,7 +90,7 @@ export function Corporate() {
               className={`sticky top-24 rounded-3xl border bg-graphite-2 p-5 shadow-2xl transition md:p-7 ${highlight ? 'border-honey ring-4 ring-honey/30' : 'border-white/10'}`}
             >
               <h2 className="font-display text-[26px] font-semibold leading-tight">Рассчитать корпоративный заказ</h2>
-              <p className="mt-1 text-[14px] text-white/55">Выберите количество и дату — пришлём КП с фото и ценами</p>
+              <p className="mt-1 text-[14px] text-white/55">Укажите количество и дату, чтобы получить индивидуальное предложение.</p>
               <div className="mt-5 flex flex-col gap-3">
                 <Input dark placeholder="Компания (необязательно)" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} aria-label="Компания" />
                 <div>
@@ -128,14 +104,6 @@ export function Corporate() {
                 <p className="mt-1 text-[14px] font-bold text-white">Получить коммерческое предложение:</p>
                 <MessengerButtons text={text} from="corporate" className="[&_p]:text-white/50" />
                 <p className="text-center text-[12.5px] text-white/50">Предоплата 30% — фиксирует дату</p>
-                <a
-                  href="/corporate-catalog.pdf"
-                  download
-                  onClick={() => goal('corp_pdf_download')}
-                  className="mt-1 inline-flex min-h-11 items-center justify-center gap-2 text-[14px] font-bold text-honey underline underline-offset-4"
-                >
-                  <Download className="h-4 w-4" /> Скачать каталог корпоративных подарков (PDF)
-                </a>
               </div>
             </div>
           </BlurFade>

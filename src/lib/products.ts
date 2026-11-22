@@ -57,10 +57,9 @@ export const RECIPIENT_TABS: { key: Recipient | 'all'; label: string }[] = [
 
 export const PRICE_TABS = [
   { key: 'all', label: 'Любая', min: 0, max: Infinity },
-  { key: 'p1', label: 'до 3 000 ₽', min: 0, max: 3000 },
-  { key: 'p2', label: '3 000 – 5 000 ₽', min: 3000, max: 5000 },
-  { key: 'p3', label: '5 000 – 8 000 ₽', min: 5000, max: 8000 },
-  { key: 'p4', label: 'от 8 000 ₽', min: 8000, max: Infinity },
+  { key: 'p1', label: 'до 2 000 ₽', min: 0, max: 2000 },
+  { key: 'p2', label: '2 000–3 999 ₽', min: 2000, max: 4000 },
+  { key: 'p3', label: 'от 4 000 ₽', min: 4000, max: Infinity },
 ] as const
 
 /** Цена-якорь на первом экране — самая доступная работа. */

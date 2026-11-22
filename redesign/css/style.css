@@ -561,10 +561,7 @@ main { position: relative; }
 .shots img { flex: none; height: clamp(200px, 22vw, 300px); width: auto; border-radius: var(--radius-sm); scroll-snap-align: start; border: 1px solid var(--line-2); }
 
 /* ---------- 16. Компаниям ---------- */
-.corp { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 110px); align-items: center; }
-.corp__media { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.corp__media img { width: 100%; aspect-ratio: 1; height: auto; object-fit: contain; background: var(--surface); border-radius: var(--radius); }
-.corp__media img:first-child { grid-column: 1 / -1; aspect-ratio: 2 / 1; }
+.corp__text { max-width: 48rem; margin-inline: auto; }
 .corp__list { display: grid; gap: 14px; margin: 32px 0 36px; }
 .corp__list li { display: flex; gap: 14px; align-items: flex-start; font-size: 16.5px; }
 .corp__list .ico { color: var(--gold); margin-top: 3px; }
@@ -778,7 +775,7 @@ main { position: relative; }
   .step__n { font-size: 40px; margin-bottom: 6px; }
 }
 @media (max-width: 1023px) {
-  .hero__grid, .why, .custom, .maria, .corp, .delivery, .faq { grid-template-columns: 1fr; }
+  .hero__grid, .why, .custom, .maria, .delivery, .faq { grid-template-columns: 1fr; }
   .hero__visual { justify-self: center; max-width: 440px; margin-top: 8px; }
   .hero { min-height: auto; }
   .cats { grid-template-columns: repeat(2, 1fr); }
