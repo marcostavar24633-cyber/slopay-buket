@@ -454,6 +454,7 @@
           <span class="card__cat">${CATS[i.cat].short}</span>
           <h3 class="card__title">${esc(i.name)}</h3>
           <p class="card__desc">${esc(i.desc)}</p>
+          <p class="price-note">Цена ориентировочная и зависит от состава</p>
           <div class="card__foot">
             <span class="price"><small>от</small>${rub(i.price)}</span>
             <button class="add-btn" type="button" aria-label="В корзину: ${esc(i.name)}" data-cursor="heart"><svg class="ico"><use href="#i-plus"/></svg></button>
@@ -769,7 +770,7 @@
         <button class="hit__media" type="button" data-cursor="view" aria-label="Быстрый просмотр: ${esc(i.name)}" data-qv="${i.id}">
           <img src="${i.img}" alt="${esc(i.name)}: ${esc(h.desc)}" loading="lazy" decoding="async" width="1100" height="1100"><span class="hit__n">${String(n + 1).padStart(2, '0')}</span></button>
         <div class="hit__body"><h3 class="hit__title">${esc(i.name)}</h3><p class="hit__desc">${esc(h.desc)}</p>
-          <div class="hit__foot"><span class="price"><small>от</small>${rub(i.price)}</span><button class="add-btn" type="button" data-add="${i.id}" aria-label="В корзину: ${esc(i.name)}" data-cursor="heart"><svg class="ico"><use href="#i-plus"/></svg></button></div></div>
+          <p class="price-note">Цена ориентировочная и зависит от состава</p><div class="hit__foot"><span class="price"><small>от</small>${rub(i.price)}</span><button class="add-btn" type="button" data-add="${i.id}" aria-label="В корзину: ${esc(i.name)}" data-cursor="heart"><svg class="ico"><use href="#i-plus"/></svg></button></div></div>
       </article></div>`; }).join('');
     $('#hits-list').addEventListener('click', (e) => {
       const q = e.target.closest('[data-qv]'); if (q) return Quick.open(q.dataset.qv, q);

@@ -49,7 +49,7 @@ export function ItemCard({ item, onOpen, hit }: { item: Item; onOpen: () => void
         <p className="mt-1.5 text-[13.5px] leading-snug text-ink-soft">{item.desc}</p>
         <div className="mt-auto pt-3">
           <p className="text-[22px] font-extrabold leading-none tracking-tight">от {rub(item.price)}</p>
-          <p className="mt-1 text-[12px] font-semibold leading-snug text-muted">итог зависит от размера и сезона — назовём точно за 5 минут</p>
+          <p className="mt-1 text-[12px] font-semibold leading-snug text-muted">Цена ориентировочная и зависит от состава</p>
           <div className="mt-3">
             <Button size="sm" className="h-11 w-full" onClick={() => openOrder(item)}>
               Заказать

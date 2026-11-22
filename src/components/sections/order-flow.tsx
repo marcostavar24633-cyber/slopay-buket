@@ -60,7 +60,7 @@ export function OrderSheet() {
           <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-honey-600">{item.title}</p>
           <p className="line-clamp-2 text-[13px] leading-snug text-muted">{item.desc}</p>
         </div>
-        <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight">от {rub(item.price)}<span className="block max-w-[110px] text-[10.5px] font-semibold leading-tight text-muted">итог назовём за 5 минут</span></p>
+        <p className="ml-auto shrink-0 text-right text-lg font-extrabold leading-tight">от {rub(item.price)}<span className="block max-w-[110px] text-[10.5px] font-semibold leading-tight text-muted">Цена ориентировочная и зависит от состава</span></p>
       </div>
 
       <p className="mt-5 text-center text-[15px] font-bold">Текст уже готов — просто нажмите «Отправить»</p>
