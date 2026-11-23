@@ -377,6 +377,11 @@
       const tabs = $('#cat-tabs');
       tabs.innerHTML = `<button class="cat-tab" id="catalog-tab-all" type="button" role="tab" aria-controls="grid" aria-selected="true" tabindex="0" data-cat="all">Все работы<small>${ITEMS.length}</small></button>` +
         Object.entries(CATS).map(([k, c]) => `<button class="cat-tab" id="catalog-tab-${k}" type="button" role="tab" aria-controls="grid" aria-selected="false" tabindex="-1" data-cat="${k}">${c.short}<small>${c.count}</small></button>`).join('');
+      $$('#filters [data-filter="price"] .chip').forEach((chip) => {
+        if (ITEMS.some((item) => inPrice(chip.dataset.v, item.price))) return;
+        chip.disabled = true;
+        chip.textContent += ' (0)';
+      });
       tabs.addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) this.set({ cat: b.dataset.cat }); });
       tabs.addEventListener('keydown', (e) => {
         const current = e.target.closest('[role="tab"]');
@@ -483,7 +488,7 @@
       b.innerHTML = `
         <div class="filters__group"><span class="filters__label">Категория</span><div class="chips" data-sf="cat">
           <button class="chip" data-v="all">Все</button>${Object.entries(CATS).map(([k, c]) => `<button class="chip" data-v="${k}">${c.short}</button>`).join('')}</div></div>
-        ${$$('#filters [data-filter]').map((g) => `<div class="filters__group"><span class="filters__label">${g.closest('.filters__group').querySelector('.filters__label').textContent}</span><div class="chips" data-sf="${g.dataset.filter}">${$$('.chip', g).map((c) => `<button class="chip" data-v="${c.dataset.v}">${c.textContent}</button>`).join('')}</div></div>`).join('')}
+        ${$$('#filters [data-filter]').map((g) => `<div class="filters__group"><span class="filters__label">${g.closest('.filters__group').querySelector('.filters__label').textContent}</span><div class="chips" data-sf="${g.dataset.filter}">${$$('.chip', g).map((c) => `<button class="chip" data-v="${c.dataset.v}"${c.disabled ? ' disabled' : ''}>${c.textContent}</button>`).join('')}</div></div>`).join('')}
         <div class="filters__group"><span class="filters__label">Сортировка</span><div class="chips" data-sf="sort">
           <button class="chip" data-v="pop">Популярные</button><button class="chip" data-v="asc">Дешевле</button><button class="chip" data-v="desc">Дороже</button></div></div>
         <div class="filters__group"><span class="filters__label">Избранное</span><div class="chips"><button class="chip chip--fav" data-sfav><svg class="ico"><use href="#i-heart"/></svg>Только избранное</button></div></div>`;
