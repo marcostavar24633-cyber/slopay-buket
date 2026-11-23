@@ -7,7 +7,6 @@
 
   /* ---------- ФИШКИ: true — включено, false — выключено ---------- */
   const FEATURES = {
-    preloader: true,        // золотая прорисовка логотипа + шторка (полный показ — раз за сессию)
     smoothScroll: true,     // Lenis
     seasonBar: true,        // плашка с отсчётом до 5 декабря
     headerAutoHide: true,   // шапка прячется при скролле вниз
@@ -1047,33 +1046,6 @@
     gsap.from('.final__glow', { scale: 0.5, opacity: 0, duration: 2, scrollTrigger: { trigger: '.final', start: 'top 80%' } });
   }
 
-  /* ---------- 1. Прелоадер и интро ---------- */
-  function intro() {
-    const pre = $('#preloader');
-    const heroIn = () => {
-      document.body.classList.remove('is-loading');
-      if (!ANIM) return;
-      gsap.timeline()
-        .from('.hero__title .line > span', { yPercent: 110, duration: 1.1, stagger: 0.12, ease: 'power3.out' })
-        .from('.hero .reveal-up', { y: 28, opacity: 0, duration: 0.9, stagger: 0.08 }, '-=.7')
-        .from('.hero__frame', { scale: 0.85, opacity: 0, duration: 1.3, ease: 'power3.out' }, 0)
-        .from('.hero__halo', { scale: 0.4, opacity: 0, duration: 1.8 }, 0)
-        .from('.deco, .hero__badge', { scale: 0, opacity: 0, rotate: -30, duration: 1, stagger: 0.07, ease: 'back.out(1.6)' }, 0.4);
-    };
-    let seen = false; try { seen = !!sessionStorage.getItem('sb-intro'); sessionStorage.setItem('sb-intro', '1'); } catch { /* */ }
-    if (!FEATURES.preloader || !ANIM) { pre.classList.add('is-done'); heroIn(); return; }
-    const tl = gsap.timeline({ onComplete: () => { pre.classList.add('is-done'); } });
-    if (seen) {
-      tl.to(pre, { opacity: 0, duration: 0.5, onStart: heroIn });
-      return;
-    }
-    tl.to('.preloader__mark .draw', { strokeDashoffset: 0, duration: 1.3, stagger: 0.12, ease: 'power2.inOut' })
-      .to('.preloader__word', { opacity: 1, y: 0, duration: 0.6 }, '-=.5')
-      .to('.preloader__inner', { opacity: 0, y: -20, duration: 0.5, delay: 0.25 })
-      .to('.preloader__curtain', { scaleY: 1, duration: 0.6, ease: 'power3.inOut' }, '<')
-      .to(pre, { yPercent: -100, duration: 0.9, ease: 'power3.inOut', onStart: heroIn });
-  }
-
   /* ---------- Старт ---------- */
   function boot() {
     bindMessengers();
@@ -1099,7 +1071,6 @@
     initHeroParallax();
     initMarquee();
     initScrollFx();
-    intro();
     if (HAS_GSAP) addEventListener('load', () => ScrollTrigger.refresh());
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

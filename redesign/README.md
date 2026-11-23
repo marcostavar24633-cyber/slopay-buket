@@ -45,13 +45,12 @@ python3 redesign/tools/build-data.py
 
 | Фишка | Где живёт | Как выключить |
 |---|---|---|
-| Прелоадер: логотип прорисовывается золотой линией, шторка уезжает вверх. Полный показ раз за сессию, дальше короткое затухание | `#preloader`, `intro()` | `FEATURES.preloader = false` |
 | Сезонная плашка «до 5 декабря» с живым отсчётом дней по времени Ульяновска. Видна с 15 октября по 5 декабря, потом скрывается сама; крестик скрывает до конца сессии | `#season`, `initSeason()`, даты в `CONFIG.corpDeadline` и `CONFIG.seasonFrom` | `FEATURES.seasonBar = false` |
 | Плавный скролл Lenis | `initLenis()` | `FEATURES.smoothScroll = false` |
 | Шапка прячется при скролле вниз и появляется при скролле вверх, со стеклом | `initHeader()`, `.header.is-scrolled` | `FEATURES.headerAutoHide = false` |
 | Mega-menu «Каталог»: 6 категорий с превью и ценой «от» | `initMega()` | убрать `<li class="nav__item--mega">` |
 | Полноэкранное меню: бургер превращается в крестик, меню раскрывается кругом от кнопки, пункты появляются по очереди, фон меняется при наведении на категорию | `Menu`, `.menu` | — (основная навигация на телефонах) |
-| Заголовок hero появляется по строкам, остальные заголовки выезжают из-под маски по словам | `intro()`, `initScrollFx()` | `FEATURES.splitHeadings = false` |
+| Заголовки ниже первого экрана выезжают из-под маски по словам | `initScrollFx()` | `FEATURES.splitHeadings = false` |
 | Курсивные слова переливаются золотым градиентом | `.gold` в CSS | убрать `animation` у `.gold` |
 | Параллакс слоёв hero (ягоды, роза, листья, черника): на десктопе за курсором, на телефоне лёгкий сдвиг при скролле | `initHeroParallax()`, `data-depth` у `.layer` | `FEATURES.heroParallax = false` |
 | Фото раскрываются шторкой (clip-path) с зумом, свечение за сравнением | `.reveal-img`, `initScrollFx()` | `FEATURES.imageReveal = false` |
