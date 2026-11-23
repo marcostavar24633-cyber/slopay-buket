@@ -721,20 +721,22 @@
       const s = this.steps[this.i]; const sel = this.a[s.k];
       $('#quiz-next').hidden = false; $('#quiz-next').textContent = this.i === total - 1 ? 'Показать букеты' : 'Дальше';
       b.innerHTML = `<div class="quiz__step"><p class="eyebrow">Шаг ${this.i + 1} из ${total}</p><h3 class="quiz__q">${s.q}</h3><p class="quiz__hint">${s.hint || 'Выберите один вариант'}</p>
-        <div class="quiz__opts" role="group" aria-label="${s.q}">${s.opts.map(([v, l]) => `<button type="button" class="opt" data-v="${v}" aria-pressed="${s.multi ? (sel || []).includes(v) : sel === v}">${l}</button>`).join('')}</div></div>`;
+        <div class="quiz__opts" role="group" aria-label="${s.q}">${s.opts.map(([v, l]) => {
+          const unavailable = s.k === 'budget' && !ITEMS.some((i) => inPrice(v, i.price));
+          return `<button type="button" class="opt" data-v="${v}" aria-pressed="${s.multi ? (sel || []).includes(v) : sel === v}"${unavailable ? ' disabled' : ''}>${l}${unavailable ? ' (0)' : ''}</button>`;
+        }).join('')}</div></div>`;
     },
     pick() {
       const a = this.a; const tastes = a.taste || []; const ex = a.ex || [];
       const toWho = { her: 'her', him: 'him', mom: 'her', teacher: 'her' }[a.to];
       const occCat = { '8m': 'berry', '14f': 'berry', '23f': 'meat', mday: 'dried', ny: 'dried', '1s': 'sweet' }[a.why];
-      const [lo, hi] = PRICE[a.budget || 'all'];
       const rx = { nuts: /орех|фисташ|арахис|миндал/i, choc: /шоколад|конфет|ferrero|трюфел/i };
-      let pool = ITEMS.filter((i) => !(ex.includes('sea') && (i.cat === 'sea' || /раки|креветк|краб/i.test(i.desc))) &&
+      let pool = ITEMS.filter((i) => inPrice(a.budget || 'all', i.price) && !(ex.includes('sea') && (i.cat === 'sea' || /раки|креветк|краб/i.test(i.desc))) &&
         !(ex.includes('meat') && (i.cat === 'meat' || /колбас|салями|ветчин|мяс/i.test(i.desc))) &&
         !(ex.includes('nuts') && rx.nuts.test(i.desc)) && !(ex.includes('choc') && rx.choc.test(i.desc)));
       const score = (i) => (tastes.includes(i.cat) ? 4 : 0) + (toWho && whoOf(i.cat) === toWho ? 2 : 0) + (occCat === i.cat ? 2 : 0) +
         (a.to === 'teacher' && /учител|сентябр|звонок/i.test(i.name + i.desc) ? 3 : 0) + (a.to === 'mom' && /мам/i.test(i.name + i.desc) ? 3 : 0) +
-        (inPrice(a.budget, i.price) ? 5 : -Math.min(Math.abs(i.price - lo), Math.abs(i.price - hi)) / 1000) + (hitRank.has(i.id) ? 0.5 : 0);
+        (hitRank.has(i.id) ? 0.5 : 0);
       pool = pool.map((i) => [i, score(i)]).sort((x, y) => y[1] - x[1]).map((x) => x[0]);
       return pool.slice(0, 3);
     },
@@ -742,7 +744,7 @@
       const res = this.pick(); const lab = (k) => { const s = this.steps.find((x) => x.k === k); const v = this.a[k]; return [].concat(v || []).map((x) => s.opts.find((o) => o[0] === x)?.[1]).filter(Boolean).join(', ') || '—'; };
       const text = `Здравствуйте! Подберите букет:\nКому: ${lab('to')}\nПовод: ${lab('why')}\nБюджет: ${lab('budget')}\nЛюбит: ${lab('taste')}\nИсключить: ${lab('ex')}\nПонравились: ${res.map((i) => `«${i.name}»`).join(', ')}`;
       $('#quiz-next').hidden = true; $('#quiz-back').hidden = false;
-      $('#quiz-body').innerHTML = `<div class="quiz__step"><p class="eyebrow">Готово</p><h3 class="quiz__q">Вот что подойдёт</h3><p class="quiz__hint">Все цены «от» — зависят от размера и сезона. Мария подстроит состав.</p>
+      $('#quiz-body').innerHTML = `<div class="quiz__step"><p class="eyebrow">Готово</p><h3 class="quiz__q">${res.length ? 'Вот что подойдёт' : 'Подходящих букетов пока нет'}</h3><p class="quiz__hint">${res.length ? 'Цена ориентировочная и зависит от состава.' : 'Отправьте пожелания Марии, чтобы обсудить индивидуальный вариант.'}</p>
         <div class="quiz__res">${res.map((i) => `<div class="res"><img src="${i.thumb}" alt="" width="96" height="96" loading="lazy"><div><b>${esc(i.name)}</b><span>${esc(i.desc)}</span><span class="price"><small>от</small>${rub(i.price)}</span>
           <div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" data-qadd="${i.id}">В корзину</button><button class="chip" type="button" data-qview="${i.id}">Смотреть</button></div></div></div>`).join('')}</div>
         <div style="display:grid;gap:8px;margin-top:20px"><a class="btn btn--primary" href="${tgLink(text)}" target="_blank" rel="noopener">Отправить ответы Марии в Telegram</a><button type="button" class="btn btn--ghost" id="quiz-max">Отправить в MAX</button></div></div>`;

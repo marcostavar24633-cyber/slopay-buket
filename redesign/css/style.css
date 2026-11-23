@@ -388,7 +388,7 @@ main { position: relative; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 9px 15px; border-radius: 999px; border: 1px solid var(--line-2); font-size: 13.5px; color: var(--cream-2); transition: .3s var(--ease); }
 .chip:hover { border-color: var(--line); color: var(--cream); }
 .chip.is-active, .chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-2); background: rgba(217,183,121,.08); }
-.chip:disabled { opacity: .6; cursor: not-allowed; }
+.chip:disabled, .opt:disabled { opacity: .6; cursor: not-allowed; }
 .chip .ico { width: 15px; height: 15px; }
 .chip--fav[aria-pressed="true"] .ico { fill: var(--berry); stroke: var(--berry); }
 .select { position: relative; }
