@@ -1074,19 +1074,6 @@
       .to(pre, { yPercent: -100, duration: 0.9, ease: 'power3.inOut', onStart: heroIn });
   }
 
-  /* ---------- SEO: Product-разметка хитов ---------- */
-  function seoProducts() {
-    const data = {
-      '@context': 'https://schema.org', '@type': 'ItemList', name: 'Хиты «Слопай букет»',
-      itemListElement: HITS.map((h, n) => { const i = BY_ID.get(h.id); return {
-        '@type': 'ListItem', position: n + 1,
-        item: { '@type': 'Product', name: i.name, description: h.desc, image: `${CONFIG.photoBase}${i.id}.jpg`, brand: { '@type': 'Brand', name: 'Слопай букет' },
-          offers: { '@type': 'Offer', price: i.price, priceCurrency: 'RUB', url: `${CONFIG.siteUrl}#catalog`, seller: { '@id': `${CONFIG.siteUrl}#business` } } },
-      }; }),
-    };
-    const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data); document.head.appendChild(s);
-  }
-
   /* ---------- Старт ---------- */
   function boot() {
     bindMessengers();
@@ -1112,7 +1099,6 @@
     initHeroParallax();
     initMarquee();
     initScrollFx();
-    seoProducts();
     intro();
     if (HAS_GSAP) addEventListener('load', () => ScrollTrigger.refresh());
   }

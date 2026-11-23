@@ -25,7 +25,7 @@ for (const [key, slug] of categories) {
   }
   const html = fs.readFileSync(file, 'utf8')
   const visible = products.filter((p) => p.cat === key && p.show !== false)
-  const cards = (html.match(/<article class="product">/g) || []).length
+  const cards = (html.match(/<article class="product" id="[^"]+">/g) || []).length
   const title = html.match(/<title>([^<]+)<\/title>/)?.[1]
   const h1 = html.match(/<h1>([^<]+)<\/h1>/)?.[1]
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]
@@ -41,12 +41,14 @@ for (const [key, slug] of categories) {
     try {
       const data = JSON.parse(jsonLd)
       if (data['@type'] !== 'CollectionPage') fail(slug + ': неверный тип JSON-LD')
+      if (data.mainEntity?.itemListElement?.length !== cards) fail(slug + ': JSON-LD не соответствует карточкам')
     } catch {
       fail(slug + ': JSON-LD не является корректным JSON')
     }
   }
   if (visible.length === 0) fail(slug + ': в исходных данных нет видимых товаров')
   if (cards !== visible.length) fail(slug + ': карточек ' + cards + ', видимых товаров в JSON ' + visible.length)
+  if ((html.match(/Цена ориентировочная и зависит от состава/g) || []).length !== cards) fail(slug + ': отсутствует пометка о цене')
   for (const item of visible) {
     if (!item.image || !fs.existsSync(path.join(repo, 'public', item.image.replace(/^\//, '')))) {
       fail(slug + ': отсутствует фото для товара ' + item.id)
@@ -66,6 +68,8 @@ else {
   const sitemap = fs.readFileSync(sitemapFile, 'utf8')
   for (const [, slug] of categories) if (!sitemap.includes('/' + slug + '/')) fail('sitemap.xml: нет ' + slug)
   if (!sitemap.includes('<urlset')) fail('sitemap.xml: некорректная структура')
+  const images = (sitemap.match(/<image:loc>/g) || []).length
+  if (images !== products.filter((p) => p.show !== false).length) fail('sitemap.xml: неполный список фотографий')
   if (!errors) pass('sitemap.xml содержит все шесть категорий')
 }
 if (!fs.existsSync(robotsFile)) fail('robots.txt не создан')

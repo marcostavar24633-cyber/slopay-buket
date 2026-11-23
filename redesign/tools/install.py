@@ -26,7 +26,9 @@ if not (dist / 'index.html').exists():
 
 # Сохраняем исходное приложение Vite: новая главная статическая и не поддерживает протокол визуального редактора.
 # Админка открывает этот файл во фрейме, чтобы postMessage и черновики продолжали работать.
-shutil.copy2(dist / 'index.html', dist / 'editor-preview.html')
+preview = (dist / 'index.html').read_text(encoding='utf-8')
+preview = preview.replace('<head>', '<head>\n    <meta name="robots" content="noindex, follow">', 1)
+(dist / 'editor-preview.html').write_text(preview, encoding='utf-8')
 
 runpy.run_path(str(red / 'tools' / 'build-data.py'))
 
@@ -109,13 +111,6 @@ if hours:
         'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         'opens': f"{int(hours.group(1)):02d}:{hours.group(2)}",
         'closes': f"{int(hours.group(3)):02d}:{hours.group(4)}",
-    }
-if site.get('rating') and int(site.get('reviewsCount') or 0) > 0:
-    schema['aggregateRating'] = {
-        '@type': 'AggregateRating',
-        'ratingValue': str(site['rating']).replace(',', '.'),
-        'bestRating': '5',
-        'ratingCount': str(site['reviewsCount']),
     }
 if site.get('ownerName'):
     schema['founder'] = {'@type': 'Person', 'name': site['ownerName']}

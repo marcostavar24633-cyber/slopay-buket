@@ -623,6 +623,8 @@ main { position: relative; }
 .footer__h { font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 16px; }
 .footer__list { display: grid; gap: 8px; color: var(--cream-2); font-style: normal; }
 .footer__list a:hover { color: var(--gold-2); }
+.footer__catalog { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 28px; color: var(--cream-2); font-size: 14px; }
+.footer__catalog a:hover { color: var(--gold-2); }
 .footer__legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 54px; padding-top: 26px; border-top: 1px solid var(--line-2); color: var(--faint); font-size: 13px; }
 
 /* ---------- Плавающие мессенджеры ---------- */
