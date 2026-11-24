@@ -30,11 +30,10 @@
   const D = window.SB_DATA || { items: [], reviews: [], site: {} };
   const SITE = D.site;
   const CONFIG = {
-    phoneDigits: '79631282556',
+    phoneDigits: String(SITE.phone || '').replace(/\D/g, '').replace(/^8(?=\d{10}$)/, '7') || '79631282556',
     maxUrl: SITE.maxUrl || 'https://max.ru/',
     avitoUrl: SITE.reviewsUrl || 'https://www.avito.ru/',
     siteUrl: 'https://xn--80acmogcvipsi.xn--p1ai/',
-    photoBase: 'https://xn--80acmogcvipsi.xn--p1ai/tg/', // публичные JPG — Telegram покажет превью
     freeDeliveryFrom: Number(SITE.freeDeliveryFrom) > 0 ? Number(SITE.freeDeliveryFrom) : 8000,
     corpDeadline: { month: 12, day: 5 },  // 5 декабря
     seasonFrom: { month: 10, day: 15 },   // плашку показываем с 15 октября
@@ -44,11 +43,12 @@
     sourceTag: '(с сайта)',
   };
   const MSG = {
-    default: 'Здравствуйте! Хочу подобрать букет',
-    corp: 'Здравствуйте! Интересует корпоративный заказ: … шт., дата …',
-    faq: 'Здравствуйте! У меня вопрос:',
-    final: 'Здравствуйте! Помогите подобрать букет.',
+    default: D.messages?.header || 'Здравствуйте! Хочу подобрать букет',
+    corp: D.messages?.corporate || 'Здравствуйте! Интересует корпоративный заказ: … шт., дата …',
+    faq: D.messages?.faq || 'Здравствуйте! У меня вопрос:',
+    final: D.messages?.final || 'Здравствуйте! Помогите подобрать букет.',
   };
+  const orderPhoto = (item) => new URL(item.orderPhoto || item.img, CONFIG.siteUrl).href;
 
   const CATS = {
     berry: { name: 'Ягодные букеты и корзины', short: 'Ягодные', who: 'her', imgs: ['yag-17', 'yag-24'] },
@@ -613,7 +613,7 @@
     },
     text() {
       const f = this.form; const lines = ['Здравствуйте! Хочу заказать букет'];
-      Object.entries(this.items).forEach(([id, q], k) => { const i = BY_ID.get(id); if (i) lines.push(`${k + 1}. «${i.name}» × ${q} — от ${rub(i.price * q)} (фото: ${CONFIG.photoBase}${id}.jpg)`); });
+      Object.entries(this.items).forEach(([id, q], k) => { const i = BY_ID.get(id); if (i) lines.push(`${k + 1}. «${i.name}» × ${q} — от ${rub(i.price * q)} (фото: ${orderPhoto(i)})`); });
       lines.push(`Итого: от ${rub(this.total())}`);
       if (f.date) lines.push(`Дата: ${new Date(f.date + 'T12:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`);
       if (f.time) lines.push(`Время: ${f.time}`);
@@ -666,7 +666,7 @@
       $('#qv-title').textContent = item.name;
       $('#qv-price').textContent = `от ${rub(item.price)}`;
       $('#qv-desc').textContent = HITS.find((h) => h.id === id)?.desc || item.desc;
-      $('#qv-swap').href = tgLink(`Здравствуйте! Хочу такой, но заменить…\n«${item.name}» — ${CONFIG.photoBase}${id}.jpg\nЧто заменить: `);
+      $('#qv-swap').href = tgLink(`Здравствуйте! Хочу такой, но заменить…\n«${item.name}» — ${orderPhoto(item)}\nЧто заменить: `);
       $$('#qv-thumbs [data-id]').forEach((button) => {
         const active = button.dataset.id === id;
         button.classList.toggle('is-active', active);

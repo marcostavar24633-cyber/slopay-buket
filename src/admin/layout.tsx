@@ -23,7 +23,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { auth, checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
+import { checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
 import { FILES, useStore } from './store'
 import { Btn } from './ui'
 
@@ -77,7 +77,6 @@ export function useTheme() {
 /* ───────── Вход ───────── */
 export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; onDemo: () => void }) {
   const [token, setToken] = useState('')
-  const [remember, setRemember] = useState(true)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const submit = async (e: React.FormEvent) => {
@@ -88,7 +87,6 @@ export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; o
       const t = token.trim()
       await getUser(t)
       await checkRepo(t)
-      auth.set(t, remember)
       onLogin(t)
     } catch (e) {
       setErr((e as Error).message)
@@ -113,15 +111,12 @@ export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; o
           <input
             id="token"
             type="password"
-            autoComplete="current-password"
+            autoComplete="off"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="github_pat_…"
             className="h-12 w-full rounded-xl border border-line bg-cream px-3.5 text-[15px] outline-none focus:border-honey focus:ring-4 focus:ring-honey/15"
           />
-          <label className="mt-3 flex cursor-pointer items-center gap-2 text-[13.5px] text-ink-soft">
-            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-[var(--color-honey)]" /> Запомнить на этом устройстве
-          </label>
           {err && <p className="mt-3 rounded-xl bg-berry/10 px-3 py-2 text-[13.5px] text-berry">{err}</p>}
           <Btn type="submit" variant="primary" className="mt-4 h-12 w-full" disabled={!token.trim() || busy} icon={busy ? <Loader2 className="animate-spin" /> : undefined}>
             Войти
@@ -144,7 +139,7 @@ export function Login({ onLogin, onDemo }: { onLogin: (token: string) => void; o
               </li>
               <li>«Generate token» → скопируйте ключ и вставьте сюда.</li>
             </ol>
-            <p className="mt-2 text-muted">Ключ хранится только в этом браузере и даёт доступ только к репозиторию сайта.</p>
+            <p className="mt-2 text-muted">Ключ действует до закрытия или перезагрузки вкладки. Выберите доступ только к репозиторию сайта.</p>
           </details>
         </form>
         <button onClick={onDemo} className="mt-4 w-full cursor-pointer text-center text-[13.5px] font-semibold text-muted underline-offset-4 hover:text-ink hover:underline">
@@ -413,11 +408,11 @@ function PublishBar() {
           <b className="text-ink">Есть неопубликованные правки:</b> {dirty.map((k) => FILES[k].label).join(', ')}
         </p>
         <div className="flex gap-2">
-          <Btn size="sm" variant="ghost" onClick={discard} disabled={publishing}>
+          <Btn size="sm" variant="ghost" onClick={() => { if (window.confirm('Отменить все неопубликованные правки?')) discard() }} disabled={publishing}>
             Отменить правки
           </Btn>
           <Btn size="sm" variant="primary" onClick={publish} disabled={publishing} icon={publishing ? <Loader2 className="animate-spin" /> : undefined}>
-            {mode === 'demo' ? 'Опубликовать (демо)' : 'Опубликовать на сайте'}
+            {mode === 'demo' ? 'Проверить публикацию (демо)' : 'Отправить на публикацию'}
           </Btn>
         </div>
       </div>

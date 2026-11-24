@@ -110,7 +110,7 @@ export function HeroSettings() {
         </p>
         <TextArea label="Подзаголовок (главное отличие)" rows={2} value={h.subtitle} onChange={f('subtitle')} />
         <div className="grid gap-4 md:grid-cols-2">
-          <TextInput label="Текст главной кнопки" value={h.quizButton} onChange={f('quizButton')} />
+          <TextInput label="Текст кнопки каталога" value={h.quizButton} onChange={f('quizButton')} />
           <Select
             label="Цена на фото первого экрана — какой букет"
             value={h.photoProduct}

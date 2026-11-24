@@ -11,38 +11,11 @@ export const REPO = { owner: 'marcostavar24633-cyber', name: 'slopay-buket', bra
 const API = 'https://api.github.com'
 const TOKEN_KEY = 'slopay-admin-token'
 
-/** Токен хранится только в этом браузере. «Выйти» — удаляет его. */
+/** Удаляет токены, сохранённые прежними версиями админки. */
 export const auth = {
   get: (): string | null => {
-    try {
-      const token = localStorage.getItem(TOKEN_KEY)
-      if (token) return token
-    } catch {
-      /* localStorage недоступен — пробуем sessionStorage */
-    }
-    try {
-      return sessionStorage.getItem(TOKEN_KEY)
-    } catch {
-      return null
-    }
-  },
-  set(token: string, remember: boolean) {
-    // Не оставляем старую копию токена в другом хранилище при смене режима.
-    try {
-      localStorage.removeItem(TOKEN_KEY)
-    } catch {
-      /* localStorage недоступен */
-    }
-    try {
-      sessionStorage.removeItem(TOKEN_KEY)
-    } catch {
-      /* sessionStorage недоступен */
-    }
-    try {
-      ;(remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token)
-    } catch {
-      throw new Error('Браузер не разрешил сохранить ключ доступа. Разрешите хранилища сайта или откройте админку в обычном режиме браузера и повторите вход.')
-    }
+    auth.clear()
+    return null
   },
   clear() {
     try {
@@ -114,10 +87,10 @@ export async function checkRepo(token: string) {
 }
 
 /** Прочитать JSON-файл из репозитория. sha нужен, чтобы потом сохранить без конфликтов. */
-export async function readFile<T>(token: string, path: string): Promise<{ data: T; sha: string }> {
+export async function readFile<T>(token: string, path: string, ref = REPO.branch): Promise<{ data: T; sha: string }> {
   const r = await gh<{ content: string; sha: string; encoding: string; download_url: string }>(
     token,
-    `/repos/${REPO.owner}/${REPO.name}/contents/${path}?ref=${REPO.branch}`,
+    `/repos/${REPO.owner}/${REPO.name}/contents/${path}?ref=${encodeURIComponent(ref)}`,
   )
   // файлы больше 1 МБ API отдаёт без содержимого — тогда берём по download_url
   let text: string
@@ -125,7 +98,7 @@ export async function readFile<T>(token: string, path: string): Promise<{ data: 
     text = fromB64(r.content)
   } else {
     if (!r.download_url) throw new Error(`GitHub не вернул ссылку для загрузки файла: ${path}`)
-    const response = await fetch(r.download_url, { headers: { Authorization: `Bearer ${token}` } })
+    const response = await fetch(r.download_url)
     if (!response.ok) {
       throw new ApiError(response.status, `Не удалось загрузить содержимое файла ${path} (HTTP ${response.status}). Повторите попытку.`)
     }
@@ -138,13 +111,33 @@ export async function readFile<T>(token: string, path: string): Promise<{ data: 
   }
 }
 
-/** Сохранить JSON-файл = коммит в ветку main. Возвращает новый sha. */
-export async function writeFile(token: string, path: string, data: unknown, sha: string | undefined, message: string) {
-  const r = await gh<{ content: { sha: string } }>(token, `/repos/${REPO.owner}/${REPO.name}/contents/${path}`, {
-    method: 'PUT',
-    body: JSON.stringify({ message, content: toB64(JSON.stringify(data, null, 2) + '\n'), sha, branch: REPO.branch }),
+/** Проверить исходные файлы и опубликовать один коммит без принудительного обновления ветки. */
+export async function publishFiles(token: string, files: { path: string; data: unknown; sha?: string }[], message: string) {
+  const repo = `/repos/${REPO.owner}/${REPO.name}`
+  const branch = `heads/${encodeURIComponent(REPO.branch)}`
+  const ref = await gh<{ object: { sha: string } }>(token, `${repo}/git/ref/${branch}`)
+  const head = ref.object.sha
+  const current = await Promise.all(files.map((file) => readFile(token, file.path, head)))
+  const conflict = files.find((file, index) => file.sha !== current[index].sha)
+  if (conflict) throw new Error(`Файл ${conflict.path} изменился в GitHub. Скопируйте нужные правки и заново откройте админку.`)
+  const commit = await gh<{ tree: { sha: string } }>(token, `${repo}/git/commits/${head}`)
+  const tree: { path: string; mode: '100644'; type: 'blob'; sha: string }[] = []
+  for (const file of files) {
+    const blob = await gh<{ sha: string }>(token, `${repo}/git/blobs`, {
+      method: 'POST', body: JSON.stringify({ content: toB64(JSON.stringify(file.data, null, 2) + '\n'), encoding: 'base64' }),
+    })
+    tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.sha })
+  }
+  const nextTree = await gh<{ sha: string }>(token, `${repo}/git/trees`, {
+    method: 'POST', body: JSON.stringify({ base_tree: commit.tree.sha, tree }),
   })
-  return r.content.sha
+  const nextCommit = await gh<{ sha: string }>(token, `${repo}/git/commits`, {
+    method: 'POST', body: JSON.stringify({ message, tree: nextTree.sha, parents: [head] }),
+  })
+  await gh(token, `${repo}/git/refs/${branch}`, {
+    method: 'PATCH', body: JSON.stringify({ sha: nextCommit.sha, force: false }),
+  })
+  return Object.fromEntries(tree.map(({ path, sha }) => [path, sha]))
 }
 
 /**

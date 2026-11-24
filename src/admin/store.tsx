@@ -14,7 +14,8 @@ import seasons from '../../content/seasons.json'
 import messages from '../../content/messages.json'
 import page from '../../content/page.json'
 import type { Block, Product } from '@/lib/content'
-import { auth, getDeploys, getUser, readFile, uploadImage, writeFile, type Deploy, type User } from './github'
+import { catalogProblem } from './catalog-validation'
+import { auth, getDeploys, getUser, publishFiles, readFile, uploadImage, type Deploy, type User } from './github'
 
 /** Файлы содержимого: ключ → путь в репозитории и подпись для истории изменений. */
 export const FILES = {
@@ -89,6 +90,7 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   const [loading, setLoading] = useState(!!token)
   const [error, setError] = useState<string | null>(null)
   const [publishing, setPublishing] = useState(false)
+  const publishingLock = useRef(false)
   const [deploys, setDeploys] = useState<Deploy[]>([])
   const [deployError, setDeployError] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -173,18 +175,32 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 
   const publish = async () => {
     if (!token) return toast('Демо-режим: чтобы сохранять, войдите через GitHub-токен.', 'info')
+    if (publishingLock.current || !dirty.length || loading || error) return
+    publishingLock.current = true
     setPublishing(true)
     try {
+      const problem = dirty.includes('products') ? catalogProblem(data.products.items) : null
+      if (problem) throw new Error(problem)
+      if (dirty.includes('site')) {
+        const phone = data.site.phone.replace(/\D/g, '')
+        if (!/^[78]\d{10}$/.test(phone)) throw new Error('Укажите телефон с кодом страны: +7 и ещё 10 цифр.')
+        if (!Number.isSafeInteger(data.site.freeDeliveryFrom) || data.site.freeDeliveryFrom <= 0) throw new Error('Порог бесплатной доставки должен быть целым числом больше нуля.')
+      }
+      if (dirty.includes('hero') && !data.hero.title.trim()) throw new Error('Введите заголовок первого экрана.')
+      if (dirty.includes('faq') && data.faq.items.some(({ q, a }) => !q.trim() || !a.trim())) throw new Error('В FAQ заполните вопрос и ответ у каждой записи.')
+      const files = dirty.map((key) => ({ path: FILES[key].path, data: data[key], sha: shas.current[key] }))
+      const next = await publishFiles(token, files, `Админка: ${dirty.map((key) => FILES[key].label).join(', ')}`)
       for (const k of dirty) {
-        shas.current[k] = await writeFile(token, FILES[k].path, data[k], shas.current[k], `Админка: ${FILES[k].label}`)
+        shas.current[k] = next[FILES[k].path]
         saved.current[k] = JSON.stringify(data[k])
       }
       setData((d) => ({ ...d })) // пересчитать dirty
-      toast('Сохранено. Сайт обновится через 1–2 минуты.')
+      toast('Изменения отправлены в GitHub. Статус сборки доступен в дашборде.')
       setTimeout(refreshDeploys, 6000)
     } catch (e) {
       toast((e as Error).message, 'error')
     } finally {
+      publishingLock.current = false
       setPublishing(false)
     }
   }

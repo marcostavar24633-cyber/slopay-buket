@@ -4,18 +4,18 @@ import { Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
 import { GALLERY_CATS } from '@/lib/gallery'
 import type { Product } from '@/lib/content'
 import { rub } from '@/lib/utils'
+import { productProblem } from '../catalog-validation'
 import { previewSrc, useStore } from '../store'
 import { Badge, Btn, Confirm, Empty, FilterSelect, IconBtn, ImageField, Modal, PageHead, Pager, SearchInput, Select, TextArea, TextInput, Toggle } from '../ui'
 
 const CATS = GALLERY_CATS.filter((c) => c.key !== 'all').map((c) => ({ value: c.key as string, label: c.label }))
 const catLabel = (k: string) => CATS.find((c) => c.value === k)?.label ?? k
-const isCatalogPhoto = (src: string) => /^[/]img[/]unsorted[/]/.test(src)
 const PER_PAGE = 20
 
 type Status = 'all' | 'shown' | 'hidden' | 'hit'
 
 export function Products({ params }: { params: URLSearchParams }) {
-  const { data, set } = useStore()
+  const { data, mode, set, toast } = useStore()
   const items = data.products.items
   const [q, setQ] = useState(params.get('q') ?? '')
   const [cat, setCat] = useState('all')
@@ -23,6 +23,8 @@ export function Products({ params }: { params: URLSearchParams }) {
   const [page, setPage] = useState(0)
   const [edit, setEdit] = useState<{ index: number; item: Product } | null>(null)
   const [del, setDel] = useState<number | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkCategory, setBulkCategory] = useState('')
 
   // переход из поиска в шапке (?q=) и «Добавить товар» с дашборда (?new=1)
   useEffect(() => {
@@ -40,13 +42,34 @@ export function Products({ params }: { params: URLSearchParams }) {
   }, [items, q, cat, status])
   useEffect(() => setPage(0), [q, cat, status])
   const pages = Math.ceil(filtered.length / PER_PAGE)
-  const view = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+  const currentPage = Math.min(page, Math.max(0, pages - 1))
+  const view = filtered.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE)
+  const targets = items.filter((item) => selected.has(item.id))
+
+  const selectItems = (ids: string[], checked: boolean) => setSelected((previous) => {
+    const next = new Set(previous)
+    ids.forEach((id) => checked ? next.add(id) : next.delete(id))
+    return next
+  })
+
+  const applyBulk = (patch: Partial<Product>) => {
+    const blocked = targets.find((item) => productProblem({ ...item, ...patch }, mode === 'demo'))
+    if (blocked) return toast(`«${blocked.name}»: ${productProblem({ ...blocked, ...patch }, mode === 'demo')}`, 'error')
+    set('products', (draft) => draft.items.forEach((item) => { if (selected.has(item.id)) Object.assign(item, patch) }))
+    setSelected(new Set())
+    setBulkCategory('')
+    toast(`Изменено товаров: ${targets.length}`)
+  }
+
+  const checkbox = (item: Product) => (
+    <input type="checkbox" aria-label={`Выбрать товар: ${item.name}`} checked={selected.has(item.id)} onChange={(event) => selectItems([item.id], event.target.checked)} className="h-4 w-4 shrink-0 accent-honey" />
+  )
 
   function openNew() {
     setEdit({ index: -1, item: { id: `p-${Date.now().toString(36)}`, cat: 'berry', name: '', desc: '', price: 3000, image: '', show: true, hit: false, hitLabel: false } })
   }
   const save = () => {
-    if (!edit) return
+    if (!edit || productProblem(edit.item, mode === 'demo')) return
     set('products', (d) => {
       if (edit.index < 0) d.items.unshift(edit.item)
       else d.items[edit.index] = edit.item
@@ -54,10 +77,10 @@ export function Products({ params }: { params: URLSearchParams }) {
     setEdit(null)
   }
   const patch = (p: Partial<Product>) => setEdit((e) => (e ? { ...e, item: { ...e.item, ...p } } : e))
-  const valid = !!edit && edit.item.name.trim() && Number(edit.item.price) > 0 && (edit.item.show === false || isCatalogPhoto(edit.item.image) || edit.item.image.startsWith('blob:'))
+  const problem = edit ? productProblem(edit.item, mode === 'demo') : null
   const toggleVisibility = (item: Product, index: number) => {
     const show = item.show === false
-    if (show && !isCatalogPhoto(item.image)) {
+    if (show && productProblem({ ...item, show }, mode === 'demo')) {
       setEdit({ index, item: { ...item, show } })
       return
     }
@@ -92,6 +115,20 @@ export function Products({ params }: { params: URLSearchParams }) {
             ]}
           />
         </div>
+        <div className="flex flex-wrap items-center gap-2 border-b border-line p-3">
+          <label className="flex min-h-9 items-center gap-2 text-sm text-ink-soft">
+            <input type="checkbox" checked={view.length > 0 && view.every(({ p }) => selected.has(p.id))} disabled={!view.length} onChange={(event) => selectItems(view.map(({ p }) => p.id), event.target.checked)} className="h-4 w-4 accent-honey" />
+            Выбрать страницу
+          </label>
+          {targets.length > 0 && <>
+            <span role="status" className="text-sm font-semibold">Выбрано: {targets.length}</span>
+            <Btn size="sm" onClick={() => applyBulk({ show: false })}>Скрыть</Btn>
+            <Btn size="sm" onClick={() => applyBulk({ show: true })}>Показать</Btn>
+            <FilterSelect label="Новая категория" value={bulkCategory} onChange={setBulkCategory} options={[{ value: '', label: 'Перенести в категорию' }, ...CATS]} />
+            <Btn size="sm" disabled={!bulkCategory} onClick={() => applyBulk({ cat: bulkCategory })}>Перенести</Btn>
+            <Btn size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Снять выбор</Btn>
+          </>}
+        </div>
 
         {/* Таблица (компьютер) */}
         <div className="hidden overflow-x-auto md:block">
@@ -110,6 +147,7 @@ export function Products({ params }: { params: URLSearchParams }) {
                 <tr key={p.id} className="border-b border-line last:border-0 hover:bg-ink/[0.03]">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
+                      {checkbox(p)}
                       <img src={previewSrc(p.image.replace(/\/(yag|k|m|suh|sl|sn)-/, '/thumbs/$1-'))} onError={(e) => ((e.target as HTMLImageElement).src = previewSrc(p.image))} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                       <span className="min-w-0">
                         <span className="block font-bold">{p.name}</span>
@@ -148,6 +186,7 @@ export function Products({ params }: { params: URLSearchParams }) {
         <ul className="md:hidden">
           {view.map(({ p, index }) => (
             <li key={p.id} className="flex gap-3 border-b border-line p-3 last:border-0">
+              {checkbox(p)}
               <img src={previewSrc(p.image)} alt="" loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
               <div className="min-w-0 flex-1">
                 <p className="font-bold leading-tight">{p.name}</p>
@@ -171,7 +210,7 @@ export function Products({ params }: { params: URLSearchParams }) {
           ))}
         </ul>
         {!view.length && <Empty>Ничего не найдено. Измените поиск или фильтры.</Empty>}
-        <Pager page={page} pages={pages} onPage={setPage} />
+        <Pager page={currentPage} pages={pages} onPage={setPage} />
       </div>
 
       {/* Окно добавления / редактирования */}
@@ -183,7 +222,7 @@ export function Products({ params }: { params: URLSearchParams }) {
         footer={
           <>
             <Btn onClick={() => setEdit(null)}>Отмена</Btn>
-            <Btn variant="primary" onClick={save} disabled={!valid}>
+            <Btn variant="primary" onClick={save} disabled={!edit || !!problem}>
               {edit?.index === -1 ? 'Добавить' : 'Сохранить'}
             </Btn>
           </>
@@ -191,6 +230,7 @@ export function Products({ params }: { params: URLSearchParams }) {
       >
         {edit && (
           <div className="grid gap-4 md:grid-cols-2">
+            {problem && <p className="text-sm text-muted md:col-span-2">{problem}</p>}
             <div className="md:col-span-2">
               <ImageField label="Фото *" folder="unsorted" hint="Для публикации загрузите фото или укажите путь к файлу из unsorted." value={edit.item.image} onChange={(image) => patch({ image })} />
             </div>

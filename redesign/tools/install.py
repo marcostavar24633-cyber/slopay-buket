@@ -46,6 +46,8 @@ import json, re
 from html import escape as escape_html
 
 site = json.loads((root / 'content' / 'site.json').read_text(encoding='utf-8'))
+hero = json.loads((root / 'content' / 'hero.json').read_text(encoding='utf-8'))
+faq = json.loads((root / 'content' / 'faq.json').read_text(encoding='utf-8'))['items']
 products = json.loads((root / 'content' / 'products.json').read_text(encoding='utf-8'))['items']
 visible = [p for p in products if p.get('show') is not False and (p.get('image') or '').startswith('/img/unsorted/')]
 prices = [int(p['price']) for p in visible if int(p.get('price') or 0) > 0]
@@ -79,6 +81,37 @@ site_url = canonical.group(1).rstrip('/')
 digits = re.sub(r'\D', '', str(site.get('phone', '')))
 if digits.startswith('8'):
     digits = '7' + digits[1:]
+if digits:
+    html = html.replace('tel:+79631282556', 'tel:+' + digits).replace('https://t.me/+79631282556', 'https://t.me/+' + digits)
+    html = html.replace('+7 (963) 128-25-56', escape_html(site['phone']))
+
+hero_lines = hero['title'].replace(' в Ульяновске —', '\nв Ульяновске —').splitlines()
+hero_heading = ''.join(f'<span class="line"><span>{escape_html(line)}</span></span>' for line in hero_lines)
+accent = hero['titleAccent']
+if accent.startswith('подарок '):
+    hero_heading += f'<span class="line"><span>подарок <em class="gold">{escape_html(accent[8:])}</em></span></span>'
+elif accent:
+    hero_heading += f'<span class="line"><span><em class="gold">{escape_html(accent)}</em></span></span>'
+html = re.sub(r'(<h1 class="hero__title" id="hero-title">)[\s\S]*?(</h1>)',
+              lambda m: m[1] + hero_heading + m[2], html, count=1)
+html = replace_one(html, r'(<p class="hero__lead reveal-up">)[^<]*(</p>)', hero['subtitle'], 'подзаголовок первого экрана')
+html = replace_one(html, r'(<a href="#catalog" class="btn btn--primary magnetic" data-cursor="heart">)[^<]*(<svg)', hero['quizButton'], 'кнопка каталога')
+faq_rows = ''.join('<details class="qa"><summary>' + escape_html(item['q']) +
+                   '<span class="qa__ico"></span></summary><div class="qa__a"><p>' + escape_html(item['a']) +
+                   '</p></div></details>' for item in faq)
+html = re.sub(r'(<div class="faq__list">)[\s\S]*?(\n    </div>\n  </div>\n</section>)',
+              lambda m: m[1] + faq_rows + m[2], html, count=1)
+threshold = f"{int(site['freeDeliveryFrom']):,}".replace(',', ' ')
+html = html.replace('доставки от 8 000 ₽', f'доставки от {threshold} ₽')
+html = html.replace('бесплатно от 8 000 ₽', f'бесплатно от {threshold} ₽')
+html = html.replace('При заказе от 8 000 ₽.', f'При заказе от {threshold} ₽.')
+html = replace_one(html, r'(<div><h3>Самовывоз — бесплатно</h3><p>)[^<]*(</p>)',
+                   f"{site['address']}. {site['hours']}.", 'адрес самовывоза')
+html = replace_one(html, r'(<a href="tel:\+\d+">[^<]*</a>\s*<p>)[^<]*(</p>)',
+                   f"{site['address']} · {site['hours']}", 'контакты мобильного меню')
+footer_address = '<br>'.join(escape_html(value) for value in (site['city'], site['address'], site['hours']))
+html = re.sub(r'(<address class="footer__list">)[\s\S]*?(</address>)',
+              lambda m: m[1] + footer_address + m[2], html, count=1)
 
 schema = {
     '@context': 'https://schema.org',
