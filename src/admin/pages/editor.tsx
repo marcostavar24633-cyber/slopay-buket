@@ -1,27 +1,23 @@
 /**
- * Визуальный редактор: сайт открыт во фрейме (/?edit=1) и меняется вживую.
- * На странице: клик — выбрать блок, ярлык — перетащить, золотые ручки сверху/снизу — отступы, клик по заголовку — правка текста.
+ * Визуальный редактор: актуальная витрина открыта во фрейме и меняется вживую.
+ * На странице: клик — выбрать блок, ярлык — перетащить, двойной клик по заголовку — правка текста.
  * Справа: содержимое и оформление выбранного блока (цвета, отступы, ширина, размер заголовка) и цвета всего сайта.
  * Всё попадает в черновик админки; на сайт — после «Опубликовать».
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, Eye, EyeOff, Monitor, MousePointerClick, Palette, Plus, RotateCcw, Smartphone, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Eye, EyeOff, Monitor, MousePointerClick, Palette, Plus, Redo2, RotateCcw, Smartphone, Trash2, Undo2, X } from 'lucide-react'
 import type { Block, BlockStyle, Theme } from '@/lib/content'
 import type { ToAdmin, ToSite } from '@/lib/live'
 import { cn } from '@/lib/utils'
-import { useStore, type Content } from '../store'
+import { previewSrc, useStore, type Content } from '../store'
 import { msgTarget, siteUrl } from '../github'
 import { Btn, IconBtn, Modal, Select } from '../ui'
 import { BlockForm, blank, nameOf, TYPES, type CustomType } from './blocks'
 import { HeroSettings } from './settings'
 
 type Sel = number | 'hero' | null
-/** Что меняется без перезагрузки фрейма; остальное (товары, отзывы, контакты…) — перезагрузкой. */
-const reloadSnapshot = (d: Content) => {
-  const { theme: _t, ...site } = d.site as Content['site'] & { theme?: Theme }
-  return JSON.stringify([site, d.products, d.reviews, d.faq, d.occasions, d.seasons, d.messages])
-}
-
+type EditSnapshot = { blocks: Block[]; hero: Content['hero']; theme: Theme }
+const emptyTheme: Theme = {}
 export function Editor() {
   const { data, set } = useStore()
   const frame = useRef<HTMLIFrameElement>(null)
@@ -32,83 +28,79 @@ export function Editor() {
   const [panel, setPanel] = useState<'block' | 'theme'>('block')
   const [adding, setAdding] = useState(false)
   const scrollY = useRef(0)
-  const lastReload = useRef(reloadSnapshot(data))
   const dataRef = useRef(data)
   dataRef.current = data
-  const theme = ((data.site as { theme?: Theme }).theme ?? {}) as Theme
+  const theme = (data.site as { theme?: Theme }).theme ?? emptyTheme
+  const snapshot: EditSnapshot = { blocks: data.page.blocks, hero: data.hero, theme }
+  const stateKey = JSON.stringify(snapshot)
+  const history = useRef<{ before: EditSnapshot[]; after: EditSnapshot[]; current: EditSnapshot }>({ before: [], after: [], current: snapshot })
+  const restoring = useRef(false)
+  const [, renderHistory] = useState(0)
+  useEffect(() => {
+    const log = history.current
+    if (stateKey === JSON.stringify(log.current)) return
+    if (restoring.current) restoring.current = false
+    else {
+      log.before = [...log.before.slice(-39), log.current]
+      log.after = []
+    }
+    log.current = JSON.parse(stateKey) as EditSnapshot
+    renderHistory((n) => n + 1)
+  }, [stateKey])
+  const restore = (direction: 'before' | 'after') => {
+    const log = history.current
+    const next = log[direction].pop()
+    if (!next) return
+    log[direction === 'before' ? 'after' : 'before'].push(log.current)
+    restoring.current = true
+    set('page', (page) => { page.blocks = next.blocks })
+    set('hero', (hero) => { Object.assign(hero, next.hero) })
+    set('site', (site) => { (site as { theme?: Theme }).theme = Object.keys(next.theme).length ? next.theme : undefined })
+    setSel(null)
+  }
 
   const post = useCallback((m: ToSite) => frame.current?.contentWindow?.postMessage(m, msgTarget()), [])
-  const writeDraft = () => {
-    try {
-      sessionStorage.setItem('slopay-draft', JSON.stringify(dataRef.current))
-    } catch {
-      /* без sessionStorage фрейм покажет опубликованную версию */
-    }
-  }
   const sendLive = useCallback(() => {
     const d = dataRef.current
-    post({ type: 'slopay:live', page: d.page.blocks, hero: d.hero, theme: ((d.site as { theme?: Theme }).theme ?? {}) as Theme, selected: sel, interactive })
+    const page = d.page.blocks.map((block) => {
+      if (block.type === 'imageText' || block.type === 'banner') return { ...block, image: previewSrc(block.image || '') }
+      if (block.type === 'gallery') return { ...block, images: block.images?.map((item) => ({ ...item, image: previewSrc(item.image) })) }
+      return block
+    })
+    const product = d.products.items.find((item) => item.id === d.hero.photoProduct && item.show !== false)
+    post({ type: 'slopay:live', page, hero: { ...d.hero, photoUrl: product && previewSrc(product.image) }, theme: ((d.site as { theme?: Theme }).theme ?? {}) as Theme, selected: sel, interactive })
   }, [post, sel, interactive])
 
-  // первый запуск: черновик в sessionStorage, потом фрейм
-  const [src] = useState(() => {
-    writeDraft()
-    return siteUrl('editor-preview.html?edit=1')
-  })
-
-  // Сохраняем актуальный черновик после любого изменения, в том числе живых правок блоков и первого экрана.
-  // Фрейм читает эти данные из общего sessionStorage при первой загрузке и после перезагрузки.
-  useEffect(() => {
-    try {
-      sessionStorage.setItem('slopay-draft', JSON.stringify(data))
-    } catch {
-      /* сохранение черновика в браузере недоступно */
-    }
-  }, [data])
-
-  // живые правки: блоки, первый экран, цвета, выбор, режим
-  useEffect(sendLive, [data.page, data.hero, theme, sel, interactive, sendLive])
-
-  // остальное — перезагрузка фрейма с сохранением прокрутки
-  useEffect(() => {
-    const snap = reloadSnapshot(data)
-    if (snap === lastReload.current) return
-    const t = setTimeout(() => {
-      lastReload.current = snap
-      writeDraft()
-      frame.current?.contentWindow?.location.reload()
-    }, 700)
-    return () => clearTimeout(t)
-  }, [data])
+  const src = siteUrl('editor-preview.html?edit=1')
+  useEffect(sendLive, [data.page, data.hero, data.products, theme, sendLive])
 
   // сообщения со страницы
   useEffect(() => {
     const h = (e: MessageEvent<ToAdmin>) => {
       if (e.source !== frame.current?.contentWindow || e.origin !== location.origin) return
       const m = e.data
-      if (!m?.type?.startsWith('slopay:')) return
+      if (typeof m?.type !== 'string' || !m.type.startsWith('slopay:')) return
       if (m.type === 'slopay:ready') {
         sendLive()
         if (scrollY.current) post({ type: 'slopay:scroll', y: scrollY.current })
-      } else if (m.type === 'slopay:scrollpos') scrollY.current = m.y
+      } else if (m.type === 'slopay:scrollpos' && Number.isFinite(m.y)) scrollY.current = m.y
       else if (m.type === 'slopay:select') {
         setSel(m.index)
         setPanel('block')
       } else if (m.type === 'slopay:move')
         set('page', (p) => {
+          if (!Number.isInteger(m.from) || !Number.isInteger(m.to) || m.from < 0 || m.from >= p.blocks.length || m.to < 0 || m.to > p.blocks.length) return
           const [it] = p.blocks.splice(m.from, 1)
           p.blocks.splice(m.to > m.from ? m.to - 1 : m.to, 0, it)
           setSel(m.to > m.from ? m.to - 1 : m.to)
         })
-      else if (m.type === 'slopay:style') set('page', (p) => void (p.blocks[m.index].style = { ...p.blocks[m.index].style, ...m.patch }))
       else if (m.type === 'slopay:text') {
-        if (m.index === 'hero') set('hero', (h) => void ((h as Record<string, string>)[m.field] = m.value))
-        else
-          set('page', (p) => {
-            const b = p.blocks[m.index as number]
-            const field = b.type !== 'builtin' && m.field === 'sub' ? 'body' : m.field
-            ;(b as unknown as Record<string, unknown>)[field] = m.value
-          })
+        if (typeof m.value !== 'string') return
+        if (m.index === 'hero' && m.field === 'subtitle') set('hero', (h) => { h.subtitle = m.value })
+        if (typeof m.index === 'number' && m.field === 'title') set('page', (p) => {
+          const block = p.blocks[m.index as number]
+          if (block) block.title = m.value
+        })
       }
     }
     addEventListener('message', h)
@@ -161,6 +153,8 @@ export function Editor() {
             <MousePointerClick className="h-4 w-4" /> {interactive ? 'Режим посетителя' : 'Режим правки'}
           </button>
           <div className="ml-auto flex gap-2">
+            <IconBtn label="Отменить шаг" disabled={!history.current.before.length} onClick={() => restore('before')}><Undo2 /></IconBtn>
+            <IconBtn label="Повторить шаг" disabled={!history.current.after.length} onClick={() => restore('after')}><Redo2 /></IconBtn>
             <Btn size="sm" icon={<Palette />} onClick={() => setPanel('theme')}>
               Цвета сайта
             </Btn>
@@ -177,8 +171,14 @@ export function Editor() {
             className={cn('absolute inset-y-0 left-1/2 h-full -translate-x-1/2 border-0 bg-cream transition-[width]', device === 'phone' ? 'my-3 h-[calc(100%-24px)] w-[min(390px,calc(100%_-_16px))] rounded-[28px] shadow-2xl ring-1 ring-line' : 'w-full')}
           />
         </div>
+        <div className="border-t border-line bg-surface px-3 py-2">
+          <Select label="Раздел страницы" value={sel === null ? '' : String(sel)} options={[
+            { value: '', label: 'Выбрать раздел' }, { value: 'hero', label: 'Первый экран' },
+            ...data.page.blocks.map((block, index) => ({ value: String(index), label: `${nameOf(block)}${block.show === false ? ' (скрыт)' : ''}` })),
+          ]} onChange={(value) => { setSel(value === '' ? null : value === 'hero' ? 'hero' : Number(value)); setPanel('block') }} />
+        </div>
         <p className="hidden border-t border-line bg-surface px-3 py-1.5 text-[12px] text-muted md:block">
-          Клик — выбрать блок · ярлык слева сверху — перетащить · золотые ручки сверху и снизу — отступы · клик по заголовку — изменить текст
+          Клик — выбрать блок · золотой ярлык — перетащить · двойной клик по тексту — редактировать
         </p>
       </div>
 
@@ -189,7 +189,7 @@ export function Editor() {
         ) : sel === 'hero' ? (
           <div className="p-4">
             <PanelHead title="Первый экран" onClose={() => setSel(null)} />
-            <p className="mb-3 text-[13px] text-muted">Заголовок и подзаголовок можно править прямо на странице — кликните по тексту.</p>
+            <p className="mb-3 text-[13px] text-muted">Заголовок и фото редактируются здесь. Подзаголовок можно изменить двойным кликом в предпросмотре.</p>
             <HeroSettings />
           </div>
         ) : block ? (
@@ -240,8 +240,8 @@ export function Editor() {
             <ul className="mt-3 list-disc space-y-1.5 pl-5">
               <li>Кликните по блоку — здесь появятся его настройки.</li>
               <li>Тяните за золотой ярлык с названием, чтобы переставить блок.</li>
-              <li>Тяните за золотые ручки сверху и снизу, чтобы изменить отступы.</li>
-              <li>Кликните по заголовку, чтобы изменить текст. Enter — готово.</li>
+              <li>Отступы меняются во вкладке «Оформление».</li>
+              <li>Дважды кликните по заголовку блока, чтобы изменить текст. Enter — готово.</li>
               <li>«Цвета сайта» — акцент, фон, карточки и текст для всей страницы.</li>
             </ul>
             <p className="mt-4 text-[13px] text-muted">Правки видны только вам. На сайт они попадут после «Опубликовать» внизу.</p>

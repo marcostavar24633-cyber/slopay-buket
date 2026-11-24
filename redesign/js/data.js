@@ -3388,5 +3388,66 @@ window.SB_DATA = {
   "faq": "Здравствуйте! У меня вопрос:",
   "corporate": "Здравствуйте! Интересует корпоративный заказ: … шт., дата …",
   "final": "Здравствуйте! Помогите подобрать букет."
+ },
+ "hero": {
+  "title": "Съедобные букеты в Ульяновске —",
+  "titleAccent": "подарок со вкусом",
+  "subtitle": "Собираем вручную букеты из клубники, мяса, раков, сухофруктов и сладостей. Доставляем по Ульяновску.",
+  "quizButton": "Выбрать букет",
+  "photoProduct": "yag-24"
+ },
+ "page": {
+  "blocks": [
+   {
+    "type": "builtin",
+    "section": "hits",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "catalog",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "occasions",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "why",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "howto",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "process",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "reviews",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "corporate",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "delivery",
+    "show": true
+   },
+   {
+    "type": "builtin",
+    "section": "faq",
+    "show": true
+   }
+  ]
  }
 };

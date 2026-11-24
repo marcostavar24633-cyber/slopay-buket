@@ -54,6 +54,19 @@ h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 em { font-style: italic; }
 [hidden] { display: none !important; }
+.storefront-editor [data-bi] { cursor: pointer; }
+.storefront-editor .editor-selected { position: relative; outline: 2px solid var(--gold); outline-offset: -2px; }
+.editor-drag { position: absolute; z-index: 5; top: 4px; left: 4px; padding: 6px 10px; border-radius: 8px; background: var(--gold); color: var(--bg); cursor: grab; }
+[data-editor-width="narrow"] > .container { max-width: 960px; }
+[data-editor-width="wide"] > .container { max-width: 1600px; }
+[data-editor-title] h2 { font-size: min(var(--editor-title-size), 14vw); }
+.storefront-custom .container:has(> img) { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); align-items: center; }
+.storefront-custom img { display: block; width: 100%; border-radius: var(--radius); object-fit: cover; }
+.storefront-custom__center { text-align: center; }
+.storefront-custom__body { white-space: pre-line; }
+.storefront-custom .btn { margin: 16px 8px 0 0; }
+.storefront-custom__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; margin-top: 24px; }
+.storefront-custom__card, .storefront-custom--banner .storefront-custom__copy { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); }
 ::selection { background: var(--berry-btn); color: var(--cream); }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
 

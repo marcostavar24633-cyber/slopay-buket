@@ -7,22 +7,7 @@
     },
     {
       "type": "builtin",
-      "section": "reviews",
-      "show": true
-    },
-    {
-      "type": "builtin",
-      "section": "howto",
-      "show": true
-    },
-    {
-      "type": "builtin",
       "section": "catalog",
-      "show": true
-    },
-    {
-      "type": "builtin",
-      "section": "why",
       "show": true
     },
     {
@@ -32,7 +17,12 @@
     },
     {
       "type": "builtin",
-      "section": "delivery",
+      "section": "why",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "howto",
       "show": true
     },
     {
@@ -42,12 +32,22 @@
     },
     {
       "type": "builtin",
-      "section": "faq",
+      "section": "reviews",
       "show": true
     },
     {
       "type": "builtin",
       "section": "corporate",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "delivery",
+      "show": true
+    },
+    {
+      "type": "builtin",
+      "section": "faq",
       "show": true
     }
   ]

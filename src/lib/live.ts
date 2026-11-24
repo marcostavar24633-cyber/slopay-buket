@@ -21,7 +21,7 @@ const subs = new Set<() => void>()
 const emit = () => subs.forEach((f) => f())
 
 /** Сообщения сайт ↔ админка (один адрес, поэтому проверяем origin). */
-export type ToSite = { type: 'slopay:live'; page?: Block[]; hero?: Live['hero']; theme?: Theme; selected?: Live['selected']; interactive?: boolean } | { type: 'slopay:scroll'; y: number }
+export type ToSite = { type: 'slopay:live'; page?: Block[]; hero?: Live['hero'] & { photoUrl?: string }; theme?: Theme; selected?: Live['selected']; interactive?: boolean } | { type: 'slopay:scroll'; y: number }
 export type ToAdmin =
   | { type: 'slopay:ready' }
   | { type: 'slopay:select'; index: number | 'hero' }

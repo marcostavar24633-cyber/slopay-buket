@@ -24,12 +24,6 @@ dist = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else 'dist').resolve()
 if not (dist / 'index.html').exists():
     sys.exit(f'Нет сборки в {dist}: сначала vite build')
 
-# Сохраняем исходное приложение Vite: новая главная статическая и не поддерживает протокол визуального редактора.
-# Админка открывает этот файл во фрейме, чтобы postMessage и черновики продолжали работать.
-preview = (dist / 'index.html').read_text(encoding='utf-8')
-preview = preview.replace('<head>', '<head>\n    <meta name="robots" content="noindex, follow">', 1)
-(dist / 'editor-preview.html').write_text(preview, encoding='utf-8')
-
 runpy.run_path(str(red / 'tools' / 'build-data.py'))
 
 for d in ('css', 'js', 'vendor'):
@@ -96,6 +90,13 @@ html = re.sub(r'(<h1 class="hero__title" id="hero-title">)[\s\S]*?(</h1>)',
               lambda m: m[1] + hero_heading + m[2], html, count=1)
 html = replace_one(html, r'(<p class="hero__lead reveal-up">)[^<]*(</p>)', hero['subtitle'], 'подзаголовок первого экрана')
 html = replace_one(html, r'(<a href="#catalog" class="btn btn--primary magnetic" data-cursor="heart">)[^<]*(<svg)', hero['quizButton'], 'кнопка каталога')
+hero_product = next((p for p in visible if p['id'] == hero.get('photoProduct')), None)
+if hero_product and hero_product['id'] != 'yag-24':
+    image = hero_product['image'].lstrip('/')
+    html = re.sub(r'<link rel="preload" as="image" type="image/webp" imagesrcset="img/real/berry/hero-heart[^>]+>',
+                  lambda _: f'<link rel="preload" as="image" href="{escape_html(image, quote=True)}">', html, count=1)
+    html = re.sub(r'<img src="img/real/berry/hero-heart-720.webp"[^>]+>',
+                  lambda _: f'<img src="{escape_html(image, quote=True)}" width="720" height="672" alt="" fetchpriority="high" decoding="async">', html, count=1)
 faq_rows = ''.join('<details class="qa"><summary>' + escape_html(item['q']) +
                    '<span class="qa__ico"></span></summary><div class="qa__a"><p>' + escape_html(item['a']) +
                    '</p></div></details>' for item in faq)
@@ -169,6 +170,8 @@ for a, b in {
     html = html.replace(a, b)
 assert '../' not in html, 'в index.html остались пути на уровень выше'
 (dist / 'index.html').write_text(html, encoding='utf-8')
+preview = html.replace('<head>', '<head>\n<meta name="robots" content="noindex, follow">', 1)
+(dist / 'editor-preview.html').write_text(preview, encoding='utf-8')
 
 # все картинки, на которые ссылается новая главная, должны быть в сборке
 import json, re

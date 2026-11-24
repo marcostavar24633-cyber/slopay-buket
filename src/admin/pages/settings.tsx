@@ -112,11 +112,11 @@ export function HeroSettings() {
         <div className="grid gap-4 md:grid-cols-2">
           <TextInput label="Текст кнопки каталога" value={h.quizButton} onChange={f('quizButton')} />
           <Select
-            label="Цена на фото первого экрана — какой букет"
+            label="Фото первого экрана"
             value={h.photoProduct}
             onChange={f('photoProduct')}
             options={shown.map((p) => ({ value: p.id, label: `${p.name} — ${p.price} ₽` }))}
-            hint="Само фото первого экрана подобрано по скорости загрузки и меняется в коде"
+            hint="Выбранная карточка определяет фото на главной."
           />
         </div>
       </div>
