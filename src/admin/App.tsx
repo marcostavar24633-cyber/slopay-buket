@@ -10,6 +10,7 @@ import { Blocks } from './pages/blocks'
 import { Faq } from './pages/faq'
 import { Settings } from './pages/settings'
 import { Editor } from './pages/editor'
+import { Orders } from './pages/orders'
 
 export default function AdminApp() {
   const [token, setToken] = useState<string | null>(auth.get)
@@ -31,6 +32,7 @@ export default function AdminApp() {
         {route === 'dashboard' && <Dashboard go={go} />}
         {route === 'editor' && <Editor />}
         {route === 'products' && <Products params={params} />}
+        {route === 'orders' && <Orders token={token} />}
         {route === 'reviews' && <Reviews params={params} />}
         {route === 'blocks' && <Blocks params={params} go={go} />}
         {route === 'faq' && <Faq params={params} />}
