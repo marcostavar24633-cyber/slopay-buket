@@ -7,10 +7,5 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "run_worker_first": true
-  },
-  "d1_databases": [{
-    "binding": "ORDERS_DB",
-    "database_name": "slopay-orders",
-    "database_id": "97439102-1a44-433c-85a3-d2887d41b0a7"
-  }]
+  }
 }

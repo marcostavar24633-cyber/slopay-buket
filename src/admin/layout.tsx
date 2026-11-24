@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   Bell,
   CheckCircle2,
-  ClipboardList,
   ExternalLink,
   HelpCircle,
   Home,
@@ -28,12 +27,11 @@ import { checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
 import { FILES, useStore } from './store'
 import { Btn, Modal } from './ui'
 
-export type Route = 'dashboard' | 'editor' | 'products' | 'orders' | 'reviews' | 'blocks' | 'faq' | 'settings'
+export type Route = 'dashboard' | 'editor' | 'products' | 'reviews' | 'blocks' | 'faq' | 'settings'
 export const NAV: { key: Route; label: string; icon: typeof Home }[] = [
   { key: 'dashboard', label: 'Дашборд', icon: LayoutDashboard },
   { key: 'editor', label: 'Визуальный редактор', icon: MousePointerClick },
   { key: 'products', label: 'Товары', icon: Package },
-  { key: 'orders', label: 'Заказы', icon: ClipboardList },
   { key: 'reviews', label: 'Отзывы', icon: MessageSquareQuote },
   { key: 'blocks', label: 'Блоки страницы', icon: LayoutList },
   { key: 'faq', label: 'Вопросы', icon: HelpCircle },

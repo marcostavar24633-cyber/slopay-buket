@@ -1,5 +1,3 @@
-import { orders } from './order-api.js';
-
 const canonicalHost = 'xn--80acmogcvipsi.xn--p1ai';
 
 export default {
@@ -12,7 +10,6 @@ export default {
       if (url.pathname === '/index.html') url.pathname = '/';
       return Response.redirect(url, 308);
     }
-    if (url.pathname.startsWith('/api/admin/')) return orders(request, env.ORDERS_DB);
     return env.ASSETS.fetch(request);
   },
 };
