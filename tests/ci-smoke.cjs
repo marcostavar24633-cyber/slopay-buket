@@ -267,7 +267,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await page.getByRole('button', { name: 'Проверить изменения' }).click()
     await page.getByText('Что будет опубликовано', { exact: true }).waitFor()
     assert.equal(await page.getByRole('button', { name: 'Отправить в GitHub' }).isDisabled(), true)
-    await page.getByRole('button', { name: 'Закрыть', exact: true }).click()
+    await page.getByText('Закрыть', { exact: true }).click()
     page.once('dialog', (dialog) => dialog.accept())
     await page.getByRole('button', { name: 'Отменить правки' }).click()
     await page.getByRole('button', { name: 'Добавить товар' }).click()
