@@ -107,7 +107,7 @@ html = html.replace('бесплатно от 8 000 ₽', f'бесплатно о
 html = html.replace('При заказе от 8 000 ₽.', f'При заказе от {threshold} ₽.')
 html = replace_one(html, r'(<div><h3>Самовывоз — бесплатно</h3><p>)[^<]*(</p>)',
                    f"{site['address']}. {site['hours']}.", 'адрес самовывоза')
-html = replace_one(html, r'(<a href="tel:\+\d+">[^<]*</a>\s*<p>)[^<]*(</p>)',
+html = replace_one(html, r'(<a href="tel:\+\d+" class="menu__phone">[^<]*</a>\s*<p>)[^<]*(</p>)',
                    f"{site['address']} · {site['hours']}", 'контакты мобильного меню')
 footer_address = '<br>'.join(escape_html(value) for value in (site['city'], site['address'], site['hours']))
 html = re.sub(r'(<address class="footer__list">)[\s\S]*?(</address>)',

@@ -25,7 +25,7 @@ import {
 import { cn } from '@/lib/utils'
 import { checkRepo, getUser, REPO, siteUrl, TOKEN_URL } from './github'
 import { FILES, useStore } from './store'
-import { Btn } from './ui'
+import { Btn, Modal } from './ui'
 
 export type Route = 'dashboard' | 'editor' | 'products' | 'reviews' | 'blocks' | 'faq' | 'settings'
 export const NAV: { key: Route; label: string; icon: typeof Home }[] = [
@@ -399,8 +399,18 @@ function Header({ onMenu, go }: { onMenu: () => void; go: (r: Route, q?: Record<
 
 /* ───────── Панель «Опубликовать» ───────── */
 function PublishBar() {
-  const { dirty, publish, publishing, discard, mode } = useStore()
+  const { data, dirty, publish, publishing, discard, mode } = useStore()
+  const [review, setReview] = useState(false)
   if (!dirty.length) return null
+  const exportDraft = () => {
+    const files = Object.fromEntries(dirty.map((key) => [FILES[key].path, data[key]]))
+    const url = URL.createObjectURL(new Blob([JSON.stringify(files, null, 2) + '\n'], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'slopay-content-draft.json'
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
   return (
     <div className="sticky bottom-0 z-30 border-t border-honey/40 bg-surface/95 px-3 py-3 backdrop-blur md:px-6">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
@@ -411,11 +421,19 @@ function PublishBar() {
           <Btn size="sm" variant="ghost" onClick={() => { if (window.confirm('Отменить все неопубликованные правки?')) discard() }} disabled={publishing}>
             Отменить правки
           </Btn>
-          <Btn size="sm" variant="primary" onClick={publish} disabled={publishing} icon={publishing ? <Loader2 className="animate-spin" /> : undefined}>
-            {mode === 'demo' ? 'Проверить публикацию (демо)' : 'Отправить на публикацию'}
+          <Btn size="sm" onClick={exportDraft} disabled={publishing}>Скачать черновик</Btn>
+          <Btn size="sm" variant="primary" onClick={() => setReview(true)} disabled={publishing} icon={publishing ? <Loader2 className="animate-spin" /> : undefined}>
+            Проверить изменения
           </Btn>
         </div>
       </div>
+      <Modal open={review} onClose={() => setReview(false)} title="Что будет опубликовано" footer={<>
+        <Btn onClick={() => setReview(false)}>Закрыть</Btn>
+        <Btn variant="primary" disabled={mode === 'demo' || publishing} onClick={() => { setReview(false); void publish() }}>Отправить в GitHub</Btn>
+      </>}>
+        <ul className="list-disc space-y-1 ps-5">{dirty.map((key) => <li key={key}>{FILES[key].label}</li>)}</ul>
+        <p className="mt-3 text-sm text-muted">{mode === 'demo' ? 'В демо можно проверить изменения и скачать черновик.' : 'Изменения сохранятся одним коммитом. Статус сборки появится в дашборде.'}</p>
+      </Modal>
     </div>
   )
 }
