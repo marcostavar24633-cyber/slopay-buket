@@ -39,11 +39,13 @@ async function main() {
   assert.ok(calls.every(({ method }) => method === 'GET'))
   conflict = false
   calls.length = 0
-  const updated = await publishFiles('test', files, 'Update')
-  assert.deepEqual(updated, { 'content/site.json': 'blob-1', 'content/faq.json': 'blob-2' })
+  const photo = { path: 'public/img/unsorted/new.webp', blob: new Blob([Uint8Array.of(1, 2, 3)]) }
+  const updated = await publishFiles('test', files, 'Update', [photo])
+  assert.deepEqual(updated, { 'content/site.json': 'blob-1', 'content/faq.json': 'blob-2', [photo.path]: 'blob-3' })
   const tree = calls.find(({ route }) => route === '/git/trees').body
   assert.equal(tree.base_tree, 'original-tree')
-  assert.deepEqual(tree.tree.map(({ path }) => path), files.map(({ path }) => path))
+  assert.deepEqual(tree.tree.map(({ path }) => path), [...files.map(({ path }) => path), photo.path])
+  assert.equal(calls.filter(({ route }) => route === '/git/blobs').at(-1).body.content, 'AQID')
   assert.deepEqual(calls.find(({ route }) => route === '/git/commits').body.parents, ['head'])
   assert.deepEqual(calls.at(-1), { route: '/git/refs/heads/main', method: 'PATCH', body: { sha: 'new-commit', force: false } })
   console.log('Admin publication: no writes on conflict, one non-forced branch update for multiple files.')

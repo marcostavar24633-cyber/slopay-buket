@@ -432,7 +432,7 @@ function PublishBar() {
         <Btn variant="primary" disabled={mode === 'demo' || publishing} onClick={() => { setReview(false); void publish() }}>Отправить в GitHub</Btn>
       </>}>
         <ul className="list-disc space-y-1 ps-5">{dirty.map((key) => <li key={key}>{FILES[key].label}</li>)}</ul>
-        <p className="mt-3 text-sm text-muted">{mode === 'demo' ? 'В демо можно проверить изменения и скачать черновик.' : 'Изменения сохранятся одним коммитом. Статус сборки появится в дашборде.'}</p>
+        <p className="mt-3 text-sm text-muted">{mode === 'demo' ? 'В демо можно проверить изменения и скачать JSON с текстами и настройками.' : 'Изменения и используемые новые фотографии сохранятся одним коммитом. Статус сборки появится в дашборде.'}</p>
       </Modal>
     </div>
   )

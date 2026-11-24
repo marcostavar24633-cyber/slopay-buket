@@ -15,7 +15,7 @@ import messages from '../../content/messages.json'
 import page from '../../content/page.json'
 import type { Block, Product } from '@/lib/content'
 import { catalogProblem } from './catalog-validation'
-import { auth, getDeploys, getUser, publishFiles, readFile, uploadImage, type Deploy, type User } from './github'
+import { auth, getDeploys, getUser, prepareImage, publishFiles, readFile, type Deploy, type User } from './github'
 
 /** Файлы содержимого: ключ → путь в репозитории и подпись для истории изменений. */
 export const FILES = {
@@ -75,6 +75,7 @@ type Store = {
 }
 
 const Ctx = createContext<Store | null>(null)
+const imagePreviews = new Map<string, string>()
 export const useStore = () => {
   const s = useContext(Ctx)
   if (!s) throw new Error('useStore вне StoreProvider')
@@ -91,6 +92,21 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   const [error, setError] = useState<string | null>(null)
   const [publishing, setPublishing] = useState(false)
   const publishingLock = useRef(false)
+  const pendingImages = useRef(new Map<string, Blob>())
+  const ownedPreviews = useRef(new Set<string>())
+  useEffect(() => {
+    const images = pendingImages.current
+    const previews = ownedPreviews.current
+    return () => {
+      for (const path of previews) {
+        const url = imagePreviews.get(path)
+        if (url) URL.revokeObjectURL(url)
+        imagePreviews.delete(path)
+      }
+      images.clear()
+      previews.clear()
+    }
+  }, [])
   const [deploys, setDeploys] = useState<Deploy[]>([])
   const [deployError, setDeployError] = useState<string | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -189,7 +205,11 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
       if (dirty.includes('hero') && !data.hero.title.trim()) throw new Error('Введите заголовок первого экрана.')
       if (dirty.includes('faq') && data.faq.items.some(({ q, a }) => !q.trim() || !a.trim())) throw new Error('В FAQ заполните вопрос и ответ у каждой записи.')
       const files = dirty.map((key) => ({ path: FILES[key].path, data: data[key], sha: shas.current[key] }))
-      const next = await publishFiles(token, files, `Админка: ${dirty.map((key) => FILES[key].label).join(', ')}`)
+      const serialized = JSON.stringify(files)
+      const images = [...pendingImages.current].filter(([path]) => serialized.includes(JSON.stringify(path)))
+        .map(([path, blob]) => ({ path: 'public' + path, blob }))
+      const next = await publishFiles(token, files, `Админка: ${dirty.map((key) => FILES[key].label).join(', ')}`, images)
+      images.forEach(({ path }) => pendingImages.current.delete(path.slice('public'.length)))
       for (const k of dirty) {
         shas.current[k] = next[FILES[k].path]
         saved.current[k] = JSON.stringify(data[k])
@@ -206,12 +226,11 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
   }
 
   const upload = async (file: File, folder?: 'uploads' | 'unsorted') => {
-    if (!token) {
-      toast('Демо-режим: фото показано только у вас и не сохранится.', 'info')
-      return URL.createObjectURL(file)
-    }
-    const path = await uploadImage(token, file, folder)
-    toast('Фото загружено')
+    const { path, blob } = await prepareImage(file, folder)
+    pendingImages.current.set(path, blob)
+    imagePreviews.set(path, URL.createObjectURL(blob))
+    ownedPreviews.current.add(path)
+    toast(token ? 'Фото добавлено в черновик' : 'Демо-режим: фото доступно в предпросмотре', token ? 'ok' : 'info')
     return path
   }
 
@@ -228,6 +247,8 @@ export function StoreProvider({ token, onLogout, children }: { token: string | n
 /** Адрес картинки для превью в админке: загруженные, но ещё не опубликованные фото берём прямо из GitHub. */
 export function previewSrc(src: string) {
   if (!src) return ''
+  const draft = imagePreviews.get(src)
+  if (draft) return draft
   if (/^(blob:|https?:|data:)/.test(src)) return src
   if (/^[/]img[/](?:uploads|unsorted)[/]/.test(src)) return `https://raw.githubusercontent.com/marcostavar24633-cyber/slopay-buket/main/public${src}`
   return src

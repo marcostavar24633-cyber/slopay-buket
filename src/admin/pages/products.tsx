@@ -13,6 +13,7 @@ const catLabel = (k: string) => CATS.find((c) => c.value === k)?.label ?? k
 const PER_PAGE = 20
 
 type Status = 'all' | 'shown' | 'hidden' | 'hit'
+type Sort = 'default' | 'price-asc' | 'price-desc' | 'name'
 
 export function Products({ params }: { params: URLSearchParams }) {
   const { data, mode, set, toast } = useStore()
@@ -20,11 +21,13 @@ export function Products({ params }: { params: URLSearchParams }) {
   const [q, setQ] = useState(params.get('q') ?? '')
   const [cat, setCat] = useState('all')
   const [status, setStatus] = useState<Status>('all')
+  const [sort, setSort] = useState<Sort>('default')
   const [page, setPage] = useState(0)
   const [edit, setEdit] = useState<{ index: number; item: Product } | null>(null)
   const [del, setDel] = useState<number | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkCategory, setBulkCategory] = useState('')
+  const [bulkPrice, setBulkPrice] = useState('')
 
   // переход из поиска в шапке (?q=) и «Добавить товар» с дашборда (?new=1)
   useEffect(() => {
@@ -35,12 +38,16 @@ export function Products({ params }: { params: URLSearchParams }) {
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
-    return items
+    const matches = items
       .map((p, index) => ({ p, index }))
       .filter(({ p }) => (cat === 'all' || p.cat === cat) && (!s || [p.name, p.desc, p.id].some((t) => t.toLowerCase().includes(s))))
       .filter(({ p }) => (status === 'all' ? true : status === 'shown' ? p.show !== false : status === 'hidden' ? p.show === false : p.hit))
-  }, [items, q, cat, status])
-  useEffect(() => setPage(0), [q, cat, status])
+    if (sort === 'name') matches.sort((a, b) => a.p.name.localeCompare(b.p.name, 'ru'))
+    if (sort === 'price-asc') matches.sort((a, b) => a.p.price - b.p.price)
+    if (sort === 'price-desc') matches.sort((a, b) => b.p.price - a.p.price)
+    return matches
+  }, [items, q, cat, status, sort])
+  useEffect(() => setPage(0), [q, cat, status, sort])
   const pages = Math.ceil(filtered.length / PER_PAGE)
   const currentPage = Math.min(page, Math.max(0, pages - 1))
   const view = filtered.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE)
@@ -58,6 +65,7 @@ export function Products({ params }: { params: URLSearchParams }) {
     set('products', (draft) => draft.items.forEach((item) => { if (selected.has(item.id)) Object.assign(item, patch) }))
     setSelected(new Set())
     setBulkCategory('')
+    setBulkPrice('')
     toast(`Изменено товаров: ${targets.length}`)
   }
 
@@ -114,6 +122,10 @@ export function Products({ params }: { params: URLSearchParams }) {
               { value: 'hit', label: 'Хиты' },
             ]}
           />
+          <FilterSelect<Sort> label="Сортировка товаров" value={sort} onChange={setSort} options={[
+            { value: 'default', label: 'Исходный порядок' }, { value: 'price-asc', label: 'Сначала дешевле' },
+            { value: 'price-desc', label: 'Сначала дороже' }, { value: 'name', label: 'По названию' },
+          ]} />
         </div>
         <div className="flex flex-wrap items-center gap-2 border-b border-line p-3">
           <label className="flex min-h-9 items-center gap-2 text-sm text-ink-soft">
@@ -126,6 +138,8 @@ export function Products({ params }: { params: URLSearchParams }) {
             <Btn size="sm" onClick={() => applyBulk({ show: true })}>Показать</Btn>
             <FilterSelect label="Новая категория" value={bulkCategory} onChange={setBulkCategory} options={[{ value: '', label: 'Перенести в категорию' }, ...CATS]} />
             <Btn size="sm" disabled={!bulkCategory} onClick={() => applyBulk({ cat: bulkCategory })}>Перенести</Btn>
+            <input aria-label="Новая цена в рублях" placeholder="Новая цена, ₽" type="number" min="1" step="1" value={bulkPrice} onChange={(event) => setBulkPrice(event.target.value)} className="h-9 w-36 rounded-xl border border-line bg-cream px-2 text-sm" />
+            <Btn size="sm" disabled={!Number.isSafeInteger(Number(bulkPrice)) || Number(bulkPrice) <= 0} onClick={() => applyBulk({ price: Number(bulkPrice) })}>Задать цену</Btn>
             <Btn size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Снять выбор</Btn>
           </>}
         </div>
@@ -148,7 +162,7 @@ export function Products({ params }: { params: URLSearchParams }) {
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
                       {checkbox(p)}
-                      <img src={previewSrc(p.image.replace(/\/(yag|k|m|suh|sl|sn)-/, '/thumbs/$1-'))} onError={(e) => ((e.target as HTMLImageElement).src = previewSrc(p.image))} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                      <img src={previewSrc(p.image)} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                       <span className="min-w-0">
                         <span className="block font-bold">{p.name}</span>
                         <span className="block max-w-[340px] truncate text-[12.5px] text-muted">{p.desc}</span>
@@ -199,6 +213,9 @@ export function Products({ params }: { params: URLSearchParams }) {
                 </div>
               </div>
               <div className="flex flex-col">
+                <IconBtn label={p.show !== false ? 'Скрыть с сайта' : 'Показать на сайте'} onClick={() => toggleVisibility(p, index)}>
+                  {p.show !== false ? <EyeOff /> : <Eye />}
+                </IconBtn>
                 <IconBtn label="Редактировать" onClick={() => setEdit({ index, item: { ...p } })}>
                   <Pencil />
                 </IconBtn>

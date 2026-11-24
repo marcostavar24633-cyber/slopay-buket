@@ -4,7 +4,7 @@
  * GitHub Actions сам пересобирает сайт (.github/workflows/pages.yml), ~1–2 минуты.
  *
  * Чтобы подключить другой бэкенд (свой сервер, CMS, базу), замените функции этого файла:
- * readFile / writeFile / uploadImage / getUser / getDeploys — остальная админка их только вызывает.
+ * readFile / publishFiles / prepareImage / getUser / getDeploys — остальная админка их только вызывает.
  */
 
 export const REPO = { owner: 'marcostavar24633-cyber', name: 'slopay-buket', branch: 'main' }
@@ -112,7 +112,7 @@ export async function readFile<T>(token: string, path: string, ref = REPO.branch
 }
 
 /** Проверить исходные файлы и опубликовать один коммит без принудительного обновления ветки. */
-export async function publishFiles(token: string, files: { path: string; data: unknown; sha?: string }[], message: string) {
+export async function publishFiles(token: string, files: { path: string; data: unknown; sha?: string }[], message: string, images: { path: string; blob: Blob }[] = []) {
   const repo = `/repos/${REPO.owner}/${REPO.name}`
   const branch = `heads/${encodeURIComponent(REPO.branch)}`
   const ref = await gh<{ object: { sha: string } }>(token, `${repo}/git/ref/${branch}`)
@@ -122,9 +122,16 @@ export async function publishFiles(token: string, files: { path: string; data: u
   if (conflict) throw new Error(`Файл ${conflict.path} изменился в GitHub. Скопируйте нужные правки и заново откройте админку.`)
   const commit = await gh<{ tree: { sha: string } }>(token, `${repo}/git/commits/${head}`)
   const tree: { path: string; mode: '100644'; type: 'blob'; sha: string }[] = []
-  for (const file of files) {
+  const entries = files.map((file) => ({ path: file.path, content: toB64(JSON.stringify(file.data, null, 2) + '\n') }))
+  for (const { path, blob } of images) {
+    const bytes = new Uint8Array(await blob.arrayBuffer())
+    let binary = ''
+    for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+    entries.push({ path, content: btoa(binary) })
+  }
+  for (const file of entries) {
     const blob = await gh<{ sha: string }>(token, `${repo}/git/blobs`, {
-      method: 'POST', body: JSON.stringify({ content: toB64(JSON.stringify(file.data, null, 2) + '\n'), encoding: 'base64' }),
+      method: 'POST', body: JSON.stringify({ content: file.content, encoding: 'base64' }),
     })
     tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.sha })
   }
@@ -141,10 +148,9 @@ export async function publishFiles(token: string, files: { path: string; data: u
 }
 
 /**
- * Загрузить фото: сжимаем в браузере до 1600 px (WebP, ~150–300 КБ) и кладём в public/img/uploads/ или public/img/unsorted/.
- * Возвращает путь для сайта: /img/…webp (появится на сайте после пересборки).
+ * Подготовить локальное фото WebP для следующей публикации.
  */
-export async function uploadImage(token: string, file: File, folder: 'uploads' | 'unsorted' = 'uploads'): Promise<string> {
+export async function prepareImage(file: File, folder: 'uploads' | 'unsorted' = 'uploads') {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (!allowedTypes.includes(file.type)) {
     throw new Error('Поддерживаются только JPG, PNG, WebP и GIF. SVG и другие форматы не принимаются.')
@@ -157,15 +163,7 @@ export async function uploadImage(token: string, file: File, folder: 'uploads' |
     throw new Error('Сжатое изображение превышает 8 МБ. Выберите фото меньшего размера.')
   }
   const slug = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-|-$/g, '').slice(0, 40) || 'photo'
-  const name = `${Date.now().toString(36)}-${translit(slug)}.webp`
-  const buf = new Uint8Array(await blob.arrayBuffer())
-  let bin = ''
-  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000))
-  await gh(token, `/repos/${REPO.owner}/${REPO.name}/contents/public/img/${folder}/${name}`, {
-    method: 'PUT',
-    body: JSON.stringify({ message: `Админка: фото ${name}`, content: btoa(bin), branch: REPO.branch }),
-  })
-  return `/img/${folder}/${name}`
+  return { path: `/img/${folder}/${crypto.randomUUID()}-${translit(slug)}.webp`, blob }
 }
 
 async function compress(file: File, max = 1600): Promise<Blob> {
