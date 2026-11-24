@@ -2,7 +2,7 @@
   const data = window.SB_DATA;
   const main = document.querySelector('#main');
   if (!data?.page || !main) return;
-  const preview = location.pathname.endsWith('/editor-preview.html') && window.parent !== window && new URLSearchParams(location.search).get('edit') === '1';
+  const preview = /\/editor-preview(?:\.html)?$/.test(location.pathname) && window.parent !== window && new URLSearchParams(location.search).get('edit') === '1';
   const ids = { hits: 'hits', catalog: 'catalog', occasions: 'occasions', why: 'why', howto: 'how', process: 'maria', reviews: 'reviews', corporate: 'corporate', delivery: 'delivery', faq: 'faq' };
   const builtins = new Map(Object.entries(ids).map(([key, id]) => [key, document.getElementById(id)]));
   const slots = [...builtins.values()].map((section) => {
