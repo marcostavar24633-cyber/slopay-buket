@@ -3447,6 +3447,13 @@ window.SB_DATA = {
     "type": "builtin",
     "section": "faq",
     "show": true
+   },
+   {
+    "type": "banner",
+    "show": true,
+    "title": "Новый блок — кликните, чтобы изменить",
+    "body": "",
+    "cta": "messengers"
    }
   ]
  }
