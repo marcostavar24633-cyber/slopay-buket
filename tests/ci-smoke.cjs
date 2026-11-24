@@ -271,7 +271,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     page.once('dialog', (dialog) => dialog.accept())
     await page.getByRole('button', { name: 'Отменить правки' }).click()
     await page.getByRole('button', { name: 'Добавить товар' }).click()
-    await page.locator('input[type=file]').setInputFiles({ name: 'demo.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWioAAAAASUVORK5CYII=', 'base64') })
+    await page.locator('input[type=file]').setInputFiles(require('node:path').resolve(__dirname, '../public/img/real/berry/hero-heart-720.webp'))
     await page.locator('img[src^="blob:"]').waitFor()
     await page.getByRole('button', { name: 'Отмена', exact: true }).click()
     await page.getByRole('button', { name: 'Визуальный редактор', exact: true }).click()
