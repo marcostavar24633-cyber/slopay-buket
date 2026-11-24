@@ -289,7 +289,7 @@ const URL = process.env.URL || 'http://localhost:4173/'
     await preview.getByText(liveSubtitle, { exact: true }).waitFor()
     await page.getByRole('button', { name: 'Блок', exact: true }).click()
     await page.getByRole('button', { name: /Текст Заголовок и абзацы/ }).click()
-    await preview.locator('.storefront-custom h2').getByText('Новый блок — кликните, чтобы изменить').waitFor()
+    await preview.getByText('Новый блок — кликните, чтобы изменить', { exact: true }).last().waitFor()
     await preview.locator('#catalog h2').click()
     await page.getByRole('button', { name: 'Скрыть', exact: true }).click()
     await preview.locator('#catalog').waitFor({ state: 'hidden' })
