@@ -59,7 +59,7 @@ jobs:
             sleep 2
           done
           URL=http://127.0.0.1:4173/ npm run test:ci
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
