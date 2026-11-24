@@ -147,7 +147,8 @@
           subtitle(section, block.sub);
         }
         placed.add(section);
-        section.hidden = block.show === false;
+        const placeholder = !builtin && block.title === 'Новый блок — кликните, чтобы изменить' && !block.body && !block.image;
+        section.hidden = block.show === false || (!preview && placeholder);
         section.dataset.bi = String(index);
         styles(section, block.style);
         const slot = slots[position];
